@@ -434,7 +434,7 @@ const BUILD=[
 ];
 const BMAP={};BUILD.forEach(b=>BMAP[b.id]=b);
 const OWN={casa_matias:'matias',casa_ariana:'ariana',casa_nicolas:'nicolas',casa_marta:'marta',casa_extra3:'nicolas',casa_extra4:'marta',casa_sur1:'matias',casa_sur2:'nicolas'};
-function bName(id){if(STORES[id])return STORES[id].n;if(id==='casa_jugador')return'Tu casa';if(id==='pulperia')return'Pulpería La Bendición';if(id==='casa_papas')return'Casa de '+N('papa')+' y '+N('mama');if(id==='casa_vecino')return'Casa del vecino';if(HOOD[id])return HOOD[id];return'Casa de '+N(OWN[id])}
+function bName(id){if(STORES[id])return STORES[id].n;if(id==='casa_jugador')return'Tu casa';if(id==='pulperia')return'Pulpería La Bendición';if(id==='casa_papas')return'Casa de '+N('papa')+' y '+N('mama');if(HOOD[id])return HOOD[id];if(id==='casa_vecino')return'Casa del vecino';return'Casa de '+N(OWN[id])}
 const HS=[[4,6],[9,4],[5,8],[10,8]];
 const LOC={
  parque:{map:'ext',sp:[[36,26],[44,29],[50,29],[37,32],[53,33],[47,33]],l:'Parque'},
@@ -481,7 +481,7 @@ function genExt(){const W=84,H=56,m=newMap('ext',W,H,'El barrio ampliado');
   m.s[2*W+29]=0;
   vidaCarve(m);carveEntrada(m);
   return m}
-function genInt(b){if(b.kind==='store')return genStoreInt(b);const w=14,h=10,m=newMap(b.id,w,h,'');m.interior=true;m.b=b;m.wallFace=shade(b.wall,.35);
+function genInt(b){if(b.kind==='store')return genStoreInt(b);if(CASAS[b.id])return genCasa(b);const w=14,h=10,m=newMap(b.id,w,h,'');m.interior=true;m.b=b;m.wallFace=shade(b.wall,.35);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const wall=y<2||x===0||x===w-1||y===h-1;setT(m,x,y,wall?10:b.floor,wall)}
   setT(m,7,9,13,0);m.noPath.add(9*w+7);m.exit={x:7,y:9};
   const F=(type,x,y,ww=1,hh=1,act)=>{m.objs.push({type,x,y,w:ww,h:hh,act});for(let j=y;j<y+hh;j++)for(let i=x;i<x+ww;i++)m.s[j*w+i]=1};
@@ -511,7 +511,7 @@ function drawTile(g,m,x,y){const t=ti(m,x,y),X=x*T,Y=y*T,r=(a,b)=>hsh(x*17+a,y*3
   case 11:R(g,'#b5824f',X,Y,T,T);R(g,'#9c6c3e',X,Y+7,T,1);R(g,'#9c6c3e',X,Y+15,T,1);R(g,'#9c6c3e',X+((x%2)?4:11),Y,1,7);R(g,'#9c6c3e',X+((x%2)?10:3),Y+8,1,7);break;
   case 12:R(g,(x+y)%2?'#e8e1d1':'#cfc6b2',X,Y,T,T);break;
   case 13:R(g,m.b.floor===11?'#b5824f':'#e8e1d1',X,Y,T,T);R(g,'#a8432f',X+1,Y+2,14,12);R(g,'#c9614a',X+2,Y+3,12,10);R(g,'#f4ead2',X+7,Y+5,2,6);R(g,'#f4ead2',X+5,Y+9,6,1);R(g,'#f4ead2',X+6,Y+10,4,1);break;
-  default:if(t>=30)drawCityTile(g,m,x,y,t,r);else if(!m.interior)drawVidaTile(g,m,x,y,t,X,Y,r);
+  default:if(t>=30)drawCityTile(g,m,x,y,t,r);else if(!m.interior)drawVidaTile(g,m,x,y,t,X,Y,r);else if(m.casa)casaTile(g,m,x,y,t,X,Y,r);
   }}
 function pick2(v,a){return a[Math.floor(v*a.length)%a.length]}
 function drawBuilding(g,b){if(b.kind==='store')return drawStore(g,b);const X=b.x*T,Y=b.y*T,W=b.w*T,H=b.h*T,fH=T*2,rH=H-fH;
@@ -682,7 +682,7 @@ function drawMini(){const full=curZone()==='barrio'?MM.full:zmm(MM.s);if(!full)r
  if(MAPS[P.map].interior){g.fillStyle='rgba(20,16,28,.75)';g.fillRect(2,H-12,W-4,10);g.fillStyle='#f4ead2';g.font='bold 8px monospace';g.fillText('Dentro: '+intName(P.map),W/2,H-7)}}
 const bigOpen=()=>$('#bigmap')&&!$('#panel').classList.contains('hidden');
 function openMap(){if(mode!=='play')return;if(curZone()==='chepe'){openPanel('Mapa del centro de San José',`<canvas id="bigmap" width="${CHW*MM.bs}" height="${CHH*MM.bs}"></canvas><div class="mm-leg"><span><i class="mm-k" style="background:#fff"></i>Vos</span><span><i class="mm-k" style="background:#73c9df"></i>Parada de La Chancha</span><span><i class="mm-k" style="background:#f2c94c"></i>Encargo</span></div><p class="note">El último bus al barrio sale a las 9:00 p. m. desde la Avenida Segunda.</p>`);drawBigMap();return}openPanel('Mapa del barrio',`<canvas id="bigmap" width="${84*MM.bs}" height="${56*MM.bs}"></canvas><div class="mm-leg"><span><i class="mm-k" style="background:#fff"></i>Vos</span><span><i class="mm-k" style="background:#f2c94c"></i>Misión</span><span><i class="mm-k" style="background:#73c9df"></i>Destino marcado</span><span><i class="mm-k" style="background:#f193b4"></i>Cita</span><span><i class="mm-k" style="background:#f2994a"></i>Mandado</span></div><p class="note">Tocá el mapa chiquito o apretá M para abrir esto.</p>`);drawBigMap()}
-const BM_NAMES={ropa:'Ropa americana',super_chino:'Súper chino',pollolandia:'Pollolandia',gollo:'Gollo',casa_jugador:'Tu casa',pulperia:'Pulpería',casa_papas:'Suegros',casa_vecino:'Vecino'},BM_OWN={casa_matias:'matias',casa_ariana:'ariana',casa_nicolas:'nicolas',casa_marta:'marta'};
+const BM_NAMES={ropa:'Ropa americana',super_chino:'Súper chino',pollolandia:'Pollolandia',gollo:'Gollo',casa_jugador:'Tu casa',pulperia:'Pulpería',casa_papas:'Suegros',casa_vecino:'Yolanda'},BM_OWN={casa_matias:'matias',casa_ariana:'ariana',casa_nicolas:'nicolas',casa_marta:'marta'};
 function drawBigMap(){const cvs=$('#bigmap');if(!cvs)return;if(curZone()!=='barrio')return drawBigZone(cvs);if(!MM.big)MM.big=mmRender(MM.bs);const s=MM.bs,g=cvs.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(MM.big,0,0);
  const dk=darkness();if(dk>0){g.fillStyle='rgba(12,12,44,'+(dk*.5).toFixed(2)+')';g.fillRect(0,0,cvs.width,cvs.height)}
  const txt=(t,x,y,sz,col)=>{g.font='bold '+sz+'px monospace';g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.lineWidth=3;g.strokeStyle='#14101c';g.strokeText(t,x,y);g.fillStyle=col||'#f4ead2';g.fillText(t,x,y)};
@@ -2587,7 +2587,7 @@ function render(dt){if(COMBAT){drawCombat();return}qBlink+=dt;ctx.setTransform(1
   for(const p of PICKS){if(p.map!==P.map||!p.cond()||(p.kind==='none'||p.kind==='bottle'))continue;const X=p.x*T+8,Y=p.y*T+9;if(p.kind==='tazo'){R(ctx,'#8cc6d4',X-3,Y-1,1,7);R(ctx,'#8cc6d4',X+3,Y-1,1,7);R(ctx,'#bfe9f2',X-2,Y-1,5,7);R(ctx,'#e8fbff',X-3,Y-1,7,1);R(ctx,'#a5d6e2',X-2,Y+1,5,1);R(ctx,'#a5d6e2',X-2,Y+3,5,1);R(ctx,'#ffffff',X-2,Y,1,4);R(ctx,'#d64545',X-2,Y-4,4,3);R(ctx,'#3a2a1e',X-1,Y-3,2,1)}else{R(ctx,'#1d1a24',X-4,Y,8,3);R(ctx,'#e8e8e8',X-3,Y,6,1)}}
   drawActivities(ctx,qBlink);vidaGround(ctx);zoneGround(ctx);
   // entities
-  const list=ENTS.filter(e=>e.map===P.map&&(e.kind!=='animal'||animalActive(e)||(e.special==='firulais'&&S.f.dogFollow)));list.push(P);if(P.map==='ext')for(const v of VACT)if(v.map===P.map)list.push(v);list.sort((a,b)=>a.y-b.y);
+  const list=ENTS.filter(e=>e.map===P.map&&(e.kind!=='animal'||animalActive(e)||(e.special==='firulais'&&S.f.dogFollow)));list.push(P);for(const v of VACT)if(v.map===P.map)list.push(v);list.sort((a,b)=>a.y-b.y);
   const umb=S.rain&&!m.interior;
   for(const e of list){const X=Math.round(e.x),Y=Math.round(e.y);if(e.kind==='vida'){e.draw(ctx,e,X,Y);continue}R(ctx,'rgba(0,0,0,.25)',X-5,Y-2,10,3);R(ctx,'rgba(0,0,0,.18)',X-6,Y-1,12,1);
     if(e.kind==='animal'){const s=animSpr(e.type,e.col,e.fr,e.dir===2);ctx.drawImage(s,X-(s.width>>1),Y-s.height+1)}
@@ -2601,9 +2601,9 @@ function render(dt){if(COMBAT){drawCombat();return}qBlink+=dt;ctx.setTransform(1
   // rain
   if(S.rain&&!m.interior){ctx.fillStyle='rgba(40,60,90,.18)';ctx.fillRect(0,0,VW,VH);ctx.strokeStyle='rgba(200,220,255,.55)';ctx.lineWidth=Math.max(1,Z/3);ctx.beginPath();for(let i=0;i<90;i++){const x=(hsh(i,Math.floor(qBlink*20))*VW),y=(hsh(Math.floor(qBlink*20),i)*VH);ctx.moveTo(x,y);ctx.lineTo(x-Z*2,y+Z*6)}ctx.stroke()}
   // night
-  let a=darkness();if(m.interior)a*=.45;if(S.rain&&!m.interior)a=Math.max(a,.15);
+  let a=darkness();const sneak=casaNoche&&casaNoche.id===m.id;if(m.interior)a*=sneak?1.25:.45;if(S.rain&&!m.interior)a=Math.max(a,.15);
   if(a>0.01){lctx.globalCompositeOperation='source-over';lctx.clearRect(0,0,lcv.width,lcv.height);lctx.fillStyle=`rgba(12,16,48,${a})`;lctx.fillRect(0,0,lcv.width,lcv.height);lctx.globalCompositeOperation='destination-out';
-    const lights=m.lights.slice();if(S.f.fiestaOn&&!m.interior)lights.push({x:39.5*T,y:29*T,r:110});lights.push({x:P.x,y:P.y-8,r:26});
+    const lights=sneak?[]:m.lights.slice();if(S.f.fiestaOn&&!m.interior)lights.push({x:39.5*T,y:29*T,r:110});lights.push({x:P.x,y:P.y-8,r:26});
     // un solo sprite de luz precalculado en vez de un degradado nuevo por foco y por cuadro
     const al=lights.map((l,i)=>l.pole?(poleOn(l,i)?1:0):lightAlpha(l));
     for(let i=0;i<lights.length;i++){const l=lights[i];if(!al[i])continue;const X=(l.x-cx)*Z/4,Y=(l.y-cy)*Z/4,r=l.r*Z/4;if(X<-r||Y<-r||X>lcv.width+r||Y>lcv.height+r)continue;lctx.globalAlpha=al[i];lctx.drawImage(LSPR,X-r,Y-r,r*2,r*2)}
@@ -5006,7 +5006,7 @@ function monaLight(dt){const p=PRO,m=p.mona;if(!m||!(m.st==='fall'||m.st==='pres
 const dow=()=>((S.day-1)%7+7)%7; // 0 sábado (día 1), 1 domingo, 2 lunes…
 const hrs=()=>S.t/60;
 const inH=(a,b)=>{const h=hrs();return a<b?h>=a&&h<b:h>=a||h<b};
-const HOOD={casa_extra3:'Casa de los Solano',casa_extra4:'Casa de Doña Fela',casa_sur1:'Casa de los Mora',casa_sur2:'Casa de Doña Tere'};
+const HOOD={casa_vecino:'Casa de Doña Yolanda',casa_extra3:'Casa de los Solano',casa_extra4:'Casa de Doña Fela',casa_sur1:'Casa de los Mora',casa_sur2:'Casa de Doña Tere'};
 
 // ---------- trazado: cafetal, potrero, salón comunal, gruta, plaza de tierra y alamedas ----------
 const SALON={x:20,y:41,w:8,h:5},GRUTA={x:29,y:41},LOTE={x0:41,x1:61,y0:41,y1:53},CANCHA={x0:47,x1:58,y0:43,y1:50};
@@ -5290,9 +5290,10 @@ function chisme(){const L=[];
  if(qs('fiesta')===2)L.push('La fiesta del parque estuvo linda. Hasta '+N('papa')+' bailó. Bueno, se movió.');
  if(qs('visita')===2)L.push('Así que ya conoció a los suegros… ¿Y le dio la mano '+N('papa')+'? Eso es mucho.');
  if(S.f.kvR>=3)L.push('Lo he visto hablando con Carlillos. Cuídese, mijo. Aunque… es buen muchacho.');
+ chismeCasas(L);
  L.push('Ya no hacen telenovelas como antes.','Esta noche llueve. Me duele la rodilla.','¿Vio el precio del arroz? ¡Qué barbaridad!','Mi nieta se fue a estudiar a Chepe. Ahora habla como de la tele.','En mis tiempos este barrio era puro cafetal.','Esa banca del parque tiene más historias que yo.');
  return L.length>6&&Math.random()<.6?L[Math.floor(Math.random()*(L.length-6))]:pick(L)}
-function vidaTick(dt){
+function vidaTick(dt){casaTick(dt);
  // lluvia: la calle tarda en secarse
  WET=S.rain?Math.min(1,WET+dt*.25):Math.max(0,WET-dt*.012);
  if(curZone()==='barrio'){for(const b of BUBS)b.t-=dt;BUBS=BUBS.filter(b=>b.t>0&&b.e.map===P.map)}
@@ -5390,11 +5391,308 @@ ACT_POINTS.push(
   {t:'Copo sencillo (₡400)',f(){zBuy(400,()=>{enAdd(6);say(null,'Frío, dulce y se derrite más rápido de lo que te lo comés. +6⚡')})}},{t:'Ahora no'}])}}
 );
 
+// ================= CASAS AJENAS =================
+// En el barrio uno no entra a una casa así nomás: se para en el portón y grita «¡Upe!».
+// Cada casa ajena tiene su gente, su piso, sus paredes y su chiste. Entrar sin permiso tiene consecuencias… de chisme.
+const CF=id=>{const c=S.f.casas||(S.f.casas={});return c[id]||(c[id]={})};
+const CASAS={
+ casa_extra3:{fam:'los Solano',floor:22,
+  st:h=>h>=6.5&&h<21.5?'home':'sleep',sleep:[2,2.4],
+  sp:[[3,7],[6,6],[2,4],[10,7]],
+  upe:{home:'¡Ya va! … ¡Ah, pase, pase! Viene por el cuarto, ¿verdad? Siempre vienen a esta hora.',sleep:'(Desde adentro, una voz de hombre) ¡Son más de las nueve! ¡El reglamento dice que nada de visitas después de las nueve!'},
+  quien:'¿Y usted quién es? ¡Esto es una casa decente, con reglamento!',sincero:'¿Conocer la casa? Ah, ¡usted viene por el cuarto! Haberlo dicho. Venga, le enseño.',
+  ladron:['¡¡ROLANDO!! ¡¡HAY ALGUIEN EN LA SALA!!','¡Esto no está en el reglamento, pero igual: ¡FUERA!'],
+  build(F){F('sofaFlor',1,2,2,1,'sofaS');F('tvViejo',4,2,2,1,'tv');F('mesaCrochet',3,5,2,1,'frutas');F('cortina',8,2,1,4,'cortina');F('escritorio',9,2,2,1,'escritorio');F('cama',11,2,2,2,'bed',{col:'#2a6fb0'});F('arrocera',12,6,1,1,'arrocera');
+   F('wall',5,1,2,1,'reglamento',{lab:'Leer el reglamento'});F('wall',10,1,1,1,'afiche',{lab:'Mirar el afiche'});F('maceta',1,8);F('maceta',12,8)},
+  lights:[[4,4,80],[10,5,70]]},
+ casa_extra4:{fam:'Doña Fela',floor:23,
+  st:h=>h>=17.5&&h<21.5&&!S.rain?'porch':h>=6&&h<22?'home':'sleep',sleep:[4.5,5.3],
+  sp:[[6,7],[8,4],[2,6],[11,7]],
+  upe:{home:'¡¿Quién es?! … ¡Ay, mijo, pase adelante! Siéntese, que ya le traigo algo.',sleep:'(Por la ventana) ¡¿Quién anda ahí a estas horas?! ¡Mario, despiértese, que hay alguien en el portón!',porch:'¡Aquí afuera, mijo! ¡En el corredor! ¿No nos ve? Venga, siéntese un ratito.'},
+  quien:'¡Jesús, María y José! ¿Y usted quién es? ¿Quién lo dejó entrar a mi sala?',sincero:'¿Conocer mi casa? ¡Ay, qué lindo! Nadie quiere conocer casas hoy en día. Venga, venga, siéntese.',
+  ladron:['¡¡MARIO!! ¡¡LA ESCOBA!! ¡¡HAY UN LADRÓN!!','¡Rrrr! ¡LADRÓN! ¡LADRÓN! ¡Rrrr!'],
+  build(F){F('vitrina',1,2,2,1,'vitrina');F('tvViejo',5,2,2,1,'tvF');F('sofaPlast',4,5,3,1,'sofaP');F('jaula',11,2,1,1,'loro');F('mesita',10,5,2,1,'confites');
+   F('wall',2,1,2,1,'fotosF',{lab:'Mirar las fotos'});F('wall',8,1,1,1,'reloj',{lab:'Mirar el reloj'});F('maceta',1,8,1,1,null,{v:1});F('maceta',12,8,1,1,null,{v:1})},
+  lights:[[6,4,80],[10,6,60]]},
+ casa_sur1:{fam:'los Mora',floor:24,
+  st:h=>h>=6&&h<22?'home':'sleep',sleep:[1.6,2.6],
+  sp:[[4,7],[8,7],[2,5],[12,7]],
+  upe:{home:'¡¿QUIÉN?! … ¡Dylan, abra! … ¡DYLAN! … Ay, mejor pase usted solo, mijo, está abierto. Aquí siempre cabe uno más.',sleep:'(Se oye un bebé llorar, luego a alguien chistar) ¡Shhh! ¡Acabo de dormirlo! ¡Vuelva mañana, por el amor de Dios!'},
+  quien:'¡Ay! ¿Y usted de quién es? … Bueno, con tanto chiquito aquí uno ya ni sabe quién es de la casa.',sincero:'¿Conocer la casa? Diay, véala: está hecha un despiche. Pero pase, aquí siempre cabe uno más.',
+  ladron:['¡¡XINIA!! ¡¡HAY ALGUIEN EN LA COCINA!!','¡¡GEMELOS, A LA PIEZA!! ¡¡PELUSA, ATAQUE!!'],
+  build(F){F('camarote',1,2,2,2,'camarote');F('cuna',3,2,1,1,'cuna');F('tvViejo',6,2,2,1,'tvM');F('sillonA',6,4,1,1,'abuelo');F('mesaLarga',9,5,3,1,'mesaM');F('cocinaGas',11,2,2,1,'olla');F('refriM',10,2,1,1,'fridge');F('ropaPila',1,6,1,1,'ropa');
+   F('wall',4,1,2,1,'dibujos',{lab:'Mirar los dibujos'});F('wall',8,1,1,1,'placa',{lab:'Leer la placa'})},
+  lights:[[4,5,80],[10,5,80]]},
+ casa_sur2:{fam:'Doña Tere',floor:25,
+  st:h=>h>=9.5&&h<11?'away':h>=5&&h<20.5?'home':'sleep',sleep:[2.5,4.2],away:'Hay un candado en el portón y una nota escrita en una servilleta: «Fui a entregar queques. Vuelvo a las 11. Si es para encargo, deje el número.»',
+  sp:[[3,7],[9,7],[2,6],[12,8]],
+  upe:{home:'¡Voy! ¡Tengo las manos llenas de harina! … ¡Ay, pase, pase! Justo saqué uno del horno. Usted me va a ayudar.',sleep:'(Muy bajito, desde adentro) Mijo, son más de las ocho y yo me levanto a las cuatro a hornear… vuelva mañana, ¿sí?'},
+  quien:'¡Ay, qué susto! … ¿Viene por un encargo? Porque si no viene por un encargo, no entiendo qué hace en mi cocina.',sincero:'¿Conocer la casa? Mijo, esta casa es una cocina con cuartos pegados. Pero pase, pruebe algo.',
+  ladron:['¡¡AY, DIOS MÍO!! ¡¡UN LADRÓN!!','¡Y no se lleve los queques, que son ENCARGOS!'],
+  build(F){F('horno',1,2,2,1,'horno');F('repisaMoldes',5,2,3,1,'moldes');F('mesaQueques',4,4,4,2,'mesaQ');F('batidora',11,2,1,1,'batidora');F('refriM',12,2,1,1,'fridge');F('sacoHarina',12,6,1,1,'harina');F('mecedoraT',2,4,1,1,'mecedoraT');
+   F('wall',9,1,2,1,'pedidos',{lab:'Leer los pedidos'})},
+  lights:[[5,5,90],[11,4,60]]},
+ casa_vecino:{fam:'Doña Yolanda',floor:26,
+  st:h=>h>=13&&h<15?'away':h>=6&&h<21?'home':'sleep',sleep:[5.5,4.3],away:'Portón con candado. En la reja, un papelito: «Ando en el EBAIS. Kevin, la comida está en la refri. TÁPELA.»',
+  sp:[[3,7],[8,7],[2,5],[12,7]],
+  upe:{home:'¿Sí? … ¿Usted es amigo de Kevin? ¡Ay, pase! ¡Qué dicha, alguien que saluda!',sleep:'(Detrás de la puerta) ¿Kevin? … ¿Kevin, es usted? … No, usted no es Kevin. Váyase, mijo, que ya es tarde y yo lo estoy esperando a él.'},
+  quien:'¿Usted qué hace en mi casa? … Ay, no me diga que es de los amigos raros de Kevin.',sincero:'¿Conocer la casa? … Usted es amigo de Kevin, ¿verdad? Nunca nadie quiere conocer esta casa. Siéntese.',
+  ladron:['¡¡KEVIN!! ¡¡KEVIN, HAY ALGUIEN EN LA SALA!!','(Kevin no está. Doña Yolanda agarra la plancha.)'],
+  build(F){F('altar',1,2,2,1,'altar');F('tvViejo',5,2,2,1,'tv');F('sofaCobija',5,4,2,1,'sofaY');F('repisaTrofeo',9,2,1,1,'trofeo');F('mesaPlato',10,5,2,1,'plato');F('maceta',12,8);
+   F('wall',3,1,2,1,'fotosY',{lab:'Mirar las fotos'});F('wall',11,1,2,1,'noEntrar',{lab:'Mirar la puerta'})},
+  lights:[[3,4,70],[9,5,80]]},
+};
+const OWNERS={
+ casa_extra3:[{id:'c_vilma',name:'Doña Vilma',x:5,y:7,d0:0,look:{hair:'moño',hairColor:'#5a3a1e',skin:'#e0ac69',shirt:'#3fb6b0',pants:'#4b3b5b',acc:'anteojos'},talk:vilmaTalk},
+  {id:'c_keylor',name:'Keylor',x:10,y:3,d0:1,look:{hair:'rizos',hairColor:'#1c1c1c',skin:'#5c3a21',shirt:'#f2c94c',pants:'#2d3a6e'},talk:keylorTalk}],
+ casa_extra4:[{id:'c_fela',name:'Doña Fela',x:8,y:6,d0:0,look:{hair:'rizos',hairColor:'#d8d8d8',skin:'#c68e5e',shirt:'#8e3b8a',pants:'#4b3b5b',acc:'anteojos'},talk:felaTalk}],
+ casa_sur1:[{id:'c_xinia',name:'Doña Xinia',x:12,y:4,d0:2,look:{hair:'cola',hairColor:'#2a1810',skin:'#b97a4a',shirt:'#e85d75',pants:'#35477d'},talk:xiniaTalk},
+  {id:'c_chepe',name:'Don Chepe',x:6,y:4.4,d0:1,look:{hair:'calvo',hairColor:'#d8d8d8',skin:'#8d5524',shirt:'#e8e8e8',pants:'#4a4a52',acc:'bigote',accColor:'#e4e4e4'},talk:chepeTalk}],
+ casa_sur2:[{id:'c_tere',name:'Doña Tere',x:9,y:6,d0:2,look:{hair:'moño',hairColor:'#d8d8d8',skin:'#e0ac69',shirt:'#f193b4',pants:'#5a4632',acc:'collar',accColor:'#f4f4f4'},talk:tereTalk}],
+ casa_vecino:[{id:'c_yolanda',name:'Doña Yolanda',x:7,y:6,d0:0,look:{hair:'moño',hairColor:'#3b2416',skin:'#e8b88a',shirt:'#7bb661',pants:'#4a4a52',acc:'collar',accColor:'#f2c94c'},talk:yolandaTalk}],
+};
+const OWN_E={};
+function casaPeds(){for(const id in OWNERS){OWN_E[id]=OWNERS[id].map(o=>{const e=zPed(id,o.x,o.y,Object.assign({id:o.id,name:o.name},o.look),{stat:1,d0:o.d0,reach:30,talk:e=>{if(casaNoche&&casaNoche.id===id)return casaLadron(id,'despierta');o.talk(e)}});e.home0=[o.x,o.y];return e})}
+ // animales de las casas: el gato de los Solano, la perra de los Mora y Kiki de guardia donde Marta
+ const A=(type,name,col,map,x,y,ex)=>ENTS.push(Object.assign({kind:'animal',type,name,col,map,x:x*T+8,y:y*T+12,ox:x,oy:y,dir:2,fr:0,anim:0,wt:1,vx:0,vy:0},ex||{}));
+ A('cat','Bigotes','#3a3a40','casa_extra3',3,7);A('dog','Pelusa','#e8dcc4','casa_sur1',5,7,{special:'pelusa'});A('hen','Kiki','#f4f4f4','casa_marta',10,6,{special:'kikiG',cd:0})}
+
+// ---------- interiores ----------
+function genCasa(b){const def=CASAS[b.id],w=14,h=10,m=newMap(b.id,w,h,'');m.interior=true;m.casa=def;m.b=b;m.wallFace=shade(b.wall,.3);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const wall=y<2||x===0||x===w-1||y===h-1;setT(m,x,y,wall?10:def.floor,wall)}
+ setT(m,7,9,13,0);m.noPath.add(9*w+7);m.exit={x:7,y:9};m.deco=[];
+ const F=(type,x,y,ww=1,hh=1,act,o)=>{m.objs.push(Object.assign({type,x,y,w:ww,h:hh,act},o||{}));for(let j=y;j<y+hh;j++)for(let i=x;i<x+ww;i++)m.s[j*w+i]=1};
+ def.build(F);for(const[x,y,r]of def.lights)m.lights.push({x:x*T,y:y*T,r});
+ LOC[b.id]={map:b.id,sp:def.sp,l:null};
+ m.zdraw=(g,ph)=>{if(ph==='pre')casaWalls(g,m,b.id);else if(ph==='base')for(const o of m.objs)casaObj(g,o,m)};return m}
+function casaTile(g,m,x,y,t,X,Y,r){
+ if(t===22){R(g,'#cfd8c8',X,Y,T,T);for(let i=0;i<10;i++)R(g,['#9fb59a','#e8eee4','#7f9a7a'][i%3],X+((r(i,1)*15)|0),Y+((r(i,2)*15)|0),1,1);R(g,'#b8c4b0',X,Y+T-1,T,1);R(g,'#b8c4b0',X+T-1,Y,1,T)}
+ else if(t===23){R(g,'#a8432f',X,Y,T,T);R(g,'#7a2e1f',X,Y+T-1,T,1);R(g,'#7a2e1f',X+T-1,Y,1,T);R(g,'#c9614a',X+2,Y+2,5,1);R(g,'#c9614a',X+2,Y+3,2,1);if(r(3,3)<.3)R(g,'#93392a',X+((r(4,4)*10)|0)+3,Y+((r(5,5)*10)|0)+3,3,2)}
+ else if(t===24){R(g,'#9aa0a3',X,Y,T,T);for(let i=0;i<5;i++)R(g,r(i,6)<.5?'#8c9295':'#a6acaf',X+((r(i,7)*12)|0),Y+((r(i,8)*12)|0),4,3);if(r(9,9)<.15){R(g,'#6f7477',X+3,Y+6,4,1);R(g,'#6f7477',X+7,Y+7,3,1)}}
+ else if(t===25){R(g,'#e8e0cc',X,Y,T,T);for(let i=0;i<9;i++)R(g,['#c9bfa6','#b5a888','#d8cfb8'][i%3],X+((r(i,1)*15)|0),Y+((r(i,2)*15)|0),1,1);if(r(6,6)<.35)R(g,'#fbfaf5',X+((r(7,7)*12)|0),Y+((r(8,8)*12)|0),3,2)}
+ else if(t===26){const c=((x+y)%2)?'#d9c9a3':'#c9b48a';R(g,c,X,Y,T,T);R(g,((x+y)%2)?'#c9b48a':'#d9c9a3',X+4,Y+4,8,8);if(r(5,5)<.2)R(g,'#b8a27a',X+((r(6,6)*10)|0),Y+((r(7,7)*10)|0),5,3)}
+ else return false;return true}
+function casaWalls(g,m,id){const Y=T,X0=T,X1=13*T;
+ const frame=(x,y,w,h,col,inner)=>{R(g,'#5c3d24',x,y,w,h);R(g,inner||'#7fc3e8',x+1,y+1,w-2,h-2);if(col)R(g,col,x+2,y+h-5,w-4,3)};
+ const win=(x)=>{R(g,'#efe9dc',x,Y+1,18,12);R(g,'#7fc3e8',x+1,Y+2,16,10);R(g,'#222',x+8,Y+2,1,10);R(g,'#2a2a30',x+1,Y+2,16,1);for(let i=2;i<17;i+=3)R(g,'#2a2a30',x+i,Y+2,1,10)};
+ if(id==='casa_extra3'){R(g,'#bcd6b4',X0,Y,X1-X0,12);R(g,'#9fbf98',X0,Y+12,X1-X0,4);win(2*T);
+  R(g,'#f4f4f4',5*T+2,Y,26,14);for(let i=0;i<5;i++)R(g,'#5d5d66',5*T+5,Y+2+i*2+1,18-(i%2)*6,1);R(g,'#c0392b',5*T+4,Y+1,10,1);
+  R(g,'#1d1a24',10*T+1,Y-2,14,15);R(g,'#2a6fb0',10*T+2,Y-1,12,13);R(g,'#f4f4f4',10*T+4,Y+1,8,3);R(g,'#f2c94c',10*T+5,Y+6,6,4)}
+ else if(id==='casa_extra4'){R(g,'#f3d0dc',X0,Y,X1-X0,13);for(let x=X0;x<X1;x+=6)for(let y=Y+1;y<Y+12;y+=5){R(g,'#d6789a',x+((y/5)%2?3:0),y,2,2);R(g,'#7bb661',x+1+((y/5)%2?3:0),y+2,1,1)}R(g,'#8e5a6a',X0,Y+12,X1-X0,4);
+  frame(2*T,Y-1,9,10);frame(2*T+11,Y+1,10,8,null,'#f4ead2');frame(3*T+6,Y-2,8,11,null,'#d9c9a3');frame(2*T+3,Y+10,7,5,null,'#e8e8e8');
+  R(g,'#6b4a2b',8*T+4,Y-3,8,18);disc(g,'#f4ead2',8*T+8,Y+2,3);R(g,'#c9a04a',8*T+7,Y+8+Math.round(Math.sin(performance.now()/400)),2,5);
+  frame(10*T+2,Y-1,12,13,null,'#2f5f8a');R(g,'#f4f4f4',10*T+6,Y+2,4,8);R(g,'#7fc3e8',10*T+6,Y+4,4,1)}
+ else if(id==='casa_sur1'){R(g,'#a9cfe6',X0,Y,X1-X0,12);R(g,'#7f9fb5',X0,Y+12,X1-X0,4);win(12*T-6);
+  for(let i=0;i<4;i++){const x=4*T+i*8;R(g,'#f4f4f4',x,Y+(i%2),7,9);R(g,['#d6453c','#3f7fd1','#f2c94c','#7bb661'][i],x+1,Y+2+(i%2),5,2);disc(g,'#f2994a',x+3,Y+7,1);R(g,'#c9a04a',x+3,Y,1,1)}
+  R(g,'#8a6a45',8*T+1,Y+1,14,9);R(g,'#f4ead2',8*T+2,Y+2,12,7);R(g,'#5d5d66',8*T+3,Y+4,10,1);R(g,'#5d5d66',8*T+4,Y+6,8,1);
+  for(let x=2*T;x<11*T;x+=T){const h=hsh(x,3);if(h<.5)continue;R(g,['#d6453c','#3f7fd1','#f2c94c','#7bb661','#f193b4'][(x/T|0)%5],x+((h*10)|0),8*T+((hsh(3,x)*10)|0)+2,3,3)}}
+ else if(id==='casa_sur2'){for(let x=X0;x<X1;x+=4)for(let y=Y;y<Y+12;y+=4){R(g,((x+y)/4)%5===0?'#7fb4dc':'#f4f4f4',x,y,4,4);R(g,'#d8d8d8',x,y,4,1)}R(g,'#c9bfa6',X0,Y+12,X1-X0,4);
+  R(g,'#8a6a45',9*T,Y-2,32,15);R(g,'#c49d6c',9*T+1,Y-1,30,13);for(let i=0;i<6;i++){R(g,['#f4f4f4','#f2c94c','#f193b4'][i%3],9*T+3+(i%3)*9,Y+(i>2?6:0),8,5);R(g,'#d6453c',9*T+6+(i%3)*9,Y+(i>2?6:0),1,1)}}
+ else if(id==='casa_vecino'){R(g,'#9fb8d0',X0,Y,X1-X0,12);R(g,'#7f98b0',X0,Y+12,X1-X0,4);R(g,'rgba(120,100,60,.25)',6*T,Y,10,9);R(g,'rgba(120,100,60,.2)',6*T+3,Y+9,4,3);
+  frame(3*T,Y-1,10,12,null,'#f4f4f4');R(g,'#e8b88a',3*T+4,Y+2,3,3);R(g,'#f4f4f4',3*T+3,Y+5,5,5);frame(4*T,Y,10,10,null,'#7fc3e8');R(g,'#e8b88a',4*T+4,Y+2,3,3);R(g,'#5b2a7a',4*T+3,Y+5,5,4);
+  R(g,'#6b4a2b',11*T+2,Y-4,26,20);R(g,'#8a6a45',11*T+4,Y-2,22,18);R(g,'#e8c547',11*T+22,Y+6,2,2);R(g,'#f4f4f4',11*T+7,Y-1,16,7);cText(g,'NO',11*T+15,Y-1,4,'#c0392b');R(g,'#2a2a30',11*T+7,Y+6,16,2);win(8*T)}}
+function casaObj(g,o,m){const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T,sh=()=>R(g,'rgba(0,0,0,.22)',X+1,Y+H-3,W-1,4);
+ switch(o.type){
+ case'wall':return;
+ case'sofaFlor':sh();R(g,'#6b8a4a',X,Y+1,W,13);R(g,'#86a85e',X+2,Y+4,W-4,8);for(let i=0;i<8;i++)R(g,i%2?'#f193b4':'#f4ead2',X+3+((i*7)%(W-6)),Y+5+(i%3)*2,2,2);R(g,'#4f6b36',X,Y+12,W,2);break;
+ case'tvViejo':R(g,'#5c3d24',X,Y+6,W,10);R(g,'#7a5233',X+1,Y+7,W-2,2);R(g,'#2a2a30',X+5,Y-8,W-10,15);R(g,'#3a4a5a',X+7,Y-6,W-16,10);R(g,'#6f9fc2',X+8,Y-5,5,2);R(g,'#1d1a24',X+W-9,Y-5,2,2);R(g,'#1d1a24',X+W-9,Y-1,2,2);R(g,'#8f949a',X+W/2-6,Y-15,1,8);R(g,'#8f949a',X+W/2+5,Y-15,1,8);R(g,'#8f949a',X+W/2-6,Y-15,3,1);break;
+ case'mesaCrochet':sh();R(g,'#7a5233',X,Y+3,W,11);R(g,'#f4f4f4',X+4,Y+3,W-8,8);for(let i=0;i<W-8;i+=3)R(g,'#d8d8d8',X+4+i,Y+10,2,2);disc(g,'#c9a46a',X+W/2,Y+6,4);disc(g,'#d6453c',X+W/2-2,Y+5,2);disc(g,'#f2c94c',X+W/2+2,Y+5,2);R(g,'#7bb661',X+W/2,Y+3,2,2);break;
+ case'cortina':R(g,'#5d5d66',X-2,Y-6,W+4,2);for(let i=0;i<H+4;i+=2)R(g,i%4?'#c99be0':'#a97bc0',X+3,Y-4+i,10,2);R(g,'#8e5aa8',X+3,Y-4,10,1);break;
+ case'escritorio':sh();R(g,'#8a6a45',X,Y+2,W,12);R(g,'#a5835a',X,Y+2,W,2);for(let i=0;i<4;i++)R(g,['#d6453c','#3f7fd1','#2e9e6b','#f2c94c'][i],X+2+i*3,Y-8+i,3,10-i);R(g,'#f4f4f4',X+18,Y-3,6,5);R(g,'#d6453c',X+18,Y-3,6,1);R(g,'#2a2a30',X+W-6,Y-10,1,10);R(g,'#f2c94c',X+W-9,Y-12,6,3);break;
+ case'cama':sh();R(g,'#6b4a2b',X,Y,W,H);R(g,'#f4f4f4',X+2,Y+2,W-4,8);R(g,o.col||'#3f7fd1',X+2,Y+10,W-4,H-12);R(g,shade(o.col||'#3f7fd1',.2),X+2,Y+10,W-4,2);break;
+ case'arrocera':sh();R(g,'#f4f4f4',X+3,Y+4,10,10);R(g,'#d8d8d8',X+3,Y+11,10,3);R(g,'#c9ccd0',X+4,Y+2,8,3);R(g,'#2a2a30',X+7,Y+1,2,1);R(g,'#d6453c',X+5,Y+8,2,1);for(let i=0;i<3;i++)R(g,'rgba(255,255,255,.5)',X+6+i,Y-3-i*2,1,2);break;
+ case'maceta':R(g,'#b5562f',X+4,Y+9,8,6);disc(g,'#3d9447',X+8,Y+5,6);R(g,'#58a64c',X+4,Y+1,2,4);R(g,'#58a64c',X+10,Y+2,2,4);if(o.v)R(g,'#d6318a',X+7,Y+2,3,2);break;
+ case'vitrina':R(g,'#5c3d24',X,Y-16,W,32);R(g,'#bfe3f2',X+2,Y-14,W-4,26);R(g,'#5c3d24',X+2,Y-5,W-4,1);R(g,'#5c3d24',X+W/2,Y-14,1,26);for(let i=0;i<6;i++){const fx=X+3+(i%3)*9,fy=Y-12+((i/3)|0)*9;R(g,['#f4f4f4','#f193b4','#7fc3e8','#f2c94c','#f4f4f4','#7bb661'][i],fx,fy,3,5);R(g,'#e8d5bd',fx,fy-1,3,1)}R(g,'#e8c547',X+W-6,Y+4,2,2);break;
+ case'sofaPlast':sh();R(g,'#8e2f3a',X,Y+1,W,13);R(g,'#a83a48',X+2,Y+4,W/3-3,8);R(g,'#a83a48',X+W/3+1,Y+4,W/3-3,8);R(g,'#a83a48',X+2*W/3,Y+4,W/3-3,8);R(g,'rgba(255,255,255,.45)',X+3,Y+4,3,7);R(g,'rgba(255,255,255,.45)',X+W/3+2,Y+4,2,5);R(g,'rgba(255,255,255,.35)',X+2,Y+1,W-4,1);R(g,'#6a2028',X,Y+12,W,2);break;
+ case'jaula':R(g,'#6b4a2b',X+7,Y+4,2,12);R(g,'#5d5d66',X+5,Y+14,6,2);R(g,'#c9a04a',X+2,Y-12,12,1);for(let i=0;i<12;i+=2)R(g,'#c9a04a',X+2+i,Y-11,1,13);R(g,'#c9a04a',X+2,Y+2,12,1);
+  {const b=Math.floor(qBlink*2)%6===0?1:0;R(g,'#3fa66b',X+6,Y-8+b,4,6);R(g,'#2e9e6b',X+6,Y-3+b,4,2);R(g,'#d6453c',X+7,Y-9+b,3,2);R(g,'#f2c94c',X+9,Y-7+b,2,1);R(g,'#1d1a24',X+7,Y-7+b,1,1)}break;
+ case'mesita':sh();R(g,'#5c3d24',X+2,Y+4,W-4,10);R(g,'#f4f4f4',X+5,Y+4,W-10,7);for(let i=0;i<W-10;i+=3)R(g,'#d8d8d8',X+5+i,Y+10,2,2);R(g,'rgba(220,240,250,.85)',X+W/2-4,Y+2,9,5);for(let i=0;i<4;i++)R(g,['#d64545','#f2c94c','#7bb661','#f193b4'][i],X+W/2-3+i*2,Y+3,2,2);break;
+ case'camarote':sh();R(g,'#7a5233',X,Y-14,2,H+14);R(g,'#7a5233',X+W-2,Y-14,2,H+14);R(g,'#7a5233',X,Y-14,W,3);R(g,'#7a5233',X,Y+2,W,3);R(g,'#3f7fd1',X+2,Y-11,W-4,6);R(g,'#f4f4f4',X+2,Y-11,6,4);R(g,'#d6453c',X+2,Y+5,W-4,H-7);R(g,'#f4f4f4',X+2,Y+5,6,4);for(let i=0;i<4;i++)R(g,'#5c3d24',X+W-6,Y-12+i*4,4,1);break;
+ case'cuna':sh();R(g,'#f4ead2',X+1,Y+1,14,13);for(let i=1;i<14;i+=3)R(g,'#d9c9a3',X+1+i,Y+1,1,13);R(g,'#bfe0ff',X+3,Y+5,10,7);disc(g,'#e0ac69',X+6,Y+6,2);R(g,'#f193b4',X+9,Y+3,3,2);break;
+ case'sillonA':R(g,'#6b4a2b',X,Y-2,16,16);R(g,'#8a6a45',X+2,Y,12,6);R(g,'#5c3d24',X,Y+12,16,2);R(g,'#f4ead2',X+2,Y-1,12,3);break;
+ case'mesaLarga':sh();R(g,'#7a5233',X,Y+2,W,12);R(g,'#8a6a45',X,Y+2,W,2);for(let i=0;i<5;i++){const cx=X+2+i*9;R(g,['#d6453c','#3f7fd1','#f4f4f4','#7bb661','#f2c94c'][i],cx,Y+14,6,4)}R(g,'#f4f4f4',X+5,Y+4,7,5);R(g,'#f4f4f4',X+20,Y+4,7,5);R(g,'#f4f4f4',X+34,Y+4,7,5);R(g,'#c98a3a',X+7,Y+5,3,2);break;
+ case'cocinaGas':R(g,'#ececec',X,Y,W,16);R(g,'#2a2a30',X+2,Y+2,10,5);R(g,'#2a2a30',X+18,Y+2,10,5);R(g,'#bfbfbf',X+1,Y+9,W-2,6);R(g,'#8f949a',X+3,Y-10,16,12);R(g,'#a8adb2',X+3,Y-10,16,2);R(g,'#5d5d66',X+1,Y-7,2,2);R(g,'#5d5d66',X+19,Y-7,2,2);for(let i=0;i<3;i++)R(g,'rgba(255,255,255,.45)',X+8+i*3,Y-15-((qBlink*4+i)%3|0),1,3);R(g,'#2a2a30',X+22,Y-6,6,8);break;
+ case'refriM':R(g,'#f4f4f4',X+1,Y-12,14,28);R(g,'#d0d0d0',X+1,Y-1,14,1);R(g,'#9a9a9a',X+12,Y-9,1,6);R(g,'#9a9a9a',X+12,Y+3,1,8);R(g,'#d6453c',X+3,Y-9,3,3);R(g,'#3f7fd1',X+7,Y-7,3,3);R(g,'#f2c94c',X+4,Y+4,4,3);break;
+ case'ropaPila':R(g,'rgba(0,0,0,.2)',X+1,Y+12,14,3);for(let i=0;i<5;i++)R(g,['#3f7fd1','#f4f4f4','#d6453c','#f2c94c','#7bb661'][i],X+1+(i%2)*2,Y+11-i*3,13-(i%2)*3,4);R(g,'#f193b4',X+5,Y-4,4,2);break;
+ case'horno':R(g,'#9aa1a9',X,Y-8,W,24);R(g,'#7f8a90',X,Y+12,W,4);R(g,'#2a2a30',X+3,Y-3,W-6,11);R(g,'#d9822b',X+4,Y-2,W-8,9);R(g,'#f2c94c',X+6,Y+1,8,3);R(g,'#5d5d66',X+3,Y-7,4,2);R(g,'#c9a04a',X+10,Y-7,1,3);R(g,'#c9a04a',X+9,Y-6,3,1);break;
+ case'repisaMoldes':R(g,'#7a5233',X,Y-10,W,3);R(g,'#7a5233',X,Y,W,3);for(let i=0;i<5;i++){disc(g,'#c9ccd0',X+5+i*9,Y-14,3);R(g,'#c9ccd0',X+2+i*9,Y-4,7,4)}break;
+ case'mesaQueques':sh();R(g,'#8a6a45',X,Y+2,W,H-4);R(g,'#f4f4f4',X+2,Y+3,W-4,H-8);for(let i=0;i<6;i++){const qx=X+6+(i%3)*18,qy=Y+6+((i/3)|0)*12,c=['#f2994a','#f4ead2','#8a5a2b','#f193b4','#f2c94c','#c98a3a'][i];R(g,'#e8e8e8',qx-1,qy+5,12,2);R(g,c,qx,qy,10,6);R(g,shade(c,.25),qx,qy,10,2);if(i===4)R(g,'#d6453c',qx+4,qy-2,2,2)}break;
+ case'batidora':R(g,'#d8d2c4',X,Y+2,16,14);R(g,'#d6453c',X+4,Y-8,7,6);R(g,'#d6453c',X+9,Y-8,3,10);R(g,'#c9ccd0',X+3,Y+1,8,4);break;
+ case'sacoHarina':R(g,'rgba(0,0,0,.2)',X+1,Y+12,14,3);R(g,'#f4f0e6',X+1,Y-3,14,16);R(g,'#d8d2c4',X+1,Y-3,14,2);R(g,'#2a6fb0',X+3,Y+3,10,3);R(g,'#f2c94c',X+6,Y+1,4,2);R(g,'#fbfaf5',X-2,Y+13,6,2);break;
+ case'mecedoraT':mecedora(g,X+8,Y+14);break;
+ case'altar':sh();R(g,'#5c3d24',X,Y+3,W,12);R(g,'#f4f4f4',X+2,Y+3,W-4,4);R(g,'#2f5f8a',X+6,Y-10,7,13);R(g,'#f4f4f4',X+8,Y-8,3,9);R(g,'#e8d5bd',X+8,Y-10,3,2);
+  {const fl=Math.floor(qBlink*6)%2;R(g,'#f4f4f4',X+18,Y-3,3,6);R(g,fl?'#f2c94c':'#f2994a',X+18,Y-6,3,3)}frame2(g,X+W-11,Y-8,8,10);R(g,'#d6318a',X+2,Y-2,3,3);R(g,'#3f8a3e',X+3,Y+1,1,2);break;
+ case'sofaCobija':sh();R(g,'#566070',X,Y+2,W,12);R(g,'#6e7a8c',X+2,Y+4,W-4,8);for(let i=0;i<W-6;i+=4)R(g,['#d6453c','#f2c94c','#7bb661','#3f7fd1'][(i/4)%4],X+W/2+((i/2)|0)-6,Y+3+(i%8),4,4);R(g,'#3f4856',X,Y+12,W,2);break;
+ case'repisaTrofeo':R(g,'#7a5233',X,Y-4,16,4);R(g,'#7a5233',X,Y+6,16,10);R(g,'#c9a04a',X+5,Y-14,6,6);R(g,'#c9a04a',X+7,Y-8,2,3);R(g,'#8a6a2a',X+4,Y-6,8,2);R(g,'#f4f4f4',X+6,Y-17,4,3);break;
+ case'mesaPlato':sh();R(g,'#7a5233',X,Y+2,W,12);R(g,'#8a6a45',X,Y+2,W,2);disc(g,'#f4f4f4',X+12,Y+6,5);disc(g,'#e8e8e8',X+12,Y+5,4);R(g,'#f2c94c',X+16,Y+1,6,4);R(g,'#2a2a30',X+17,Y+2,4,1);break;
+ }}
+function frame2(g,x,y,w,h){R(g,'#c9a04a',x,y,w,h);R(g,'#7fc3e8',x+1,y+1,w-2,h-2);R(g,'#e0ac69',x+3,y+2,2,2)}
+
+// ---------- el portón ----------
+let casaNoche=null;
+function casaSt(id){return CASAS[id].st(hrs())}
+function casaPorton(id){const def=CASAS[id],st=casaSt(id),nm=bName(id);
+ if(st==='away'){say(null,def.away);runDialog();return}
+ say(null,'Estás en el portón de '+(def.fam.startsWith('los')?'la casa de '+def.fam:def.fam)+'.',[
+  {t:'Gritar «¡Upe!»',f(){beep(520,.12,'square',.03,620);const who=OWN_E[id][0].c;
+   if(st==='home'){say(who,def.upe.home);afterD(()=>casaEnter(id,'invitado'))}
+   else if(st==='porch'){say(who,def.upe.porch);say(null,'Doña Fela y Don Mario te hacen campo en el corredor. Las mecedoras rechinan al mismo ritmo.')}
+   else say(who,def.upe.sleep)}},
+  {t:'Entrar así nomás',f(){if(st==='sleep')say(null,'La puerta está sin llave. En este barrio todo el mundo dice que mañana le pone llave.');afterD(()=>casaEnter(id,st==='sleep'?'noche':st==='porch'?'corredor':'metido'))}},
+  {t:'Seguir de largo'}]);runDialog()}
+function casaSync(id){const st=casaSt(id);for(const e of OWN_E[id]||[]){e.map=st==='home'?id:'_fuera';e.x=e.home0[0]*T+8;e.y=e.home0[1]*T+12;e.dir=e.d0}
+ VACT=VACT.filter(a=>!a.casa);
+ if(st==='sleep'){const[x,y]=CASAS[id].sleep;vAct({casa:1,map:id,x:x*T,y:y*T,draw(g,a,X,Y){R(g,'#7f98b0',X-9,Y-6,18,7);R(g,'#5f7890',X-9,Y,18,1);disc(g,'#e0ac69',X+9,Y-4,3);const z=(qBlink*.8)%1;g.globalAlpha=1-z;cText(g,'Z',X+12,Y-12-z*8,4,'#f4ead2');cText(g,'z',X+16,Y-18-z*8,4,'#f4ead2');g.globalAlpha=1}})}
+ if(id==='casa_sur1'&&st==='home'){vAct({casa:1,map:id,k:mkKid(9,{shirt:'#7bb661'}),x:10.5*T,y:6.6*T,dir:1,draw(g,a,X,Y){drawKid(g,this,X,Y);R(g,'#f4f4f4',X-3,Y-22,7,5);R(g,'#5d5d66',X-2,Y-21,5,1)}});
+  for(let i=0;i<2;i++){const k=mkKid(10+i,{shirt:i?'#f2c94c':'#3f7fd1'});vAct({casa:1,map:id,k,x:(3+i*5)*T,y:7.5*T,dir:3,ph:i*Math.PI,tick(dt){this.ph+=dt*1.1;const nx=(6.5+Math.cos(this.ph)*4.6)*T,ny=(7.4+Math.sin(this.ph*2)*.6)*T;this.dir=nx<this.x?2:3;this.x=nx;this.y=ny;this.anim+=dt*10;this.fr=1+(Math.floor(this.anim)%2);this.bt-=dt;if(this.bt<=0){this.bt=rnd(5,9);vBub(this,pick(['¡La anda usted!','¡No se vale, estaba en casa!','¡Mamiii, Dylan me pegó!','¡Yo no fui!']),160)}},draw(g,a,X,Y){drawKid(g,this,X,Y)}})}}}
+function casaEnter(id,mode){const b=BMAP[id];CF(id).visto=1;S.f.casaIn={id,mode};casaSync(id);casaNoche=mode==='noche'?{id,t:0}:mode==='corredor'?{id,t:0,loro:1}:null;
+ if(mode==='corredor')for(const e of OWN_E[id])e.map='_fuera';
+ changeMap(id,7*T+8,8*T+12,1);
+ setTimeout(()=>{if(P.map!==id)return;const o=OWN_E[id][0];
+  if(mode==='invitado')vBub(o,pick(['¡Pase adelante!','Siéntese donde guste.','¡Bienvenido!']),300);
+  if(mode==='metido'){CF(id).metido=S.day;talkEnt=o;faceTo(o,P);casaQuien(id);runDialog()}},650)}
+function casaQuien(id){const def=CASAS[id],o=OWN_E[id][0],c=o.c,f=CF(id);
+ say(c,def.quien,[
+  {t:'«Vengo del AyA a revisar el medidor»',f(){say(c,'¿El medidor? El medidor está AFUERA, en la acera. Como en todas las casas del país.');say(c,'Váyase antes de que llame al guarda.');afterD(()=>casaEject(id))}},
+  {t:'«Me equivoqué de casa»',f(){say(c,'¿Y no se fijó en el color? … Bueno, ya que está aquí, quédese. Pero límpiese los zapatos.')}},
+  {t:'«¡Upe!» (un poco tarde)',f(){say(c,'El upe se dice AFUERA, mijo. Salga y vuelva a entrar como la gente.');afterD(()=>casaEject(id))}},
+  {t:'«Quería conocer su casa»',f(){say(c,def.sincero);f.sincero=1}}])}
+function casaEject(id){const b=BMAP[id];casaNoche=null;S.f.casaIn=null;if(P.map!==id)return;changeMap('ext',b.dx*T+8,(b.dy+1)*T+14,0)}
+function casaLadron(id,why){if(!casaNoche)return;casaNoche=null;const def=CASAS[id],f=CF(id);f.ladron=S.day;
+ if(why==='clonc')say(null,'¡CLONC! Le pegás a algo en la oscuridad.');
+ const o=OWN_E[id][0];if(why==='loro'){say(null,'Lorenzo, el loro, te ve y se le esponjan todas las plumas.');say(null,'«¡Rrrr! ¡LADRÓN! ¡LADRÓN! ¡FELAAA! ¡Rrrr!»');say(o.c,'¡¿Usted?! ¡Si estábamos ahí afuera, en el corredor! ¿Por qué no dijo upe como la gente?');say(null,'Doña Fela te saca de la oreja. Literalmente de la oreja.');f.ladron=0;f.metido=S.day}
+ else{for(const l of def.ladron)say(o.c,l);say(null,'Una chancleta te pasa rozando la oreja. Salís corriendo sin mirar atrás.')}
+ VACT=VACT.filter(a=>!a.casa);afterD(()=>{casaEject(id);setTimeout(()=>sndWhistle(null),900)});runDialog()}
+function casaTick(dt){const id=P.map;if(!CASAS[id])return;if(casaNoche&&casaNoche.id===id&&mode==='play'){casaNoche.t+=dt;if(casaNoche.t>(casaNoche.loro?2.5:6))casaLadron(id,casaNoche.loro?'loro':'despierta')}}
+
+// ---------- la gente de cada casa ----------
+function vilmaTalk(e){const c=e.c,f=CF('casa_extra3');
+ if(!f.tour){f.tour=1;say(c,'¡Ah, por fin! Usted viene por el cuarto, ¿verdad? Venga, venga, le enseño.');say(c,'Aquí la sala. Ahí la tele, que se apaga a las diez. Detrás de la cortina, el cuarto: cama, escritorio y ventana con vista a la pared del vecino.');say(c,'Ahora vive Keylor, pero se va en diciembre. Muy buen muchacho. Demasiado callado. Algo esconde.');
+  say(c,'Son ₡85 000 al mes, un mes de depósito, fiador con casa propia y una carta de buena conducta firmada por el cura. ¿Lo toma?',[
+   {t:'Sí, lo tomo',f(){say(c,'¿Así nomás? ¿Sin leer el reglamento? … No, no, no. Usted es muy impulsivo. Lea el reglamento y lo hablamos.')}},
+   {t:'Este… lo voy a pensar',f(){say(c,'Piénselo, pero rápido. Ya vinieron dos muchachas de Pérez Zeledón y un señor que dice que es mago.')}},
+   {t:'Solo venía a saludar',f(){say(c,'¿A saludar? ¿Quién viene a saludar en estos tiempos? …Bueno. Igual el reglamento está en la pared, para cuando se decida.')}}]);return}
+ say(c,rot('vilma',['¿Ya leyó el reglamento? Lo actualicé: regla once, prohibido silbar después de las ocho.','El gato se llama Bigotes y tiene más derechos que cualquier inquilino. Que le quede claro.','Rolando, mi marido, se duerme en el sillón todas las noches. Dice que está «descansando los ojos». Desde 1998.','Si sabe de alguien serio que necesite cuarto, me avisa. Serio. No como el mago.']))}
+function keylorTalk(e){const c=e.c,f=CF('casa_extra3');say(c,rot('keylor',['Mae, ¿usted también viene por el cuarto? Tranquilo, me voy en diciembre. Ya no aguanto el reglamento.','Estudio Ingeniería en la U. Tengo examen de Cálculo y voy más perdido que un cangrejo en la nieve.','Allá en Limón mi abuela hace un rice and beans con coco que… mae, aquí comer fideos todos los días me está matando.','Doña Vilma es buena gente. Solo que vive como si el reglamento fuera la Biblia. Y la Biblia, el reglamento.']));if(f.arrocera===1)say(c,'Gracias por no sapear lo de la arrocera, mae. Le debo un rice and beans.')}
+function felaTalk(e){const c=e.c,f=CF('casa_extra4');if(f.comio===S.day){say(c,rot('felaR',['¿Ya se va? ¿Tan rápido? Bueno, vaya con Dios. Y llévele saludos a su mamá.','Mario está en el baño leyendo el periódico. Lleva cuarenta minutos. Ese hombre vive ahí.','¿Vio el capítulo de anoche? La muchacha resultó ser la hija del patrón. ¡Yo lo sabía desde el capítulo dos!']));return}
+ const ofr=['un cafecito chorreado, recién hecho','un pedazo de pan casero, todavía tibio','un tamalito. Es de diciembre, pero yo los congelo','un poquito de arroz con leche, con canela','otro cafecito, para la bajada'];
+ const paso=n=>{if(n>=ofr.length){f.comio=S.day;f.feliz=S.day;f.ofendida=0;enAdd(15);say(null,'Ya no te cabe nada. Doña Fela te mira satisfecha, como quien termina una obra.');say(c,'Así me gusta. Ahora sí puede irse. Vaya, vaya. Y vuelva, ¿ah?');return}
+  say(c,(n?'¡Espere, espere! No se me vaya. ':'¡Siéntese, mijo! ')+'¿Le traigo '+ofr[n]+'?',[
+   {t:n?'Bueno… uno más':'Bueno, gracias',f(){passTime(10);beep(330,.05,'triangle',.02);paso(n+1)}},
+   {t:'No, gracias, ya me voy',f(){if(n<3){f.ofendida=S.day;f.comio=S.day;say(c,'… Ah. Bueno. Está bien. Váyase.');say(null,'Doña Fela vuelve a ver la tele. El silencio se puede cortar con cuchillo. Algo te dice que mañana todo el barrio va a saber que no te quedaste ni al tamal.')}else{f.comio=S.day;f.feliz=S.day;say(c,'Bueno, ya comió algo, por lo menos. Vaya con Dios.')}}}])};paso(0)}
+function xiniaTalk(e){const c=e.c;say(c,rot('xinia',['Disculpe el despiche. Tengo cinco chiquitos, un abuelo, una perra y un marido que trabaja de noche. Esta casa nunca está ordenada, solo «menos desordenada».','¿Ya comió? Mire que esa olla de arroz da para medio barrio. Literal: mañana viene medio barrio.','Los gemelos se pelean por todo. Ayer se pelearon por quién respiraba más fuerte.','Dylan es el más inteligente. Bueno, el único que hace la tarea. Ayúdele si quiere, a mí la matemática de ahora ya no me entra.']),[{t:'Aceptar un platito de arroz',f(){enAdd(10);say(null,'Arroz con frijoles, huevo frito y un pedazo de plátano maduro. Comés de pie, en medio del caos, y sabe a gloria. +10⚡')}},{t:'No, gracias'}])}
+function chepeTalk(e){const c=e.c;say(null,'Don Chepe ronca en el sillón con la boca abierta. La tele está a todo volumen.');say(c,rot('chepe',['¡Zzzz… no estoy dormido! Estoy viendo el partido con los ojos cerrados.','… ¿Ya es domingo? … zzz…','¡En mis tiempos esto era puro cafetal, mijo! … zzz…']))}
+function tereTalk(e){const c=e.c,f=CF('casa_sur2');if(f.probo===S.day){say(c,rot('tereR',['Ese de zanahoria es para el bingo del sábado. No lo toque. Bueno, si quiere un pedacito…','Me levanto a las cuatro todos los días. El horno es mi gallo.','Doña Fela me encarga uno de naranja todas las semanas. Y todas las semanas me dice «¡sin pasas!». Nunca le he puesto pasas.']));return}
+ const sab=['naranja','tres leches','zanahoria','chocolate','piña colada'][S.day%5],seco=hsh(S.day,7)<.4;f.probo=S.day;
+ say(c,'Justo saqué uno de '+sab+'. Pruébelo y dígame sincero, ¿eh? Sincero.');say(null,seco?'Le das un mordisco. Está… un poquito seco. Bastante seco. Se te pega en el galillo.':'Le das un mordisco. Está húmedo, esponjoso, perfecto. Te dan ganas de llorar un poquito.',[
+  {t:'¡Delicioso, Doña Tere!',f(){if(seco){f.confianza=(f.confianza||0)-1;say(c,'Mmm. ¿Seguro? Porque le estoy viendo la cara y usted está tragando con agua.')}else{f.confianza=(f.confianza||0)+1;say(c,'¿Verdad? ¡Ay, qué dicha! Hoy me salió de concurso.')}}},
+  {t:'Le falta algo…',f(){say(c,seco?'Le falta humedad, ¿verdad? Ya sé. El horno se me disparó. Gracias por decirme.':'¿Algo? … Usted es de los que nunca están contentos. Como mi difunto marido.');f.confianza=(f.confianza||0)+(seco?1:0)}},
+  {t:'Sincero: está seco',f(){if(seco){f.confianza=(f.confianza||0)+2;f.sincera=S.day;say(c,'¡Por fin alguien que me dice la verdad! Todo el mundo me dice «delicioso» por quedar bien. Usted es de los míos.')}else{f.confianza=(f.confianza||0)-1;say(c,'¿Seco? ¡¿SECO?! Ese queque está más húmedo que el invierno en Turrialba. Usted no sabe de queques, mijo.')}}}]);
+ afterD(()=>{if((f.confianza||0)>=1){say(c,'Tome, llévese uno de naranja. Dicen que esos abren puertas. Hasta las de los suegros.');addI('queque')}})}
+function yolandaTalk(e){const c=e.c,f=CF('casa_vecino'),kv=NPC.kevin&&NPC.kevin.map==='casa_vecino';
+ if(!f.fotos){f.fotos=1;say(c,'¿Usted es amigo de Kevin? ¡Ay, qué dicha! Nunca trae amigos. Bueno, trae, pero no de los que saludan.');say(c,'Venga, siéntese. Le voy a enseñar algo.');say(null,'Doña Yolanda saca un álbum forrado en plástico de debajo del sillón. Lo tenía demasiado a mano.');
+  say(c,'Mire: la primera comunión. Ese es Kevin. Kevincito. Con el pelo peinado con gel y cara de santo.');if(kv)say('kevin','¡MAMÁ! ¡Las fotos no, mae!');
+  say(c,'Y aquí con el uniforme de la escuelita de fútbol. Tapaba. No muy bien, pero tapaba.');say(c,'Y este… este es el que más me gusta. Primer lugar en el concurso de repostería de la escuela. Hizo un queque de zanahoria que todavía me acuerdo.');if(kv)say('kevin','… Era con piña, má. Zanahoria con piña.');
+  say(c,'Su papá se fue cuando él tenía diez. Desde ahí se puso así… como con la gorra para atrás por dentro, ¿me entiende?');say(c,'Cuídemelo, ¿sí? Él es bueno. Es que se le olvida.',[
+   {t:'Claro que sí, Doña Yolanda',f(){kvAdd(1);S.f.yoFotos=1;say(c,'Dios se lo pague, mijo.')}},
+   {t:'Kevin es buena gente',f(){kvAdd(1);S.f.yoFotos=1;say(c,'¿Verdad que sí? Eso le digo yo a todo el mundo, y todo el mundo me mira raro.')}}]);return}
+ say(c,rot('yol',['Kevin come como pajarito. Le dejo el plato tapado y en la mañana está igual de tapado. Pero vacío. Es un misterio.','Ese muchacho antes cocinaba. Ahora ni hierve agua. Dice que ya no le «nace».','En el EBAIS me dijeron que tengo la presión alta. Yo les dije: «Usted no tiene un hijo como el mío».','¿Usted cree que si le compro un horno nuevo se anime a cocinar otra vez?']))}
+// Carlillos se entera de las fotos
+{const _kv=TALK.kevin;TALK.kevin=function(){if(S.f.yoFotos===1&&NPC.kevin&&NPC.kevin.map===P.map){S.f.yoFotos=2;const id='kevin';
+  say(id,'… Mae. Mi mamá le enseñó las fotos, ¿verdad? Lo veo en su cara.');say(id,'Diay, sí. Yo cocinaba. Hacía unos arreglados que la gente hacía fila en el recreo.');say(id,'Después… diay, la vida. Uno se pone la gorra para atrás y ya.',[
+   {t:'¿Y si volvés a cocinar?',f(){say(id,'¿Yo? Jaja. … Bueno. Tal vez. Si alguien me presta un horno. No le diga a nadie.');kvAdd(.5)}},
+   {t:'Tu mamá te quiere mucho',f(){say(id,'… Ya sé, mae. Ya sé. Ese es el problema: que uno lo sabe.')}}]);return}return _kv.apply(this,arguments)}}
+
+// ---------- muebles y rincones de las casas ----------
+const CASA_FURN={
+ reglamento(){say(null,'REGLAMENTO DE LA CASA · Firma: Vilma de Solano.');say(null,'1. Nada de visitas después de las 9. 2. Prohibido freír pescado. 3. Prohibido cocinar en el cuarto. 4. El gato tiene prioridad en el baño. 5. Ducha caliente de 6:00 a 6:10. 6. Aquí tampoco se fía.');say(null,'Hay una regla 11 escrita a mano y con otro lapicero: «Prohibido silbar después de las 8».')},
+ afiche(){say(null,'Un afiche de la Selección del 2014 con las esquinas despegadas. Alguien le dio un beso al portero. Hay marca de pintalabios. Keylor dice que no fue él.')},
+ frutas(){say(null,'Un frutero con manzanas, uvas y una piña. Todas de plástico. Una manzana tiene una mordida. Alguien aprendió por las malas.')},
+ cortina(){say(null,'Una cortina morada divide la sala del cuarto alquilado. Es la única pared que tiene Keylor.')},
+ escritorio(){say(null,'Libros de Cálculo, un vaso de fideos instantáneos vacío y una nota pegada en la lámpara: «NO TE RINDÁS. (Pero si te rendís, hay fideos)».')},
+ arrocera(){const f=CF('casa_extra3');if(f.arrocera){say(null,f.arrocera===1?'La arrocera sigue escondida. Huele a coco. Keylor te guiña un ojo.':'La arrocera ya no está. En su lugar hay un papelito: «Confiscada. —V.»');return}
+  say(null,'Debajo de la cama hay una arrocera escondida, todavía tibia. Arroz con coco. La regla número 3 prohíbe cocinar en el cuarto.',[
+   {t:'Hacerse el loco',f(){f.arrocera=1;say(null,'Volvés a acomodar la cobija para que no se vea. Desde el escritorio, Keylor levanta el pulgar sin voltear.')}},
+   {t:'Contarle a Doña Vilma',f(){f.arrocera=2;const v=OWN_E.casa_extra3[0].c;say(v,'¡¡KEYLOR!! ¡¡REGLA NÚMERO TRES!!');say(OWN_E.casa_extra3[1].c,'Diay, mae… ¿en serio?');say(null,'Keylor te mira como quien mira a un traidor a la patria.');say(null,'Doña Vilma se lleva la arrocera abrazada como si fuera evidencia de un juicio.')}}])},
+ vitrina(){say(null,'Figuritas de porcelana, un pato de cerámica, cucharitas de recuerdo de Puntarenas y una copa del bautizo de alguien en 1978. Nadie las ha tocado nunca. Nadie las va a tocar.')},
+ sofaP(){say(null,'El sillón está forrado en plástico «para que no se ensucie». Lleva así desde 1994. Cuando te sentás, suena como una bolsa de pan y se te pegan las piernas.')},
+ tvF(){say(null,rot('telenovela',['La telenovela está a todo volumen: «¡Tú no eres mi hija, Valentina! ¡Eres la hija de… mi gemelo!»','En la telenovela, alguien despierta de un coma de quince años y lo primero que pregunta es por la herencia.','Comerciales. Doña Fela aprovecha para gritarle a Don Mario que apague la plancha. Don Mario no está planchando.']))},
+ loro(){const L=[],cs=S.f.casas||{};for(const k in cs){if(cs[k].ladron)L.push('¡Rrrr! ¡Ladrón donde '+CASAS[k].fam+'! ¡Ladrón! ¡Rrrr!');if(cs[k].metido)L.push('¡Rrrr! ¡Se metió donde '+CASAS[k].fam+'! ¡Sin decir upe! ¡Rrrr!')}
+  if(CF('casa_sur2').sincera)L.push('¡Rrrr! ¡Queque seco! ¡Queque seco! ¡Rrrr!');
+  say(null,'Lorenzo, el loro, te mira con un ojo, después con el otro.');say(null,L.length&&Math.random()<.7?pick(L):rot('loro',['¡Rrrr! ¡FELA, EL ARROZ! ¡Rrrr!','¡Rrrr! ¡Upe! ¡Upe! ¡Nadie viene! ¡Rrrr!','¡Rrrr! ¡Mario, la novela! ¡Rrrr!','¡Rrrr! ¡Saprissa campeón! ¡Rrrr! (Don Mario le enseñó eso. Doña Fela no le habla a Don Mario desde entonces.)']))},
+ confites(){say(null,'Un platito de vidrio lleno de confites de menta. Están ahí desde que tenés memoria. Nadie se come uno. Es más bien un adorno que se puede comer pero no se debe.')},
+ fotosF(){say(null,'Una pared entera de fotos: graduaciones, quinceaños, bodas y un niño disfrazado de Juan Santamaría con la antorcha prendida. Doña Fela tiene once nietos. Se sabe los cumpleaños de todos. Y de los tuyos también.')},
+ reloj(){beep(880,.08,'sine',.02);setTimeout(()=>beep(660,.1,'sine',.02),300);say(null,'Un reloj de péndulo que da la hora con quince minutos de atraso. Doña Fela dice que es para llegar puntual a misa. Nunca llega puntual a misa.')},
+ tvM(){const ch=OWN_E.casa_sur1[1].c;say(null,'La tele está en un partido de fútbol. Don Chepe ronca en el sillón.',[{t:'Cambiar el canal',f(){say(ch,'¡¡LO ESTABA VIENDO!!');say(null,'Don Chepe se vuelve a dormir antes de terminar la frase. Volvés a poner el partido. Por si acaso.')}},{t:'Dejarlo así'}])},
+ abuelo(){chepeTalk(OWN_E.casa_sur1[1])},
+ camarote(){say(null,'Un camarote para tres chiquitos. Abajo duermen los gemelos, arriba Dylan. En la pared, escrito con crayola: «PROIBIDO PASAR – SOLO DILAN».')},
+ cuna(){say(null,'Un bebé duerme con los brazos para arriba, como celebrando un gol. Se te escapa un «ay, qué lindo» y de la cocina te llega un «¡SHHHH!» furioso.')},
+ olla(){say(null,'Una olla de arroz tan grande que cabe un chiquito adentro. No preguntes cómo lo sabés.')},
+ mesaM(){say(null,'Una mesa con cinco sillas, ninguna igual a otra. Una es de plástico, otra de una escuela y otra parece robada de un bar. Todas tienen dueño y nadie se sienta en la ajena.')},
+ ropa(){say(null,'Una montaña de ropa por doblar. Hay un calcetín sin pareja desde 2019. Ya es parte de la familia.')},
+ dibujos(){say(null,'Dibujos pegados con cinta: una casa con sol, un perro con seis patas y una familia de once palitos. Uno dice «MI ABUELO DORMIDO». Es el más realista.')},
+ placa(){say(null,'Una placa de madera pirograbada: «DIOS BENDIGA ESTE HOGAR». Debajo, alguien agregó en papelito: «Y QUE NO SE VAYA LA LUZ».')},
+ horno(){say(null,'El horno tiene una perilla amarrada con alambre. Doña Tere dice que así calienta parejo. Lleva treinta años calentando parejo.')},
+ moldes(){say(null,'Moldes de todos los tamaños: redondos, de corazón, de rosca y uno en forma de la Basílica de Cartago que solo se usa en agosto.')},
+ mesaQ(){say(null,'La mesa entera es de queques enfriándose. Cada uno tiene un papelito con un nombre. Uno dice «BINGO». Otro dice «FELA – SIN PASAS (!!!)».')},
+ pedidos(){say(null,'PEDIDOS DE LA SEMANA: Lunes: Fela, naranja (SIN PASAS). Miércoles: los Mora, 3 queques (cumple de los gemelos, NO IGUALES o se pelean). Sábado: Bingo del salón, 40 bocadillos. Domingo: descanso (mentira).')},
+ batidora(){say(null,'Una batidora roja con los botones gastados. Era de la mamá de Doña Tere. «Esa batidora ha batido más que el Saprissa», dice ella. Nadie entiende el chiste, pero ella se ríe.')},
+ harina(){say(null,'Un saco de harina de veinte kilos con una huella de gato encima. El gato no vive aquí. Nadie sabe de quién es el gato.')},
+ mecedoraT(){say(null,'La mecedora de Doña Tere, junto al horno. Aquí espera que se dore el queque. A veces se duerme y el queque también espera.')},
+ altar(){say(null,'Un altarcito con la Virgen de los Ángeles, una vela encendida y la foto de una señora seria con moño. «Mi mamá», dice Doña Yolanda. «Ella también tenía que lidiar conmigo».')},
+ sofaY(){say(null,'Un sillón con una cobija tejida a mano. Doña Yolanda se queda aquí despierta hasta que oye la puerta. Todas las noches.')},
+ trofeo(){say(null,'Un trofeo dorado con un muñequito con gorro de chef: «1er lugar · Concurso de repostería escolar · Kevin Ch.». Le pasan el plumero todos los días. Es lo más limpio de la casa.')},
+ plato(){say(null,'Un plato tapado con otro plato. Tiene un papelito: «KEVIN: CÓMASE ESTO. NO ES OPCIONAL. —Mamá».')},
+ fotosY(){say(null,'Dos fotos en la pared: un niño en primera comunión con el pelo pegado de gel, y el mismo niño con uniforme morado de portero. En las dos sonríe sin gorra.')},
+ noEntrar(){say(null,'La puerta del cuarto tiene un rótulo con marcador: «NO ENTRAR». Debajo, en otra letra: «(excepto mami con comida)».')},
+};
+// cualquier casa ajena: la refri con «helado» y la cama prestada
+function casaRefri(id){const f=CF(id);if(!f.helado){f.helado=1;say(null,'En el congelador hay un tarro de helado de dos litros. Lo abrís con toda la ilusión del mundo.');say(null,'Son frijoles molidos.');say(null,'Siempre son frijoles molidos.');return}
+ say(null,rot('refriAjena',['Natilla, tortillas, medio limón y un tupper con algo que ya tiene vida propia.','Hay una gaseosa abierta sin gas y una nota: «NO ES SUYA».','Otra vez el tarro de helado. Ya sabés lo que hay adentro. Igual lo volvés a abrir. Uno nunca pierde la fe.']))}
+function casaCama(id){say(null,'No es tu cama.',[{t:'Mejor no'},{t:'Acostarse igual',f(){afterD(()=>fadeDo(()=>{passTime(45)},()=>{say(null,'Te despertás. Toda la familia está alrededor de la cama, en silencio, mirándote.');say(null,'Nadie dice nada. Te levantás. Te ponés los zapatos. Salís. Nadie dice nada.');if(CASAS[id])CF(id).metido=S.day;afterD(()=>{const b=BMAP[id];changeMap('ext',b.dx*T+8,(b.dy+1)*T+14,0)});runDialog()}))}}])}
+{const _ft=furnTalk;furnTalk=function(o,m){const id=m.id;
+ if(casaNoche&&casaNoche.id===id){casaLadron(id,'clonc');return}
+ if(m.casa&&CASA_FURN[o.act]){CASA_FURN[o.act]();return}
+ if(m.interior&&id!=='casa_jugador'&&m.b&&m.b.kind==='house'){if(o.act==='fridge'){casaRefri(id);return}if(o.act==='bed'){casaCama(id);return}}
+ return _ft(o,m)}}
+{const _tl=targetLabel;targetLabel=function(t){if(t&&t.type==='furn'&&t.o.lab)return t.o.lab;if(t&&t.type==='furn'&&MAPS[P.map].casa){const L={sofaS:'Sillón',frutas:'Frutero',cortina:'Cortina',escritorio:'Escritorio',arrocera:'¿Qué es eso?',vitrina:'Vitrina',sofaP:'Sillón',tvF:'Telenovela',loro:'Hablarle al loro',confites:'Confitera',tvM:'La tele',abuelo:'Don Chepe',camarote:'Camarote',cuna:'La cuna',olla:'La olla',mesaM:'La mesa',ropa:'La ropa',horno:'El horno',moldes:'Moldes',mesaQ:'Los queques',batidora:'Batidora',harina:'Saco de harina',mecedoraT:'Mecedora',altar:'Altarcito',sofaY:'Sillón',trofeo:'Trofeo',plato:'El plato'};if(L[t.o.act])return L[t.o.act]}return _tl(t)}}
+// la puerta: en las casas ajenas se pide permiso
+{const _cd=checkDoors;checkDoors=function(){if(doorCD>0)return;const m=MAPS[P.map];
+ if(!m.interior){const[tx,ty]=tileOf(P);const d=m.doors.find(d=>d.x===tx&&d.y===ty);if(d&&CASAS[d.to]){doorCD=1.4;P.y+=4;casaPorton(d.to);return}}
+ else if(CASAS[P.map]&&m.exit){const[tx,ty]=tileOf(P);if(tx===m.exit.x&&ty===m.exit.y){casaNoche=null;S.f.casaIn=null}}
+ return _cd()}}
+// animales de las casas
+{const _aa=animalActive;animalActive=function(e){if(e.special==='kikiG')return qs('gallo')===2;if(e.special==='pelusa')return true;return _aa(e)}}
+{const _ua=updAnimal;updAnimal=function(e,dt){if(e.special==='kikiG'){if(!animalActive(e)||P.map!==e.map)return;e.cd=Math.max(0,(e.cd||0)-dt);const dx=P.x-e.x,dy=P.y-e.y,d=Math.hypot(dx,dy);
+  if(d>8&&mode==='play'){const mv=moveEnt(e,dx/d*44*dt,dy/d*44*dt);e.dir=dx<0?2:3;e.anim+=mv?dt*10:0;e.fr=mv?Math.floor(e.anim)%2:0}
+  else if(e.cd<=0&&mode==='play'){e.cd=1.3;moveEnt(P,0,12);beep(900,.08,'square',.03,1300);vBub(e,pick(['¡KIKIRIKÍ!','¡KIKIRI-FUERA!','¡KÍ!']),200)}return}
+ return _ua(e,dt)}}
+{const _at=animalTalk;animalTalk=function(e){if(e.special==='kikiG'){say(null,'Intentás acariciar a Kiki. Kiki lo interpreta como una declaración de guerra. «CUIDADO CON EL GALLO» nunca fue un chiste.');return}
+ if(e.special==='pelusa'){const f=CF('casa_sur1');if(f.chancleta!==S.day){f.chancleta=S.day;say(null,'Pelusa te trae una chancleta llena de baba y la deja a tus pies con orgullo.');say(null,'Es tuya. Mirás para abajo: andás con un pie descalzo. ¿En qué momento…?')}else say(null,'Pelusa mueve la cola y te mira el otro pie. Lo estudia. Está esperando.');return}
+ return _at(e)}}
+
+// ---------- la tarea de Dylan ----------
+function dylanTarea(){const f=CF('casa_sur1');if(f.tarea===S.day){say(null,'Dylan ya terminó la tarea. Ahora está dibujando al abuelo dormido. Le está quedando igualito.');return}
+ const pool=[['¿Cuánto es 7 por 8?',['54','56','58'],'56'],['¿Cuál es la capital de Guanacaste?',['Nicoya','Liberia','Santa Cruz'],'Liberia'],['¿En qué año se independizó Costa Rica?',['1821','1856','1948'],'1821'],
+  ['¿Cuál es el árbol nacional?',['El guanacaste','El roble','El mango'],'El guanacaste'],['¿Cuál es el ave nacional?',['La lapa','El yigüirro','El tucán'],'El yigüirro'],['¿Cuánto es 144 entre 12?',['11','12','14'],'12'],['¿Quién quemó el mesón en 1856?',['Juan Santamaría','Juanito Mora','Don Pepe'],'Juan Santamaría']];
+ const Q=pool.slice().sort(()=>Math.random()-.5).slice(0,3);let ok=0;f.tarea=S.day;
+ const ask=i=>{if(i>=Q.length){if(ok>=2){say(null,'Dylan revisa el cuaderno: «¡'+ok+' de 3! La niña me va a poner un sello de carita feliz.»');say(null,'«Tome, para que vea que soy agradecido.» Te da un sobrecito de tazos que tenía escondido en el calcetín.');addI('tazos')}else say(null,'Dylan suspira: «Mae… mejor le pregunto al abuelo.» Mira al sillón. Don Chepe ronca. «… Mañana le pregunto a la niña.»');return}
+  const q=Q[i];say(null,'Dylan: «'+q[0]+'»',q[1].map(o=>({t:o,f(){if(o===q[2])ok++;ask(i+1)}})))};
+ say(null,'Dylan te mira con ojos de cachorro: «¿Me ayuda con la tarea? Son solo tres. Mi mamá no sabe la matemática de ahora.»');ask(0)}
+ACT_POINTS.push({map:'casa_sur1',x:10,y:7,label:'Ayudar a Dylan con la tarea',cond:()=>casaSt('casa_sur1')==='home',run:dylanTarea});
+function chismeCasas(L){const cs=S.f.casas||{};for(const k in cs){const f=cs[k],fam=CASAS[k]?CASAS[k].fam:'';if(!fam)continue;
+  if(f.ladron&&S.day-f.ladron<3)L.push('Dicen que anoche alguien se metió donde '+fam+'. Dicen que ya saben quién fue… (te mira fijo)');
+  if(f.metido&&S.day-f.metido<3)L.push('Me contaron que usted se metió donde '+fam+' sin decir ni upe. ¡Qué confianzudo!')}
+ const fe=cs.casa_extra4||{};if(fe.ofendida&&S.day-fe.ofendida<3)L.push('Hay gente que se va antes del tamal. No digo nombres.');if(fe.feliz&&S.day-fe.feliz<3)L.push('Ese muchacho sí es educado: se quedó hasta el segundo cafecito.');
+ if((cs.casa_sur2||{}).sincera)L.push('Doña Tere anda diciendo que usted es el único que le dice la verdad de los queques.');
+ if(S.f.yoFotos)L.push('La Yolanda anda contenta. Dice que Kevin por fin tiene un amigo que saluda.');
+ if((cs.casa_extra3||{}).arrocera===2)L.push('¿Supo que a Keylor, el de los Solano, le confiscaron una arrocera? Alguien lo sapeó. Qué feo.')}
+
 // ================= INIT =================
 $('#mini').addEventListener('click',()=>openMap());
 loadChars();genExt();BUILD.forEach(genInt);Object.values(MAPS).forEach(renderMap);genMini();
 for(let y=0;y<MAPS.ext.h;y++)for(let x=0;x<MAPS.ext.w;x++)if(ti(MAPS.ext,x,y)===2&&!solidT(MAPS.ext,x,y))SIDEW.push([x,y]);
-S=newState();S.t=16*60;P.map='ext';P.x=40*T;P.y=30*T;S.per='';checkPeriod();makePeds();makeAnimals();storeVend();placeNPCs(true);snapCam();refreshMenu();
+S=newState();S.t=16*60;P.map='ext';P.x=40*T;P.y=30*T;S.per='';checkPeriod();makePeds();makeAnimals();storeVend();casaPeds();placeNPCs(true);snapCam();refreshMenu();
 let last=performance.now();
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;try{if(!PRO){update(dt);render(dt)}}catch(err){console.error(err)}requestAnimationFrame(loop)}
 requestAnimationFrame(loop);

@@ -102,6 +102,29 @@ Antes era un rectángulo de tierra de 5 tiles que subía recto hasta un letrero:
 - **Luciérnagas** a lo largo de la subida de noche (no salen si llueve) y **viento** en la cima.
 - Se conservan el letrero que abre la vista, el Cadejos y las huellas de Firulais.
 
+### Casas ajenas: «¡Upe!»
+En el barrio uno no entra así nomás: se para en el portón y grita «¡Upe!». En las cinco casas de gente que no es de tu círculo, el portón pregunta qué hacés:
+- **Gritar «¡Upe!»:** responde quien esté según la hora. Puede estar en casa (te hace pasar), durmiendo (te regaña desde adentro), afuera (candado y una nota) o, en el caso de Doña Fela, en el corredor (te invita a la mecedora).
+- **Entrar así nomás.**
+  - De día, el dueño te confronta y elegís una excusa: «vengo del AyA», «me equivoqué de casa», «¡upe!» tarde o la verdad. Algunas te sacan a la calle y otras te dejan quedarte.
+  - De noche, la casa está a oscuras y hay alguien dormido. Si tocás algo o pasan unos segundos, gritan «¡LADRÓN!», te pasa una chancleta y sale el pito del guarda.
+  - Si Doña Fela está en el corredor, el loro te delata.
+- **Sin castigo duro:** no perdés plata ni objetos. Lo que hiciste pasa al **chisme** (mecedoras y el loro Lorenzo).
+
+| Casa | Piso y paredes | Lo que pasa adentro |
+|---|---|---|
+| **Los Solano** | Terrazo verde; reglamento pegado en la pared | Doña Vilma cree que venís por el cuarto alquilado y te hace el tour. Keylor, el inquilino limonense, esconde una arrocera prohibida: la podés tapar o sapear. |
+| **Doña Fela** | Mosaico rojo encerado; papel tapiz floreado, pared de fotos, reloj de péndulo | Sillón forrado en plástico, vitrina intocable, telenovela a todo volumen y el loro Lorenzo, que repite tus chismes. La **trampa de hospitalidad**: si te vas antes del tamal, se ofende y el barrio se entera. |
+| **Los Mora** | Cemento lujado con juguetes; dibujos de los chiquitos | Caos: camarote, cuna y gemelos corriendo. El abuelo grita «¡LO ESTABA VIENDO!» si cambiás el canal. La perra Pelusa te devuelve una chancleta que no sabías que habías perdido. Dylan te pide ayuda con la tarea: un quiz que, si lo pasás, te da tazos. |
+| **Doña Tere** | Terrazo crema con harina; azulejos y tablero de pedidos | Te hace probar el queque del día. La sinceridad cuenta: si está seco y se lo decís, gana confianza. Te regala un queque, que sirve para la visita a los suegros. |
+| **Doña Yolanda** (la mamá de Carlillos) | Linóleo gastado; altar, trofeo y la puerta «NO ENTRAR» | Saca el álbum de «Kevincito»: primera comunión, portero y primer lugar en repostería. Si Carlillos está en casa, protesta. Después, en la calle, Carlillos te habla de eso. |
+
+En cualquier casa ajena, incluidas las de tus amigos, hay dos chistes nuevos:
+- **La refri:** el tarro de helado del congelador tiene frijoles molidos.
+- **La cama ajena:** si te acostás igual, te despertás con la familia mirándote en silencio.
+
+Donde Marta, después de devolverle a Kiki, **el gallo es guardián de verdad**: te persigue y te saca a picotazos.
+
 ### Fuera de alcance (ideas siguientes, no implementadas)
 - **Cimarrona y mascarada los domingos:** es el gran acontecimiento pendiente; necesita arte de mascarada propio.
 - Tamales los viernes y camión de la basura, que requieren un calendario semanal más completo.
