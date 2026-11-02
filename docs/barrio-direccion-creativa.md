@@ -94,6 +94,14 @@ Reglas que se siguieron para que no fuera una colección de añadidos:
   - el rótulo de la basura;
   - el canasto del cafetal.
 
+### El trillo al mirador
+Antes era un rectángulo de tierra de 5 tiles que subía recto hasta un letrero: no se sentía como subir a ningún lado. Ahora (`docs/img/trillo_antes.png` → `trillo_despues.png`, `trillo_noche.png`):
+- **Subida que serpentea**: 3 tiles de ancho entre helechos y platanillos, con **gradas de troncos y estacas** y un **pasamanos de tubo** en la parte empinada; entre las casas sigue ancho y un **caño** baja junto al camino.
+- **Tanque del AyA** junto a la cima: se ve desde la calle principal y marca el rumbo sin flechas. En la pata, las alturas de los chiquitos del barrio medidas cada diciembre (rincón «Mirar el tanque»).
+- **El mirador** como lugar de llegada: plataforma, baranda con macetas, banca de espaldas al barrio, basurero y unas iniciales rayadas en la baranda.
+- **Luciérnagas** a lo largo de la subida de noche (no salen si llueve) y **viento** en la cima.
+- Se conservan el letrero que abre la vista, el Cadejos y las huellas de Firulais.
+
 ### Fuera de alcance (ideas siguientes, no implementadas)
 - **Cimarrona y mascarada los domingos:** es el gran acontecimiento pendiente; necesita arte de mascarada propio.
 - Tamales los viernes y camión de la basura, que requieren un calendario semanal más completo.
