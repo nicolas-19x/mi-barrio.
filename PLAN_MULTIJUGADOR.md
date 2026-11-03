@@ -1,5 +1,7 @@
 # Plan: multijugador local (LAN) para «Mi Barrio»
 
+> **Estado:** fases 0 a 3 implementadas (servidor, salas, presencia, mundo compartido, migración de anfitrión, gestos, chat, NPC ocupado, reconexión). Instrucciones de uso en `server/README.md`. Pendiente: fase 4 (mejenga/penales entre jugadores, pasar plata u objetos, Chepe compartido) y el modo opcional sin servidor (WebRTC).
+
 Meta: varias personas, cada una en su celular y conectadas a la misma red wifi, exploran **el mismo barrio al mismo tiempo**, se ven caminar, entran a las mismas casas y tiendas, y se hablan o hacen gestos en tiempo real.
 
 Este documento es el plan listo para empezar a implementarlo en la próxima sesión, sin tener que volver a investigar. Todo lo marcado como **Decisión** ya está tomado (se puede cambiar, pero no hace falta preguntar para arrancar).
