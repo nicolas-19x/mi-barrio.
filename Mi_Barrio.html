@@ -7497,16 +7497,16 @@ function negNight(){const n=S&&S.f&&S.f.pg&&S.f.pg.neg;if(!n||n.v!==1)return;con
 function INV(){const p=PGS();if(!p.inv||p.inv.v!==1)p.inv=Object.assign({v:1,ahorro:[],cred:null,tanda:null,lot:[],presta:null,hist:[]},p.inv||{});return p.inv}
 const COOPE='CoopeBarrio R.L.';
 function invNight(){const v=S&&S.f&&S.f.pg&&S.f.pg.inv;if(!v||v.v!==1)return;const msgs=[],d=S.day,ended=d-1;
-  for(const a of v.ahorro.slice())if(d>=a.fin){const g=Math.round(a.m*1.035);earn(g,'Inversiones');v.ahorro.splice(v.ahorro.indexOf(a),1);msgs.push('🏦 Venció tu ahorro a plazo: '+fmtC(g)+' (ganaste '+fmtC(g-a.m)+')')}
+  for(const a of v.ahorro.slice())if(d>=a.fin){const g=Math.round(a.m*1.035);earn(g,'Inversiones');if(typeof progStat==='function')progStat('ahorros');v.ahorro.splice(v.ahorro.indexOf(a),1);msgs.push('🏦 Venció tu ahorro a plazo: '+fmtC(g)+' (ganaste '+fmtC(g-a.m)+')')}
   const c=v.cred;if(c&&d>=c.next){c.next+=7;if(S.money>=c.cuota){spend(c.cuota,'Cuotas');c.left--;msgs.push('🏦 Cuota de '+COOPE+': '+fmtC(c.cuota)+' · faltan '+c.left)}else{c.mora++;c.cuota=Math.round(c.cuota*1.05);msgs.push('⚠️ No pagaste la cuota de la coope. Mora '+c.mora+'/3 (+5%)')}
     if(c.left<=0){v.cred=null;v.buen=(v.buen||0)+1;msgs.push('✅ ¡Pagaste todo el préstamo! La coope te sube el límite.')}else if(c.mora>=3){v.cred=null;v.negra=1;msgs.push('🚫 La coope te pasó a cobro judicial. Te quedaste sin crédito por un buen rato.');if(typeof progRep==='function')progRep(-5)}}
   const t=v.tanda;if(t&&d>=t.next){t.next+=7;t.w++;if(S.money>=5000)spend(5000,'Tanda');else{t.debe=(t.debe||0)+5000;msgs.push('⚠️ No te alcanzó para la tanda. Doña Rosa te lo apuntó en el cuaderno.')}
     if(Math.random()<.06){t.hueco=(t.hueco||0)+5000;msgs.push('😤 '+pick(['Doña Marta','Jeffrey el del taxi','La prima de Doña Rosa'])+' no pagó la tanda esta semana. «Ya le pago, ya le pago…»')}
-    if(t.w===t.num){const g=40000-(t.hueco||0)-(t.debe||0);earn(Math.max(0,g),'Tanda');msgs.push('🎉 ¡Te tocó la tanda! Doña Rosa te entregó '+fmtC(Math.max(0,g))+' en un sobre de manila.');t.cobrado=1}
+    if(t.w===t.num){const g=40000-(t.hueco||0)-(t.debe||0);earn(Math.max(0,g),'Tanda');if(typeof progStat==='function')progStat('tandas');msgs.push('🎉 ¡Te tocó la tanda! Doña Rosa te entregó '+fmtC(Math.max(0,g))+' en un sobre de manila.');t.cobrado=1}
     if(t.w>=8){v.tanda=null;msgs.push('📓 Terminó la tanda de Doña Rosa. «¿Hacemos otra?»')}}
   for(const l of v.lot.slice())if(ended>=l.dia){v.lot.splice(v.lot.indexOf(l),1);const win=v.res&&v.res[l.dia+':'+l.tipo]!=null?v.res[l.dia+':'+l.tipo]:(v.res=v.res||{},v.res[l.dia+':'+l.tipo]=Math.floor(Math.random()*100));
     const pr=l.tipo==='nac'?80000:40000,cost=l.tipo==='nac'?1000:500;let g=0;if(win===l.num)g=pr*l.fr;else if(win%10===l.num%10)g=cost*l.fr;
-    if(g){earn(g,'Lotería');msgs.push((win===l.num?'🎉🎉 ¡PEGASTE EL PREMIO MAYOR! Salió el ':'🎟 Reintegro: salió el ')+String(win).padStart(2,'0')+' · ganaste '+fmtC(g));if(win===l.num&&typeof progRep==='function')progRep(3,'Te pegaste la lotería')}else msgs.push('🎟 '+(l.tipo==='nac'?'Lotería Nacional':'Chances')+': salió el '+String(win).padStart(2,'0')+'. Tu '+String(l.num).padStart(2,'0')+' no pegó. «La próxima es la vencida».')}
+    if(g){earn(g,'Lotería');msgs.push((win===l.num?'🎉🎉 ¡PEGASTE EL PREMIO MAYOR! Salió el ':'🎟 Reintegro: salió el ')+String(win).padStart(2,'0')+' · ganaste '+fmtC(g));if(win===l.num&&typeof progStat==='function')progStat('premios')}else msgs.push('🎟 '+(l.tipo==='nac'?'Lotería Nacional':'Chances')+': salió el '+String(win).padStart(2,'0')+'. Tu '+String(l.num).padStart(2,'0')+' no pegó. «La próxima es la vencida».')}
   const pr=v.presta;if(pr){const cu=Math.min(pr.debe,pr.cuota);if(S.money>=cu){spend(cu,'Prestamista');pr.debe-=cu;if(pr.debe<=0){v.presta=null;msgs.push('💀 Terminaste de pagarle a Don Mauro. «Un placer hacer negocios con usted.»')}}
     else{pr.fallo++;pr.debe+=Math.round(pr.debe*.1);if(pr.fallo>=2){pr.fallo=0;const take=Math.min(S.money,Math.round(pr.debe*.3));if(take>0){spend(take,'Prestamista');pr.debe-=take}const e=E();e.en=Math.max(5,e.en-35);S.f.cojo=Math.max(S.f.cojo||0,10);
       msgs.push('🩸 El Chiqui y Pelón te esperaron en la esquina. «Don Mauro manda saludos.» Te dejaron cojeando'+(take?' y se llevaron '+fmtC(take):'')+'.');if(typeof phQueue==='function')phQueue('mama','Mijo, ¿qué le pasó en la pierna? Me dijeron que lo vieron cojeando… ¿En qué anda metido? Me tiene con el alma en un hilo.')}
@@ -7533,7 +7533,7 @@ appReg({id:'neg',n:'Mi negocio',ic:'🍧',c:'#ef6f8a',html(){const n=NEG();let h
   h+=`<div class="qitem"><b>📈 Ganancias acumuladas: ${fmtC(n.earn)}</b><p class="note">Mejor tanda: ${fmtC(n.best)}</p></div>`;return h}});
 appReg({id:'coope',n:COOPE,ic:'🏦',c:'#2a6fb0',html(){const v=INV();let h=`<p class="note">Hoy es ${DOWN[dow()]} (día ${S.day}).</p>`;
   h+=`<h3>Ahorro a plazo</h3><div class="qitem"><p>Depositás y en 28 días te devuelven 3,5% más. Si lo sacás antes, perdés los intereses.</p>${v.ahorro.map((a,i)=>`<p>💰 ${fmtC(a.m)} · vence el día ${a.fin} <button class="alt" data-act="sacar:${i}">Sacar ya</button></p>`).join('')}<div class="row">${[10000,25000,50000,100000].map(m=>`<button data-act="ahorro:${m}" ${S.money<m?'disabled':''}>${fmtC(m)}</button>`).join(' ')}</div></div>`;
-  const lim=v.negra?0:50000*(1+(v.buen||0));h+=`<h3>Préstamo</h3><div class="qitem">${v.cred?`<p>Debés ${v.cred.left} cuotas de ${fmtC(v.cred.cuota)} (cada ${DOWN[dow(v.cred.next)]})${v.cred.mora?' · mora '+v.cred.mora+'/3':''}</p>`:v.negra?'<p>⛔ Estás en cobro judicial. La coope no te presta.</p>':`<p>Hasta ${fmtC(lim)} en 8 cuotas semanales (15% de interés total).</p><div class="row">${[25000,lim].filter((x,i,a)=>a.indexOf(x)===i).map(m=>`<button data-act="cred:${m}">Pedir ${fmtC(m)}</button>`).join(' ')}</div>`}</div>`;
+  const lim=v.negra?0:50000*(1+(v.buen||0))+(typeof repLv==='function'&&repLv()>=2?25000:0);h+=`<h3>Préstamo</h3><div class="qitem">${v.cred?`<p>Debés ${v.cred.left} cuotas de ${fmtC(v.cred.cuota)} (cada ${DOWN[dow(v.cred.next)]})${v.cred.mora?' · mora '+v.cred.mora+'/3':''}</p>`:v.negra?'<p>⛔ Estás en cobro judicial. La coope no te presta.</p>':`<p>Hasta ${fmtC(lim)} en 8 cuotas semanales (15% de interés total).</p><div class="row">${[25000,lim].filter((x,i,a)=>a.indexOf(x)===i).map(m=>`<button data-act="cred:${m}">Pedir ${fmtC(m)}</button>`).join(' ')}</div>`}</div>`;
   const t=v.tanda;h+=`<h3>La tanda de Doña Rosa</h3><div class="qitem">${t?`<p>Semana ${t.w}/8 · te toca en la semana ${t.num}${t.cobrado?' (ya cobraste)':''}. Pagás ₡5 000 cada ${DOWN[dow(t.next)]}.</p>`:`<p>Ocho vecinos, ₡5 000 por semana, ocho semanas. A cada uno le toca una vez: ₡40 000 de golpe. ¿Qué número querés?</p><div class="row">${[1,3,5,8].map(k=>`<button data-act="tanda:${k}">Número ${k}</button>`).join(' ')}</div><p class="note">Los primeros números cobran antes… pero si alguien no paga, el hueco lo sienten los últimos.</p>`}</div>`;
   h+=`<h3>Lotería</h3><div class="qitem">${v.lot.length?v.lot.map(l=>`<p>🎟 ${l.tipo==='nac'?'Nacional':'Chances'} · ${String(l.num).padStart(2,'0')} · ${l.fr} fracc. · sorteo del ${DOWN[dow(l.dia)]}</p>`).join(''):'<p>No tenés números. Don Toño vende en la plaza, frente a la iglesia.</p>'}</div>`;
   if(v.presta)h+=`<div class="qitem"><b>💀 Le debés ${fmtC(v.presta.debe)} a Don Mauro</b><p>Cuota diaria: ${fmtC(v.presta.cuota)}.</p></div>`;return h},
@@ -7565,6 +7565,68 @@ appReg({id:'coope',n:COOPE,ic:'🏦',c:'#2a6fb0',html(){const v=INV();let h=`<p 
 .srv-b{padding:7px 11px!important;min-height:0!important;font-size:13px!important;border-left:6px solid var(--c)!important}
 .srv-b.on{outline:3px solid #fff;outline-offset:1px;background:var(--c)!important;color:#14101c!important;text-shadow:0 1px 0 rgba(255,255,255,.5)}
 .srv-act{flex-wrap:wrap;gap:6px}`;document.head.appendChild(st)}
+
+// ================= PROGRESO · RESPETO DEL BARRIO, LOGROS Y METAS =================
+const REPLV=[[0,'Recién llegado','Nadie sabe bien quién sos.'],[20,'Conocido','Ya te saludan en la pulpería.'],[60,'Vecino de confianza','Te dejan las llaves cuando se van de viaje.',' La coope te presta ₡25 000 más.'],
+ [130,'Gente del barrio','Te invitan a todos los turnos y rezos.',' Tu soda gana fama más rápido.'],[250,'Mae importante','Hasta el diputado te saluda en campaña.',' Podés presidir la Asociación de Vecinos.'],[450,'Leyenda del barrio','Van a ponerle tu nombre a la plaza.','']];
+function repLv(r){r=r==null?(S&&S.f&&S.f.pg?S.f.pg.rep:0):r;let i=0;REPLV.forEach((x,k)=>{if(r>=x[0])i=k});return i}
+function progRep(n,why){if(!S||!S.f)return;const p=PGS(),l0=repLv(p.rep);p.rep=Math.max(0,(p.rep||0)+n);const l1=repLv(p.rep);
+  if(l1>l0){const L=REPLV[l1];setTimeout(()=>{toast('⭐ ¡Subiste de nivel en el barrio! Ahora sos «'+L[1]+'». '+L[2]+(L[3]||''));try{cashSound()}catch(e){}},900);if(typeof phQueue==='function'&&l1>=2)phQueue('mama',pick(['Mijo, Doña Rosa me contó lo bien que le va. ¡Qué orgullo! Ya no me tiene que pedir plata para el bus 😅','Me dijeron en la iglesia que usted es muy querido en el barrio. Así lo crié yo 🙏']))}
+  logroCheck()}
+function progStat(k,n){const st=PGS().stats;st[k]=(st[k]||0)+(n==null?1:n);logroCheck()}
+const stat=k=>(S&&S.f&&S.f.pg&&S.f.pg.stats[k])||0;
+// ---- logros ----
+const LOGROS=[
+ ['vehiculo','🚲','Sobre ruedas','Comprá tu primer vehículo.',()=>PGS().veh.length>0,3],
+ ['licencia','🪪','Con papeles','Sacá una licencia en el COSEVI.',()=>PGS().lic.moto||PGS().lic.carro,4],
+ ['carro','🚗','El Corollita','Tené un carro (o La Bestia).',()=>PGS().veh.some(v=>!v.gone&&VM[v.m].k==='carro'),6],
+ ['chepe','🛣','A Chepe en lo propio','Llegá a Chepe manejando.',()=>stat('viajes')>0,3],
+ ['repartos','📦','Pedidos Mae','Entregá 25 pedidos.',()=>PGS().jobs.n>=25,6],
+ ['copos','🍧','El rey del copo','Vendé 100 copos.',()=>NEG().sold>=100,6],
+ ['soda','🍛','Soda Mi Barrio','Abrí tu propia soda.',()=>NEG().soda>0,10],
+ ['chela','👩‍🍳','Doña Chela, chef','Contratá a Doña Chela para tu soda.',()=>NEG().cook>0,5],
+ ['segundo','🏗','Para arriba','Construí el segundo piso.',()=>U('segundo')>0,8],
+ ['revista','🛋','Casa de revista','Llegá a «Casa de revista» en comodidad.',()=>typeof comfort==='function'&&comfort()>=34,8],
+ ['inquilino','🏠','Casero','Alquilá el cuarto de arriba.',()=>!!PGS().inq,3],
+ ['tanda','📓','La tanda','Cobrá una tanda de Doña Rosa.',()=>stat('tandas')>0,3],
+ ['ahorro','🏦','Hormiguita','Cobrá un ahorro a plazo.',()=>stat('ahorros')>0,3],
+ ['sindeuda','✅','Pagador puntual','Terminá de pagar un préstamo de la coope.',()=>(INV().buen||0)>0,5],
+ ['loteria','🎟','¡Pegó la lotería!','Ganate un premio mayor con Don Toño.',()=>stat('premios')>0,8],
+ ['hoyo','🕳','Bienvenido al Hoyo','Entrá a El Hoyo.',()=>!!S.f.hoyoVisto,4],
+ ['atrop','🚑','Sobreviviente','Sobreviví a un atropello en Chepe.',()=>(S.f.atrop||0)>0,1],
+ ['millon','💰','Millonario (en colones)','Juntá ₡1 000 000.',()=>S.money>=1000000,10],
+ ['leyenda','👑','Leyenda del barrio','Llegá al nivel más alto de respeto.',()=>repLv()>=5,0]];
+function logroCheck(){if(!S||!S.f||!S.f.pg)return;const p=PGS();for(const[id,ic,n,t,f,r]of LOGROS){if(p.logros[id])continue;let ok=false;try{ok=!!f()}catch(e){}if(!ok)continue;p.logros[id]=S.day;
+  setTimeout(()=>{toast('🏆 Logro: '+ic+' '+n);beep(1046,.08,'triangle',.05);setTimeout(()=>beep(1568,.16,'triangle',.05),90)},400);if(r)progRep(r)}}
+setInterval(()=>{if(typeof mode!=='undefined'&&mode==='play')logroCheck()},5000);
+{const _dt=driveTrip;driveTrip=function(to){const r=_dt.apply(this,arguments);if(to==='chepe')progStat('viajes');return r}}
+{const _q=doneQ;doneQ=function(id){const was=qs(id)===2;const r=_q.apply(this,arguments);if(!was)progRep(3);return r}}
+{const _w=doShift;doShift=function(k,h){const r=_w.apply(this,arguments);progRep(h>=4?1:.5);return r}}
+// ---- metas: qué sigue en tu vida ----
+function metas(){const p=PGS(),n=NEG(),v=INV(),out=[],add=(ic,t,d,pr)=>out.push({ic,t,d,pr});
+  if(!p.veh.length)add('🚲','Tu primera bici','Una bici montañera anda por ₡18 000 en la Agencia o el Marketplace (celular → Apps).',S.money/18000);
+  else if(!p.lic.moto&&!p.lic.carro)add('🪪','Sacar licencia','Para motos y carros: examen teórico en el COSEVI (celular → Apps). ₡15 000 la de moto.',0);
+  else if(!p.veh.some(x=>!x.gone&&VM[x.m].motor))add('🏍','Una moto','La moto de agencia cuesta ₡75 000. Con crédito pagás 25% de prima.',S.money/75000);
+  else if(!p.veh.some(x=>!x.gone&&VM[x.m].k==='carro'))add('🚗','Un carro','El Corollita del 96 anda por ₡280 000. Ojo con el marchamo y la RTV.',S.money/280000);
+  if(!n.cart)add('🍧','Un negocio propio','Doña Mireya vende copos en el bulevar de Chepe y anda vendiendo su carrito viejo.',S.money/15000);
+  else if(!n.soda&&!n.obra)add('🍛','La soda','Vendé 40 copos y juntá ₡85 000 para montar una soda en el lote de la Calle 3.',Math.min(n.sold/40,S.money/85000));
+  else if(n.soda&&!n.cook)add('👩‍🍳','Una cocinera','Doña Chela, la de las empanadas de El Hoyo, cocina como los ángeles.',0);
+  else if(n.soda===1)add('🌇','Agrandar la soda','Una terracita con mesas: más clientes y el casado a ₡3 500. ₡60 000.',S.money/60000);
+  const ups=['techo','cochera','segundo','terraza'].find(k=>!U(k));if(ups){const H=HUP[ups],l=H.lv[0];add(H.ic,H.n,l.t+' ('+fmtC(l.c)+' en la libreta de la casa)',S.money/l.c)}
+  else if(comfort()<34)add('🛋','Una casa de revista','Decorá la casa (libreta de la casa → Decoración). Comodidad: '+comfort()+'/34.',comfort()/34);
+  if(!v.ahorro.length&&S.money>=40000)add('🏦','Poner la plata a trabajar','En '+COOPE+' el ahorro a plazo da 3,5% en 28 días. Mejor que debajo del colchón.',1);
+  const L=repLv(),nx=REPLV[L+1];if(nx)add('⭐','Respeto: «'+nx[1]+'»','Trabajá, ayudá, abrí negocios y cumplí con la gente. '+(p.rep|0)+'/'+nx[0]+' puntos.',(p.rep-REPLV[L][0])/(nx[0]-REPLV[L][0]));
+  return out.slice(0,5)}
+appReg({id:'metas',n:'Metas',ic:'🎯',c:'#f2c94c',html(){const p=PGS(),L=REPLV[repLv()],nx=REPLV[repLv()+1],got=LOGROS.filter(l=>p.logros[l[0]]).length;
+  let h=`<div class="qitem"><b>⭐ ${L[1]}</b><p>${L[2]}</p>${nx?`<div class="eco-bar"><i style="width:${Math.round(Math.min(1,(p.rep-L[0])/(nx[0]-L[0]))*100)}%"></i></div><p class="note">${p.rep|0} de ${nx[0]} puntos para «${nx[1]}».${nx[3]?' Desbloquea:'+nx[3]:''}</p>`:'<p class="note">Llegaste a lo más alto. El barrio es tuyo.</p>'}</div>`;
+  h+='<h3>Lo que sigue</h3>'+metas().map(m=>`<div class="qitem"><b>${m.ic} ${esc(m.t)}</b><p>${esc(m.d)}</p>${m.pr>0?`<div class="eco-bar"><i style="width:${Math.round(Math.min(1,m.pr)*100)}%"></i></div>`:''}</div>`).join('');
+  h+=`<h3>Logros · ${got}/${LOGROS.length}</h3><div class="pg-logros">${LOGROS.map(([id,ic,n,t])=>{const d=p.logros[id];return`<div class="pg-logro${d?' on':''}" title="${esc(t)}"><span>${d?ic:'🔒'}</span><b>${esc(n)}</b><small>${d?'Día '+d:esc(t)}</small></div>`}).join('')}</div>`;return h}});
+{const st=document.createElement('style');st.textContent=`.pg-logros{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}.pg-logro{padding:8px 6px;border-radius:12px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.15);text-align:center;display:flex;flex-direction:column;gap:2px;opacity:.6}
+.pg-logro span{font-size:22px}.pg-logro b{font-size:12px}.pg-logro small{font-size:10.5px;opacity:.8;line-height:1.25}.pg-logro.on{opacity:1;border:1px solid rgba(242,201,76,.6);background:rgba(242,201,76,.1)}`;document.head.appendChild(st)}
+// ventajas por nivel
+{const _n=negNight;negNight=function(){_n();const n=S&&S.f&&S.f.pg&&S.f.pg.neg;if(n&&n.soda&&repLv()>=3)n.fama=clamp(n.fama+.5,0,100)}}
+// subir de respeto con lo que ya hacés en el juego: dormir en casa propia cuenta poquito, ayudar cuenta más
+{const _e=ecoDay;ecoDay=function(){const r=_e();try{logroCheck()}catch(e){}return r}}
 
 // ================= PROGRESO · APPS DEL CELULAR =================
 // Pestaña «📱 Apps»: Marketplace, la agencia, COSEVI, RTV y marchamo, INS, Pedidos Mae, Mis vehículos
