@@ -1529,7 +1529,7 @@ function hdCasters(m){if(m.hdCast)return m.hdCast;const C={boxes:[],trees:[],pol
     for(const[x,y]of POLES)C.poles.push({x:x*T+8,y:y*T+14,h:52});
     for(const o of m.objs){if(o.type==='kiosco')C.boxes.push({x:o.x*T,y:o.y*T+8,w:o.w*T,h:o.h*T-10,hg:16});if(o.type==='busstop')C.boxes.push({x:o.x*T,y:o.y*T,w:o.w*T,h:T,hg:14})}}
   m.hdCast=C;return C}
-function hdEntDraw(e){if(e.kind==='carv')return null;if(e===P)return{img:heroSprite(e.dir,heroFrame(e),CH.player.shirt),x:-9,y:-27,w:18,h:29};
+function hdEntDraw(e){if(e.kind==='carv')return null;if(e===P&&typeof progRideImg==='function'){const r=progRideImg();if(r)return r}if(e===P)return{img:heroSprite(e.dir,heroFrame(e),CH.player.shirt),x:-9,y:-27,w:18,h:29};
   if(e.kind==='animal'){if(typeof aniDraw==='function')return aniDraw(e);const s=animSpr(e.type,e.col,e.fr,e.dir===2);return{img:s,x:-(s.width>>1),y:-s.height+1,w:s.width,h:s.height}}
   if(typeof npcDraw==='function'){const d=npcDraw(e);if(d)return d}
   return{img:sprite(e.c,e.dir,e.fr),x:-9,y:-25,w:18,h:26}}
@@ -3506,8 +3506,8 @@ ASKS.ca_hi=c=>[
 // ---------- celular: interfaz ----------
 const pedAllActive=()=>PH().ped.filter(d=>!d.done&&!d.fail).length;
 function openPhone(){PHV.th=null;PHV.tab='chats';phRender()}
-function phRender(){PHV.open=1;ECOV.cur='phone';const un=totalUn(),pa=pedAllActive();let h='<div class="ph"><div class="ph-tabs">'+[['chats','💬 Chats'],['rel','💞 Relaciones'],['ped','📝 Mandados'],['fin','🏦 SINPE']].map(([k,l])=>`<button class="${(PHV.tab===k&&!PHV.th)?'on':''}" data-pt="${k}">${l}${k==='chats'&&un?`<i class="ph-dot">${un}</i>`:''}${k==='ped'&&pa?`<i class="ph-dot">${pa}</i>`:''}</button>`).join('')+'</div>';
- h+=PHV.th?phThread(PHV.th):PHV.tab==='chats'?phList():PHV.tab==='rel'?phRel():PHV.tab==='fin'?finHTML():phPeds();h+='</div>';
+function phRender(){PHV.open=1;ECOV.cur='phone';const un=totalUn(),pa=pedAllActive();let h='<div class="ph"><div class="ph-tabs">'+[['chats','💬 Chats'],['rel','💞 Relaciones'],['ped','📝 Mandados'],['fin','🏦 SINPE'],['apps','📱 Apps']].map(([k,l])=>`<button class="${(PHV.tab===k&&!PHV.th)?'on':''}" data-pt="${k}">${l}${k==='chats'&&un?`<i class="ph-dot">${un}</i>`:''}${k==='ped'&&pa?`<i class="ph-dot">${pa}</i>`:''}</button>`).join('')+'</div>';
+ h+=PHV.th?phThread(PHV.th):PHV.tab==='chats'?phList():PHV.tab==='rel'?phRel():PHV.tab==='fin'?finHTML():PHV.tab==='apps'&&typeof progApps==='function'?progApps():phPeds();h+='</div>';
  openPanel('Celular',h);phBind();phBadge()}
 function phList(){const p=PH();const ks=['ariana','mama','papa'].filter(phOn);
  if(!ks.length)return`<p>Tu celular está en silencio. Primero saludá a la barra por el barrio.</p>`;
@@ -7070,6 +7070,294 @@ function ensureMapP(id){if(!MAPS[id]&&id==='hoyo')genHoyo()}
 {const _e=ensureMap;ensureMap=function(id){ensureMapP(id);return _e(id)}}
 // el portón se abre/cierra según el pase (también al cargar partida)
 {const _sg=startGame;startGame=function(f){const r=_sg(f);hoyoGateSolid();return r}}
+
+// ================= PROGRESO · VEHÍCULOS =================
+// Bici, motos, carro y pickup: se compran (Marketplace, agencia, El Hoyo, el taller), se manejan de verdad,
+// gastan gasolina, se desgastan, se varan, pagan marchamo y RTV, ocupan licencia y se los pueden robar.
+function PGS(){const f=S.f;if(!f.pg)f.pg={veh:[],ride:null,lic:{moto:0,carro:0},nid:1,mk:null,job:null,jobs:{n:0,stars:0},tram:[],seg:{},rtv:{},mar:{},cred:[],dep:null,logros:{},rep:0,decor:{},neg:{},inv:{},stats:{}};return f.pg}
+const VM={
+ bici:{n:'Bici montañera',ic:'🚲',k:'bici',price:18000,spd:1.6,motor:0,lic:null,range:0,mar:0,col:'#2a6fb0'},
+ bici_r:{n:'Bici de ruta',ic:'🚴',k:'bici',price:38000,spd:1.85,motor:0,lic:null,range:0,mar:0,col:'#d6453c'},
+ moto_u:{n:'Moto Toro 125 (usada)',ic:'🛵',k:'moto',price:75000,spd:2.25,motor:1,lic:'moto',range:15000,mar:9000,tank:9,col:'#c0473b'},
+ moto_n:{n:'Moto Relámpago 150 (0 km)',ic:'🏍',k:'moto',price:160000,spd:2.5,motor:1,lic:'moto',range:17000,mar:12000,tank:11,col:'#2a2a30'},
+ moto_h:{n:'Moto «de dudosa procedencia»',ic:'🛵',k:'moto',price:32000,spd:2.2,motor:1,lic:'moto',range:13000,mar:9000,tank:9,col:'#2a6fb0',hot:1},
+ carro:{n:'Corollita del 96',ic:'🚗',k:'carro',price:280000,spd:2.55,motor:1,lic:'carro',range:22000,mar:28000,tank:40,col:'#e2b33a'},
+ pickup:{n:'Pickup 4×4 «La Bestia»',ic:'🛻',k:'pickup',price:450000,spd:2.35,motor:1,lic:'carro',range:20000,mar:42000,tank:60,col:'#7d2a2a'}};
+const GAS_L=780,HOME_PARK={map:'ext',x:7.4*T,y:17*T+11};
+const vOf=id=>PGS().veh.find(v=>v.id===id);
+const riding=()=>{const p=S&&S.f&&S.f.pg;return p&&p.ride?p.veh.find(v=>v.id===p.ride):null};
+function vAdd(m,o){const p=PGS(),c=VM[m],v=Object.assign({id:'v'+(p.nid++),m,col:c.col,gas:c.motor?.6:0,cond:100,map:HOME_PARK.map,x:HOME_PARK.x,y:HOME_PARK.y,dir:3,km:0,placa:vPlaca()},o||{});p.veh.push(v);
+  if(c.motor){p.rtv[v.id]=S.day+21;p.mar[v.id]=S.day+28}return v}
+function vPlaca(){const L='BCDFGHJKLMNPRSTV';return L[(Math.random()*16)|0]+L[(Math.random()*16)|0]+L[(Math.random()*16)|0]+'-'+(100+((Math.random()*899)|0))}
+// ---------------------------------------------------------------- sprites (HD, con el jugador montado)
+const VSP=new Map();
+function vHelmet(b,cx,cy,col,side){const c=hdC(col);hdEll(b,cx,cy,7.5,7,hdS(c,.75));hdEll(b,cx-1,cy-1,6.5,6,c);hdEll(b,cx-3,cy-3,2.5,2,hdS(c,1.4));
+  if(side==='f'){hdR(b,cx-5,cy,10,4,[40,52,68]);hdR(b,cx-4,cy,3,1,[150,190,220])}else if(side==='r'){hdR(b,cx+1,cy-1,6,4,[40,52,68])}else if(side==='l'){hdR(b,cx-7,cy-1,6,4,[40,52,68])}}
+function vSprite(m,col,dir,fr,rider,shirt){const k=m+col+dir+fr+(rider?'R'+(shirt||''):'');let s=VSP.get(k);if(s)return s;if(VSP.size>300)VSP.clear();
+  const c=VM[m],K=c.k,side=dir>=2,flip=dir===2,R=hdRamp(col,7);let b,ox=0,oy=0;
+  const hero=rider?heroSprite(side?3:dir,rider==='walk'?fr%6:6,shirt):null;
+  if(K==='bici'){if(side){b=hdBuf(56,66);const w1=[12,56],w2=[44,56];hdEll(b,28,64,22,2,[0,0,0],.25);
+      for(const[wx,wy]of[w1,w2]){for(let a=0;a<24;a++){const t=a/24*6.283;hdP(b,wx+Math.cos(t)*8,wy+Math.sin(t)*8,[30,30,34]);hdP(b,wx+Math.cos(t)*7,wy+Math.sin(t)*7,[60,60,66])}for(let s2=0;s2<4;s2++){const t=fr*.7+s2*.785;hdLine(b,wx-Math.cos(t)*6,wy-Math.sin(t)*6,wx+Math.cos(t)*6,wy+Math.sin(t)*6,[150,154,160])}}
+      hdLine(b,12,56,26,44,R[4],1,2);hdLine(b,26,44,44,56,R[4],1,2);hdLine(b,26,44,40,42,R[5],1,2);hdLine(b,40,42,44,56,R[3],1,2);hdLine(b,26,44,24,38,R[3],1,2);hdR(b,20,36,9,3,[40,40,44]);hdLine(b,40,42,42,34,[60,60,66],1,2);hdR(b,38,32,8,2,[40,40,44]);
+      if(hero)hdBlitC(b,hero,10,0);hdLine(b,40,40,42,34,[60,60,66],1,2)}
+    else{b=hdBuf(36,66);hdEll(b,18,64,9,2,[0,0,0],.25);if(hero&&dir===1)hdBlitC(b,hero,0,0);hdR(b,16,46,4,18,[30,30,34]);hdR(b,17,46,2,18,[70,70,76]);hdR(b,6,dir===0?36:40,24,2,[50,50,56]);hdR(b,15,dir===0?36:40,6,10,R[4]);
+      if(hero&&dir===0)hdBlitC(b,hero,0,0);if(dir===0){hdR(b,16,52,4,12,[30,30,34]);hdR(b,6,38,24,2,[50,50,56])}else{hdR(b,14,40,8,3,[40,40,44]);hdR(b,16,46,4,3,[200,40,40])}}}
+  else if(K==='moto'){if(side){b=hdBuf(68,66);hdEll(b,34,64,28,2.5,[0,0,0],.28);vehWheel(b,13,55,9,fr);vehWheel(b,55,55,9,fr);
+      hdLine(b,55,55,48,36,[90,92,98],1,2);hdR(b,24,44,22,10,[60,60,66]);hdR(b,26,46,8,6,[90,92,98]);hdLine(b,10,52,30,50,[150,154,160],1,2);   // motor y escape
+      vehBody(b,22,34,30,10,col,4);hdR(b,14,36,14,5,[30,30,34]);hdR(b,14,36,14,1,[70,70,76]);hdR(b,52,40,9,6,hdS(hdC(col),.8));hdR(b,60,38,4,4,[255,246,200]);hdR(b,8,40,4,3,[200,40,40]);
+      hdR(b,47,30,2,8,[60,60,66]);hdR(b,44,29,8,2,[40,40,44]);
+      if(hero){hdBlitC(b,hero,12,2,40);vHelmet(b,30,11,col,'r');vehBody(b,22,34,30,10,col,4);hdR(b,46,30,6,2,[40,40,44])}}
+    else{b=hdBuf(40,66);hdEll(b,20,64,11,2.5,[0,0,0],.28);if(dir===1){if(hero){hdBlitC(b,hero,2,2,40);vHelmet(b,20,11,col,'b')}hdR(b,15,44,10,20,[28,28,32]);hdR(b,13,38,14,8,hdS(hdC(col),.85));hdR(b,16,46,8,3,[200,40,40]);hdR(b,15,50,10,5,[240,240,230]);hdText(b,16,50,'CR',[40,40,46])}
+      else{if(hero){hdBlitC(b,hero,2,2,40);vHelmet(b,20,11,col,'f')}hdR(b,15,46,10,18,[28,28,32]);hdR(b,12,38,16,10,col?hdC(col):[200,60,50]);hdR(b,12,38,16,2,hdS(hdC(col),1.3));hdEll(b,20,42,4,3,[255,246,200]);hdR(b,4,32,32,2,[50,50,56]);hdR(b,2,28,4,4,[180,190,200]);hdR(b,34,28,4,4,[180,190,200])}}}
+  else{const L=K==='pickup';if(side){b=hdBuf(L?86:80,48);const W2=b.w;hdEll(b,W2/2,44,W2/2-6,3.5,[0,0,0],.3);vehBody(b,4,22,W2-8,16,col,5);
+      for(let j=0;j<12;j++){const l=L?48:22,r=L?70:58;for(let i=Math.floor(l+(11-j)*.9);i<r-(11-j)*1.4;i++)hdP(b,i,11+j,R[j<2?6:j<6?5:4])}
+      if(L){vehGlass(b,[[52,13],[62,13],[68,22],[52,22]],false);hdR(b,6,18,40,4,R[3]);hdR(b,6,18,40,1,R[6])}else{vehGlass(b,[[25,13],[40,13],[40,22],[19,22]],false);vehGlass(b,[[42,13],[52,13],[60,22],[42,22]],false);hdR(b,40,13,2,9,R[2])}
+      if(rider){const hx=L?58:47;hdEll(b,hx,17,4,4,[196,140,96]);hdEll(b,hx-1,14,4,3,[40,30,26])}
+      hdR(b,5,29,W2-10,1,R[6]);hdR(b,W2-8,24,4,4,[255,246,200]);hdR(b,3,24,3,4,[200,40,40]);hdR(b,2,32,6,5,[150,150,156]);hdR(b,W2-8,32,6,5,[150,150,156]);
+      vehWheel(b,18,37,7,fr);vehWheel(b,W2-18,37,7,fr)}
+    else{b=hdBuf(48,52);hdEll(b,24,49,22,3,[0,0,0],.3);vehBody(b,3,20,42,22,col,5);for(let j=0;j<12;j++)for(let i=8+(11-j)*.4;i<40-(11-j)*.4;i++)hdP(b,i,8+j,R[j<3?6:5]);
+      vehGlass(b,[[10,10],[38,10],[40,20],[8,20]],dir===1);if(rider&&dir===0){hdEll(b,17,16,4,4,[196,140,96]);hdEll(b,17,13,4,3,[40,30,26])}
+      if(dir===0){hdR(b,5,26,8,5,[255,246,200]);hdR(b,35,26,8,5,[255,246,200]);hdR(b,14,30,20,5,[60,60,66]);for(let i=16;i<34;i+=3)hdR(b,i,31,1,3,[120,120,126])}else{hdR(b,5,26,8,4,[200,40,40]);hdR(b,35,26,8,4,[200,40,40]);hdR(b,17,33,14,6,[240,240,230]);hdText(b,18,33,'CR',[40,40,46])}
+      hdR(b,3,38,42,4,[60,60,66]);hdR(b,5,42,7,8,[26,26,30]);hdR(b,36,42,7,8,[26,26,30])}}
+  s=hdToCanvas(b);if(flip){const f=mk(s.width,s.height),g=f.getContext('2d');g.translate(s.width,0);g.scale(-1,1);g.drawImage(s,0,0);s=f}VSP.set(k,s);return s}
+function hdBlitC(b,cnv,ox,oy,maxRows){const g=cnv.getContext('2d'),d=g.getImageData(0,0,cnv.width,cnv.height).data;const rows=maxRows||cnv.height;
+  for(let y=0;y<rows;y++)for(let x=0;x<cnv.width;x++){const i=(y*cnv.width+x)<<2;if(d[i+3]>10)hdP(b,ox+x,oy+y,[d[i],d[i+1],d[i+2]])}}
+// imagen del jugador montado (para dibujar y para la sombra)
+function progRideImg(){const v=riding();if(!v||v.map!==P.map)return null;const fr=Math.floor((v.wd||0)/4)%5;const s=vSprite(v.m,v.col,P.dir|0,VM[v.m].k==='bici'&&P.moving?Math.floor(P.hf||0):fr,VM[v.m].k==='bici'?(P.moving?'walk':'sit'):'sit',CH.player.shirt);
+  const w=s.width/2,h=s.height/2;return{img:s,x:-w/2,y:-h+3,w,h}}
+{const _hd=heroDraw;heroDraw=function(g,X,Y,e){const r=e===P&&progRideImg();if(r){g.drawImage(r.img,X+r.x,Y+r.y,r.w,r.h);return}return _hd(g,X,Y,e)}}
+// vehículos estacionados (se ordenan con la gente)
+function progProxies(list,map){const p=S&&S.f&&S.f.pg;if(!p)return;for(const v of p.veh){if(v.id===p.ride||v.map!==map||v.gone)continue;const s=vSprite(v.m,v.col,v.dir|0,0,null);
+    list.push({kind:'carv',map,x:v.x,y:v.y,draw:g=>{g.drawImage(s,Math.round((v.x-s.width/4)*2)/2,Math.round((v.y-s.height/2+3)*2)/2,s.width/2,s.height/2);if(v.varado&&Math.floor(qBlink*2)%2){g.fillStyle='#f2c94c';g.fillRect(v.x-1,v.y-s.height/2-4,2,4)}}})}
+  if(typeof progJobProxies==='function')progJobProxies(list,map)}
+// ---------------------------------------------------------------- manejar
+let ENG=null;
+function engineOn(v){engineOff();const c=VM[v.m];if(!c.motor||!OPT.sound)return;const a=ac();if(!a)return;const o=a.createOscillator(),o2=a.createOscillator(),f=a.createBiquadFilter(),g=a.createGain();
+  o.type='sawtooth';o2.type='square';f.type='lowpass';f.frequency.value=380;g.gain.value=0;o.connect(f);o2.connect(f);f.connect(g).connect(a.destination);o.start();o2.start();ENG={o,o2,g,a,base:c.k==='moto'?52:38};}
+function engineOff(){if(!ENG)return;try{ENG.g.gain.setTargetAtTime(0,ENG.a.currentTime,.05);const e=ENG;setTimeout(()=>{try{e.o.stop();e.o2.stop()}catch(x){}},300)}catch(e){}ENG=null}
+function progMount(v){const c=VM[v.m];
+  if(v.varado){say(null,'Está varada. Hay que llevarla al taller de '+N('kevin')+' o llamar la grúa por el celular.',[{t:'Empujarla (caminás despacio)',f(){afterD(()=>{PGS().ride=v.id;v.push=1;toast('🛵 Empujando… (V para soltarla)')})}},{t:'Dejarla'}]);runDialog();return}
+  if(c.motor&&v.gas<=0.005){toast('⛽ Sin gasolina. Llevala empujada a la bomba o comprá un galón.');PGS().ride=v.id;v.push=1;return}
+  if(v.dep){toast('🚔 Está en el depósito de Tránsito. Pagá la multa en el celular (COSEVI).');return}
+  PGS().ride=v.id;v.push=0;P.dir=v.dir|0;if(c.motor){engineOn(v);beep(c.k==='moto'?140:90,.35,'sawtooth',.04,c.k==='moto'?260:160)}else beep(1200,.04,'triangle',.02);
+  if(c.lic&&!PGS().lic[c.lic]&&!S.f.pgLicW){S.f.pgLicW=1;toast('⚠️ Sin licencia: en el barrio pasa, pero en Chepe los retenes no perdonan')}
+  else toast(c.ic+' '+c.n+(c.motor?' · ⛽ '+Math.round(v.gas*100)+'%':''))}
+function progDismount(silent){const v=riding();if(!v)return;const p=PGS();v.map=P.map;v.x=P.x;v.y=P.y;v.dir=P.dir|0;p.ride=null;v.push=0;engineOff();if(!silent)beep(500,.05,'triangle',.02)}
+function nearVeh(){if(!S||!S.f||!S.f.pg)return null;let best=null,bd=26;for(const v of PGS().veh){if(v.gone||v.map!==P.map||v.id===PGS().ride)continue;const d=Math.hypot(v.x-P.x,v.y-P.y);if(d<bd){bd=d;best=v}}return best}
+const RIDE_MAPS=new Set(['ext','chepe','hoyo']);
+{const _mv=moveEnt;moveEnt=function(e,dx,dy){if(e===P){const v=riding();if(v){const c=VM[v.m];let k=v.push?.55:c.spd;if(KEYS.shift&&!v.push)k*=c.motor?1.12:1.18;dx*=k;dy*=k;
+      const d=Math.hypot(dx,dy);v.wd=(v.wd||0)+d;v.km+=d;if(c.motor&&!v.push){v.gas=Math.max(0,v.gas-d/c.range);if(v.gas<=0){v.push=1;engineOff();toast('⛽ Se acabó la gasolina. Toca empujar…')}}
+      v.cond=Math.max(0,v.cond-d/(c.motor?1100:1600))}}return _mv(e,dx,dy)}}
+{const _cd=checkDoors;checkDoors=function(){const v=riding();if(v){const m=MAPS[P.map],[tx,ty]=tileOf(P);const door=m&&m.doors&&m.doors.find(d=>d.x===tx&&d.y===ty);if(door||(m&&m.interior)){progDismount(true);P.y-=2}}return _cd()}}
+{const _f=findTarget;findTarget=function(){const t=_f();if(riding())return t;if(!t||t.type==='furn'){const v=nearVeh();if(v)return{type:'myveh',v}}return t}}
+{const _l=targetLabel;targetLabel=function(t){if(t&&t.type==='myveh'){const c=VM[t.v.m];return(c.k==='carro'||c.k==='pickup'?'Subirse al ':'Montarse en la ')+(c.k==='bici'?'bici':c.k==='moto'?'moto':c.k==='pickup'?'pickup':'carro')}return _l(t)}}
+{const _i=interact;interact=function(){if(mode!=='play'||fading)return _i();const t=target;if(t&&t.type==='myveh'){progMount(t.v);return}if(riding()&&t&&t.type!=='activity'){progDismount(true)}return _i()}}
+addEventListener('keydown',e=>{if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;if(e.repeat||mode!=='play'||!S||!S.started)return;if((e.key||'').toLowerCase()==='v'){if(riding())progDismount();else{const v=nearVeh();if(v)progMount(v)}}});
+// botón táctil para bajarse
+{const b=document.createElement('button');b.id='pgRide';b.className='alt hidden';b.textContent='⏏ Bajarse';b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--capS,46px) + 52px + env(safe-area-inset-bottom));z-index:21;font-size:14px;padding:8px 14px';document.body.appendChild(b);b.onclick=()=>progDismount()}
+// estado en pantalla (gasolina y estado del vehículo)
+{const c=document.createElement('div');c.id='pgVeh';c.className='chip hidden';c.style.cssText='position:fixed;left:8px;top:calc(env(safe-area-inset-top) + 8px);z-index:19;pointer-events:none;font-size:12px';document.body.appendChild(c)}
+function progHud(){const v=riding(),el=$('#pgVeh'),bt=$('#pgRide');const show=!!(v&&mode==='play'&&!COMBAT);bt.classList.toggle('hidden',!(show&&TOUCH));el.classList.toggle('hidden',!show);if(!show)return;
+  const c=VM[v.m],hl=$('#hudL');if(hl){const r=hl.getBoundingClientRect();el.style.top=Math.round(r.bottom+6)+'px'}
+  el.innerHTML=c.ic+' '+c.n.split(' (')[0]+(c.motor?' · ⛽ '+Math.round(v.gas*100)+'%':'')+' · 🔧 '+Math.round(v.cond)+'%'+(v.push?' · <b style="color:#ff9b8f">empujando</b>':'')}
+function progVehTick(dt){const v=riding();if(v){if(!RIDE_MAPS.has(P.map)){progDismount(true);return}const c=VM[v.m];
+    if(ENG){const sp=P.moving?(KEYS.shift?1.4:1):0;ENG.o.frequency.setTargetAtTime(ENG.base*(1+sp*.9),ENG.a.currentTime,.08);ENG.o2.frequency.setTargetAtTime(ENG.base*.5*(1+sp*.9),ENG.a.currentTime,.08);ENG.g.gain.setTargetAtTime(OPT.sound?(.018+sp*.014):0,ENG.a.currentTime,.1)}
+    if(c.motor&&!v.push&&P.moving&&v.cond<22&&Math.random()<dt*.05){v.varado=1;v.push=1;engineOff();beep(90,.5,'sawtooth',.05,40);say(null,pick(['¡Pff, pff… pum! Se le apagó y no quiere arrancar. Huele a quemado.','La '+(c.k==='moto'?'moto':'máquina')+' tose, tiembla y se muere en plena calle. Varado.']));say(null,'Toca empujarla hasta el taller de '+N('kevin')+' o llamar la grúa desde el celular.');runDialog()}}
+  progHud()}
+
+// ================= PROGRESO · VEHÍCULOS EN EL MUNDO =================
+// Comprar, echar gasolina, el taller de Carlillos, manejar a Chepe, retenes, trámites (COSEVI, RTV,
+// marchamo, INS), robos de noche, crédito de la agencia, choques y el trabajo de repartidor.
+function vMotorNear(r){const rv=riding();if(rv&&VM[rv.m].motor)return rv;const v=nearVeh();if(v&&VM[v.m].motor&&Math.hypot(v.x-P.x,v.y-P.y)<(r||60))return v;const p=S&&S.f&&S.f.pg;if(!p)return null;
+  for(const x of p.veh)if(!x.gone&&x.map===P.map&&VM[x.m].motor&&Math.hypot(x.x-P.x,x.y-P.y)<(r||60))return x;return null}
+function anyVehNear(r){const v=riding();if(v)return v;const p=S&&S.f&&S.f.pg;if(!p)return null;for(const x of p.veh)if(!x.gone&&x.map===P.map&&Math.hypot(x.x-P.x,x.y-P.y)<(r||60))return x;return null}
+// ---------------------------------------------------------------- comprar
+function vBuy(m,how,price,extra){const c=VM[m];if(S.money<price){toast('Te faltan '+fmtC(price-S.money));return null}spend(price,'Vehículos');const v=vAdd(m,extra);
+  if(how==='entrega'){toast(c.ic+' ¡'+c.n+' comprada! Te la dejaron frente a tu casa.')}PGS().stats.vehBuys=(PGS().stats.vehBuys||0)+1;if(typeof progRep==='function')progRep(4,'Compraste '+c.n);saveGame();return v}
+function mkListings(){const p=PGS();if(p.mk&&p.mk.day===S.day)return p.mk.l;const r=(a,b)=>a+Math.round(Math.random()*(b-a)/500)*500;
+  const sellers=['Don Rigo (Desamparados)','Kendall, Alajuela','La niña Yuli','Mauricio «el Chele»','Doña Teresa de Moravia','Un mae de Pavas'],l=[];
+  l.push({m:'bici',price:r(14000,22000),cond:r(55,90),txt:'Vendo bici montañera, poco uso, solo le falta aire a las llantas. Negociable 🙏',who:pick(sellers)});
+  l.push({m:'moto_u',price:r(62000,88000),cond:r(45,85),txt:'Moto 125 al día, marchamo y RTV pagados. Gasta poquísimo. Ocupo la plata 😔',who:pick(sellers)});
+  if(Math.random()<.6)l.push({m:'carro',price:r(240000,320000),cond:r(40,80),txt:'Corollita 96, un tanque de guerra. Aire no tiene, pero las ventanas bajan. Recibo moto como parte de pago.',who:pick(sellers)});
+  if(Math.random()<.4)l.push({m:'bici_r',price:r(30000,42000),cond:r(70,95),txt:'Bici de ruta, liviana, para ir a la UCR en 10 minutos. Precio fijo.',who:pick(sellers)});
+  p.mk={day:S.day,l};return l}
+// ---------------------------------------------------------------- gasolinera
+function bombaTalk(){const v=vMotorNear(90);if(!v){say(pistero(),pick(['¿Qué tal, joven? Aquí vendemos gasolina… pero usted viene a pata. ¿Le vendo un fresco?','Pura vida. Cuando tenga moto o carro, aquí le llenamos el tanque.']),[{t:'Comprar un fresco (₡700)',f(){if(S.money<700)return say(null,'No te alcanza.');spend(700,'Antojos');enAdd(5);toast('🥤 +5⚡')}},{t:'Nada, gracias'}]);return}
+  const c=VM[v.m],need=Math.max(0,1-v.gas),L=Math.round(need*c.tank*10)/10,full=Math.round(L*GAS_L/50)*50;
+  const pist=pistero();
+  if(L<.2){say(pist,'Joven, ese tanque está lleno. ¿Le reviso el aire de las llantas? Es gratis.',[{t:'Sí, porfa',f(){v.cond=Math.min(100,v.cond+2);say(pist,'Listo, como nuevas. Pura vida.')}},{t:'No, gracias'}]);return}
+  say(pist,pick(['¿Lleno o cuánto le echo, joven?','Buenas, ¿súper o regular? Bueno, aquí todo es súper. ¿Cuánto le pongo?']),[
+    {t:'Llenar el tanque ('+L+' L · '+fmtC(full)+')',f(){fillGas(v,1,full)}},
+    {t:'Echarle ₡5 000',f(){fillGas(v,Math.min(1,v.gas+5000/GAS_L/c.tank),5000)}},
+    {t:'Echarle ₡2 000',f(){fillGas(v,Math.min(1,v.gas+2000/GAS_L/c.tank),2000)}},{t:'Nada'}])}
+function fillGas(v,to,cost){if(S.money<cost){say(null,'No te alcanza. Te faltan '+fmtC(cost-S.money)+'.');return}spend(cost,'Gasolina');v.gas=to;if(v.push&&!v.varado){v.push=0;if(riding()===v)engineOn(v)}beep(300,.4,'sawtooth',.01,200);
+  say(pistero(),pick(['Listo, mae. ¿Le limpio el parabrisas? Ah no, es moto. Jaja.','Ahí está. Con eso llega a Cartago y se devuelve. Bueno, casi.','Pura vida. Maneje con cuidado, que la Calle 3 tiene huecos de leyenda.']))}
+// ---------------------------------------------------------------- taller de Carlillos
+function tallerTalk(){const kv=N('kevin');if(!S.f.kevinHelp){say(null,'El local está cerrado. En la cortina dice «SE ALQUILA» y alguien pintó «KVN» con spray.');say(null,'Tal vez '+kv+' tenga planes con este local… si lo ayudás con lo suyo.');return}
+  const v=anyVehNear(110),p=PGS(),ch=[];
+  if(v){const c=VM[v.m],miss=100-v.cond,cost=Math.round((c.k==='bici'?40:c.motor&&c.k==='moto'?160:320)*miss/50)*50;
+    if(miss>3)ch.push({t:'Arreglar la '+(c.k==='bici'?'bici':c.k==='moto'?'moto':'máquina')+' ('+fmtC(cost)+' · queda al 100%)',f(){if(S.money<cost)return say(CH.kevin,'Diay, mae, no le alcanza. Venga cuando tenga, aquí no fío… bueno, a usted un poquito sí.');spend(cost,'Taller');fadeDo(()=>{passTime(c.k==='bici'?40:120);v.cond=100;v.varado=0;v.push=0},()=>{say(CH.kevin,pick(['Quedó como nueva. Bueno, como nueva no, pero anda. Mi abuelo diría que hasta suena bonito.','Le cambié una pieza que estaba hecha leña. Ahora sí, a darle.']));runDialog()})}});
+    if(c.motor)ch.push({t:'Cambio de aceite (₡4 500 · +15%)',f(){if(S.money<4500)return say(null,'No te alcanza.');spend(4500,'Taller');v.cond=Math.min(100,v.cond+15);say(CH.kevin,'Aceite nuevo, mae. Eso alarga la vida del motor más que rezar.')}});
+    ch.push({t:'Pintarla de otro color (₡'+(c.k==='bici'?'6 000':'15 000')+')',f(){afterD(()=>paintMenu(v,c.k==='bici'?6000:15000))}})}
+  if(!p.veh.some(x=>x.m==='moto_u'&&x.fromK)&&!p.kSold)ch.push({t:'Ver la moto que '+kv+' tiene a la venta',f(){say(CH.kevin,'Es una Toro 125 que le compré a un señor de Desamparados. Le hice todo: frenos, cadena, carburador. Se la dejo en ₡60 000, papeles al día. A otro se la vendo en ochenta.',[{t:'Comprarla (₡60 000)',f(){const nv=vBuy('moto_u','taller',60000,{map:'ext',x:41.5*T,y:60*T+10,dir:0,cond:92,gas:.5,fromK:1});if(nv){p.kSold=1;say(CH.kevin,'¡Eso, mae! Cuídemela. Y póngase casco, que la cabeza no tiene repuesto.')}}},{t:'Ahorita no'}])}});
+  ch.push({t:'Solo saludar'});
+  say(CH.kevin||null,v?pick(['¡Mae! ¿Qué le pasó a esa '+(VM[v.m].k==='bici'?'bici':'máquina')+'? Déjeme ver…','Diay, ¿qué ocupa? Aquí se arregla de todo menos el corazón.']):'Bienvenido al Taller El Abuelo, mae. Traiga la bici o la moto y se la dejo como nueva.',ch)}
+function paintMenu(v,cost){const cols=[['Rojo','#c0473b'],['Azul','#2a6fb0'],['Negro','#2a2a30'],['Blanco','#e8e8e6'],['Verde','#2a8f6a'],['Amarillo','#e2b33a']];
+  say(CH.kevin,'¿De qué color la quiere?',cols.slice(0,4).map(([n,c])=>({t:n,f(){if(S.money<cost)return say(null,'No te alcanza.');spend(cost,'Taller');v.col=c;VSP.clear();say(CH.kevin,'Quedó tuanis, mae. Ahora sí la reconocen en todo el barrio.')}})))}
+// ---------------------------------------------------------------- manejar a Chepe (y de vuelta)
+function driveTrip(to){const v=riding();if(!v)return;const c=VM[v.m];
+  if(!c.motor){const e=E();if(e.en<40){say(null,'En bici hasta Chepe son como dos horas de subidas. Con esa energía no llegás ni a la esquina.');return}}
+  if(c.motor&&v.gas<.16){say(null,'Con esa gasolina no llegás. Echale en el servicentro de la Calle 3.');return}
+  const from=P.map;fadeDo(()=>{const mins=c.motor?rnd(22,34):rnd(95,125);passTime(Math.round(mins));if(c.motor)v.gas=Math.max(0,v.gas-(c.k==='moto'?.16:.12));else E().en-=35;v.cond=Math.max(0,v.cond-3);v.km+=9000;
+    if(to==='chepe'){ensureMap('chepe');P.map='chepe';P.x=3*T+8;P.y=12*T+12;P.dir=3}else{P.map='ext';P.x=2*T+8;P.y=21*T+8;P.dir=3}v.map=P.map;v.x=P.x;v.y=P.y;CARS=[];CBUS=null},
+   ()=>{DQ=[];const ev=[];
+    if(!c.motor)say(null,'Llegás a '+(to==='chepe'?'Chepe':'el barrio')+' sudado como pollo en bolsa, pero con las piernas de acero. −35⚡');
+    else{const r=Math.random();if(r<.25)say(null,'La General Cañas estaba hecha un parqueo. Pura presa. Hasta un vendedor de copos pasó más rápido que vos.');else if(r<.4){say(null,'¡PUM! Te comiste un hueco del tamaño de una piscina. La '+(c.k==='moto'?'moto':'máquina')+' sonó feo.');v.cond=Math.max(0,v.cond-8)}else if(r<.5&&S.rain)say(null,'Aguacero de la tarde en plena autopista. Llegás empapado hasta los calzones.');else say(null,pick(['Viaje tranquilo. Un motorizado te pasó haciendo zigzag entre los carros. Típico.','Por la radio sonaba «Pura vida» y el sol te pegaba de frente. Buen viaje.']))}
+    if(to==='chepe'&&c.motor&&Math.random()<.32)afterD(()=>reten(v,'chepe'));runDialog()})}
+// ---------------------------------------------------------------- retén de Tránsito
+function vPapeles(v){const p=PGS(),c=VM[v.m],out=[];if(c.lic&&!p.lic[c.lic])out.push('lic');if(c.motor&&(p.mar[v.id]||0)<S.day)out.push('mar');if(c.motor&&(p.rtv[v.id]||0)<S.day)out.push('rtv');if(c.hot)out.push('hot');return out}
+function reten(v,where){const p=PGS(),c=VM[v.m],mal=vPapeles(v);const of=fillChar({id:'z_transito',name:'Oficial de Tránsito',hair:'corto',hairColor:'#1c1c1c',skin:'#8d5524',shirt:'#2d3a6e',pants:'#2a2a30',acc:'gorra',accColor:'#2d3a6e',v:1});
+  say(null,'🚔 ¡Retén! Un oficial de Tránsito te hace señas con la linterna para que te orillés.');say(of,'Buenas, joven. Licencia, marchamo y la RTV, por favor.');
+  if(!mal.length){say(of,'Todo en orden. Siga con cuidado. Y use las direccionales, que no son de adorno.');if(typeof progRep==='function')progRep(1);return}
+  let multa=0;const lines=[];if(mal.includes('lic')){multa+=20000;lines.push('manejar sin licencia')}if(mal.includes('mar')){multa+=15000;lines.push('marchamo vencido')}if(mal.includes('rtv')){multa+=8000;lines.push('RTV vencida')}
+  if(mal.includes('hot')){say(of,'Mmm… este número de chasis está reportado como robado. Joven, bájese de la moto.');say(null,'Te tienen media hora en la patrulla mientras confirman. La moto se la lleva la grúa: era robada y la vas a perder.');
+    v.gone=1;if(p.ride===v.id){p.ride=null;engineOff()}multa+=10000;passTime(90);say(of,'Usted tiene suerte de que le creamos que no sabía. La próxima, compre con papeles. Multa de '+fmtC(10000)+'.');}
+  else{say(of,'Usted anda con '+lines.join(', ')+'. Le tengo que hacer el parte: '+fmtC(multa)+'.');
+    if(mal.includes('lic')||mal.includes('mar')){say(of,'Y el vehículo se va para el depósito hasta que pague. Lo puede sacar por el celular, en la app de COSEVI.');v.dep=1;if(p.ride===v.id){p.ride=null;engineOff()}v.map='__dep'}}
+  p.tram.push({k:'multa',n:'Multa de Tránsito ('+(lines.join(', ')||'moto robada')+')',amt:multa,day:S.day});toast('🧾 Multa: '+fmtC(multa)+' (pagala en COSEVI)');
+  if(phOn('mama'))phQueue('mama','Mijo, ¿cómo así que lo paró Tránsito? 😠 Ponga los papeles al día, que una multa de esas es un clavo.',4)}
+// ---------------------------------------------------------------- choque con el tránsito de Chepe
+function progOnHit(c){const v=riding();if(!v)return false;const k=VM[v.m].k;TRAF.hitCD=30;BUBS=[];c.sp=0;c.wait=-6;beep(1000,.3,'sawtooth',.03,220);setTimeout(()=>beep(80,.3,'square',.06),160);
+  if(k==='bici'||k==='moto'){v.cond=Math.max(0,v.cond-(k==='bici'?25:40));progDismount(true);return false}   // se cae: sigue la escena del atropello
+  mode='dialog';v.cond=Math.max(0,v.cond-30);const seg=PGS().seg[v.id],cost=seg?10000:45000;
+  setTimeout(()=>{DQ=[];say(null,'¡CRASH! Un '+({taxi:'taxi',car:'carro',pickup:'pickup',moto:'motorizado',bus:'bus'}[c.type])+' y tu '+(k==='pickup'?'pickup':'carro')+' se besan en plena Avenida Segunda. Nadie salió herido, pero los dos carros sí.');
+    say(fillChar({id:'z_chofer',name:'El otro chofer',hair:'corto',hairColor:'#2a1810',skin:'#b97a4a',shirt:'#5b7fa6',pants:'#2d3346',v:1}),pick(['¡Diay, mae! ¿Usted no ve o qué? ¡Me hizo leña la puerta!','¡Pa\' qué sirven los espejos, joven! ¡No se mueva que ya llamé al INS!']));
+    say(null,seg?'Llega el inspector del INS en una moto blanca. Como tenés seguro, solo pagás el deducible: '+fmtC(cost)+'.':'Llega el inspector del INS. Sin seguro, toca pagar el arreglo del otro: '+fmtC(cost)+'. Duele en el alma.');
+    AFTER.push(()=>{const pay=Math.min(cost,Math.max(0,S.money));if(pay)spend(pay,'Choques');if(pay<cost)PGS().tram.push({k:'deuda',n:'Arreglo del choque (debés)',amt:cost-pay,day:S.day});passTime(70);saveGame()});runDialog()},500);return true}
+{const _h=carHit;carHit=function(c){if(typeof progOnHit==='function'&&progOnHit(c))return;return _h(c)}}
+// ---------------------------------------------------------------- de noche: robos, cuotas, vencimientos
+function vSafe(v){const atHome=v.map==='ext'&&Math.hypot(v.x-HOME_PARK.x,v.y-HOME_PARK.y)<60;const coch=typeof U==='function'&&U('cochera');
+  if(atHome&&coch)return 0;let r={bici:.22,moto:.14,carro:.07,pickup:.07}[VM[v.m].k];if(atHome)r=U('verja')?r*.15:r*.35;if(v.map==='hoyo')r*=2.4;if(v.map==='chepe')r*=1.6;if(VM[v.m].k==='bici'&&PGS().candado)r*=.3;return r}
+function progNight(){const p=S&&S.f&&S.f.pg;if(!p)return;
+  for(const v of p.veh){if(v.gone||v.dep||v.id===p.ride)continue;if(Math.random()<vSafe(v)){v.gone=1;const c=VM[v.m];const seg=p.seg[v.id];const back=seg?Math.round(c.price*.7):0;if(back)earn(back,'Seguro INS');
+      toast('🚨 ¡Se robaron tu '+c.n+'!'+(back?' El INS te devolvió '+fmtC(back)+'.':''));if(phOn('mama'))phQueue('mama','Mijo 😢 la vecina dice que vio unos carajillos llevándose su '+(c.k==='bici'?'bici':'moto')+' anoche. Para la otra déjela adentro o compre candado.',3);if(typeof progStat==='function')progStat('robos')}}
+  for(const cr of p.cred){if(cr.left<=0)continue;if(S.day>=cr.next){cr.next=S.day+7;if(S.money>=cr.cuota){spend(cr.cuota,'Cuotas');cr.left--;toast('🏦 Cuota del crédito: '+fmtC(cr.cuota)+' ('+cr.left+' restantes)')}else{cr.mora=(cr.mora||0)+1;toast('⚠️ No te alcanzó para la cuota del crédito. Mora '+cr.mora+'/3');
+      if(cr.mora>=3){const v=vOf(cr.v);if(v){v.gone=1;if(p.ride===v.id){p.ride=null;engineOff()}}cr.left=0;toast('🏦 La agencia te quitó el vehículo por no pagar las cuotas.')}}}}
+  for(const v of p.veh){if(v.gone||!VM[v.m].motor)continue;if((p.mar[v.id]||0)===S.day)toast('🧾 Hoy vence el marchamo de '+VM[v.m].n);if((p.rtv[v.id]||0)===S.day)toast('🔧 Hoy vence la RTV de '+VM[v.m].n)}
+  for(const[id,on]of Object.entries(p.seg))if(on){const v=vOf(id);if(!v||v.gone){delete p.seg[id];continue}if(S.day%7===0){const amt=VM[v.m].k==='bici'?800:VM[v.m].k==='moto'?2500:5000;if(S.money>=amt)spend(amt,'Seguro INS');else{delete p.seg[id];toast('⚠️ Se canceló el seguro del INS por falta de pago')}}}}
+{const _d=ecoDay;ecoDay=function(){const r=_d();try{progNight()}catch(e){console.error(e)}return r}}
+// ---------------------------------------------------------------- puntos de interacción en el mapa
+function pistero(){return PISTERO||(PISTERO=fillChar({id:'z_pistero',name:'Mainor, el pistero',hair:'corto',hairColor:'#1c1c1c',skin:'#b97a4a',shirt:'#c0473b',pants:'#2d3346',acc:'gorra',accColor:'#c0473b',v:1}))}
+var PISTERO=null;
+ACT_POINTS.push(
+ {map:'ext',x:64,y:59,label:'Bomba · echar gasolina',run:bombaTalk},{map:'ext',x:67,y:59,label:'Bomba · echar gasolina',run:bombaTalk},
+ {map:'ext',x:69,y:57,label:'Mini súper del servicentro',run(){say(fillChar({id:'z_cajera',name:'Cajera del súper',hair:'cola',hairColor:'#2b1a10',skin:'#e0ac69',shirt:'#c0473b',pants:'#2d3346',v:1}),'Buenas, ¿qué se le ofrece? Tenemos galones para gasolina, candados y meneítos.',[
+   {t:'Candado para bici (₡3 500)',f(){if(PGS().candado)return say(null,'Ya tenés uno.');if(S.money<3500)return say(null,'No te alcanza.');spend(3500,'Vehículos');PGS().candado=1;toast('🔒 Candado: tu bici se roban mucho menos')}},
+   {t:'Galón de gasolina (₡3 200)',f(){const v=anyVehNear(400)||PGS().veh.find(x=>!x.gone&&VM[x.m].motor);if(!v)return say(null,'No tenés nada que echarle.');if(S.money<3200)return say(null,'No te alcanza.');spend(3200,'Gasolina');v.gas=Math.min(1,v.gas+3.8/VM[v.m].tank);if(v.push&&!v.varado)v.push=0;toast('⛽ +'+Math.round(3.8/VM[v.m].tank*100)+'%')}},
+   {t:'Un meneíto (₡400)',f(){if(S.money<400)return;spend(400,'Antojos');enAdd(3)}},{t:'Nada'}])}},
+ {map:'ext',x:41,y:59,label:'Taller El Abuelo',run:tallerTalk},
+ {map:'ext',x:1,y:21,label:'Tomar la carretera a San José',cond:()=>!!riding()&&!riding().push,run:()=>driveTrip('chepe')},
+ {map:'chepe',x:1,y:10,label:'Manejar de vuelta al barrio',cond:()=>!!riding()&&!riding().push,run:()=>driveTrip('ext')});
+function progMotosHoyo(e){const p=PGS();say(e.c,'Mop, aquí tengo motos a precio de amigo. Esta azul se la dejo en ₡32 000. Papeles… bueno, papeles se consiguen. ¿Qué dice?',[
+  {t:'Comprarla (₡32 000)',f(){const v=vBuy('moto_h','hoyo',32000,{map:'hoyo',x:38*T,y:14*T+8,dir:3,cond:70,gas:.3});if(v){say(e.c,'Ahí está. Si alguien pregunta, usted no me conoce.');setTimeout(()=>toast('📱 '+N('kevin')+': «Mae, ¿le compró al Chino? 😬 Cuidado con los retenes»'),4000)}}},
+  {t:'«¿Y si es robada?»',f(){say(e.c,'¿Robada? Ay, mop, qué feo pensar así. Digamos que… cambió de dueño rápido.')}},{t:'No, gracias'}])}
+// ---------------------------------------------------------------- repartidor: «Pedidos Mae»
+const JOB_FROM=[{n:'la Pulpería La Bendición',x:22,y:18},{n:'Pollolandia',x:76,y:18},{n:'el Súper Chino',x:67,y:18},{n:'la Soda Mi Barrio',x:23,y:60,c:()=>typeof progSodaLv==='function'&&progSodaLv()>0}];
+const JOB_CLIENT=[['Doña Flory','moño'],['Don Chepe','calvo'],['La niña Sofi','cola'],['Maikol','corto'],['Doña Hilda','moño'],['Bryan','corto'],['Doña Cecilia','largo'],['El profe Rojas','corto'],['Yuliana','largo'],['Don Toño','calvo']];
+function jobStart(){const p=PGS(),v=riding()||PGS().veh.find(x=>!x.gone&&x.map===P.map&&Math.hypot(x.x-P.x,x.y-P.y)<200);if(!PGS().veh.some(x=>!x.gone&&(VM[x.m].k==='bici'||VM[x.m].k==='moto'))){toast('📦 Para repartir necesitás bici o moto');return}
+  const froms=JOB_FROM.filter(f=>!f.c||f.c()),f=pick(froms),homes=BUILD.filter(b=>b.kind==='house'&&b.id!=='casa_jugador'),h=pick(homes);
+  const dist=Math.hypot(h.dx-f.x,h.dy-f.y),lim=Math.round(40+dist*2.2),pay=Math.round((600+dist*14)*(1+Math.min(.6,p.jobs.n*.01))/50)*50;
+  p.job={from:{map:'ext',x:f.x,y:f.y,n:f.n},to:(()=>{const c=pick(JOB_CLIENT);return{map:'ext',x:h.dx,y:h.dy+1,n:'la casa de '+c[0],who:c[0],hair:c[1],b:h.id}})(),st:'pick',t:0,lim,pay};toast('📦 Pedido: recogelo en '+f.n+' · paga '+fmtC(pay));closePanel()}
+function progJobTick(dt){const j=S&&S.f&&S.f.pg&&S.f.pg.job;const hud=$('#pgJob');if(!j){hud.classList.add('hidden');return}if(mode==='play')j.t+=dt*(j.st==='drop'?1:0);
+  const tg=j.st==='pick'?j.from:j.to,left=Math.max(0,j.lim-j.t);hud.classList.toggle('hidden',mode!=='play');hud.innerHTML='📦 '+(j.st==='pick'?'Recogé en '+tg.n:'Llevalo a '+tg.n+' · ⏱ '+Math.ceil(left)+' s');
+  if(P.map===tg.map&&Math.hypot(P.x-(tg.x*T+8),P.y-(tg.y*T+8))<26){if(j.st==='pick'){j.st='drop';beep(880,.06,'triangle',.03);toast('📦 Pedido recogido. ¡Volando!')}
+    else{const late=j.t>j.lim,stars=late?(j.t>j.lim*1.5?1:3):5,tip=late?0:Math.round(j.pay*(.1+Math.random()*.3)/50)*50,pay=j.pay+tip;earn(pay,'Repartos');const p=PGS();p.jobs.n++;p.jobs.stars=((p.jobs.stars||5)*.8+stars*.2);p.job=null;
+      say(fillChar({id:'z_cliente',name:tg.who||tg.n.replace('la casa de ',''),hair:tg.hair||'corto',hairColor:'#2b1a10',skin:pick(['#e0ac69','#c68642','#8d5524']),shirt:pick(['#e85d75','#7bb661','#3fb6b0','#f2c94c']),pants:'#2d3346',v:1}),
+        late?pick(['¡Diay, se tardó un montón! La comida ya está fría… Bueno, gracias.','Mae, pensé que se había perdido. Ni modo.']):pick(['¡Al fin! Ya me estaba comiendo las uñas. Tome, la propina.','¡Qué rápido! Usted sí es bueno. ¿Y la salsita? …Ah, ahí está. Pura vida.','¡Muchas gracias, joven! Dios me lo bendiga.']));
+      say(null,'+'+fmtC(pay)+(tip?' (incluye '+fmtC(tip)+' de propina)':'')+' · '+'★'.repeat(stars)+'☆'.repeat(5-stars)+' · '+p.jobs.n+' pedidos entregados.');runDialog();if(typeof progRep==='function')progRep(1)}}}
+function progJobProxies(list,map){const j=S.f.pg.job;if(!j)return;const tg=j.st==='pick'?j.from:j.to;if(tg.map!==map)return;
+  list.push({kind:'carv',map,x:tg.x*T+8,y:tg.y*T+40,draw:g=>{const b=Math.sin(qBlink*5)*2,X=tg.x*T+8,Y=tg.y*T-18+b;g.fillStyle='#14101c';g.beginPath();g.moveTo(X-6,Y-1);g.lineTo(X+6,Y-1);g.lineTo(X,Y+7);g.fill();g.fillStyle=j.st==='pick'?'#f2c94c':'#57d17a';g.beginPath();g.moveTo(X-4,Y);g.lineTo(X+4,Y);g.lineTo(X,Y+5);g.fill()}})}
+{const c=document.createElement('div');c.id='pgJob';c.className='chip hidden';c.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 8px);z-index:19;pointer-events:none;font-size:13px';document.body.appendChild(c)}
+// ---------------------------------------------------------------- en cada cuadro
+{const _u=update;update=function(dt){_u(dt);if(!S||!S.started)return;try{progVehTick(dt);progJobTick(dt)}catch(e){console.error(e)}}}
+
+// ================= PROGRESO · APPS DEL CELULAR =================
+// Pestaña «📱 Apps»: Marketplace, la agencia, COSEVI, RTV y marchamo, INS, Pedidos Mae, Mis vehículos
+// (y las de las otras fases: Mi negocio, Banco, Metas, Logros).
+const APPS=[];
+function appReg(a){APPS.push(a)}
+function progApps(){let h='<div class="pg-apps">';for(const a of APPS){if(a.cond&&!a.cond())continue;const badge=a.badge?a.badge():0;
+    h+=`<button class="pg-app" data-app="${a.id}" style="--ac:${a.c}"><span class="pg-ic">${a.ic}</span><b>${a.n}</b>${badge?`<i class="ph-dot">${badge}</i>`:''}</button>`}
+  return h+'</div><p class="note" style="margin-top:10px">Todo lo que comprás y hacés aquí ayuda a crecer: tu casa, tus vehículos, tu negocio y tu nombre en el barrio.</p>'}
+function appOpen(id){const a=APPS.find(x=>x.id===id);if(!a)return;if(typeof UI!=='undefined')UI.kind='phone';openPanel('📱 '+a.n,'<div class="ph">'+a.html()+'<div class="row" style="margin-top:10px"><button class="alt" data-app="home">◀ Volver a las apps</button></div></div>');if(typeof UI!=='undefined')UI.kind=null;appBind(a)}
+function appBind(a){const b=$('#pbody');b.querySelectorAll('[data-app]').forEach(x=>x.onclick=()=>{if(x.dataset.app==='home'){PHV.tab='apps';PHV.th=null;phRender()}else appOpen(x.dataset.app)});
+  b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{const[k,arg]=x.dataset.act.split(':');a.act&&a.act(k,arg,x)})}
+{const _pb=phBind;phBind=function(){_pb();const b=$('#pbody');b.querySelectorAll('[data-app]').forEach(x=>x.onclick=()=>appOpen(x.dataset.app))}}
+const vName=v=>VM[v.m].ic+' '+VM[v.m].n;
+const pgBar=(v,c)=>`<div class="eco-bar"><i style="width:${Math.round(v)}%;background:${c||'var(--ui-leaf,#3fa66b)'}"></i></div>`;
+function vWhere(v){if(v.dep)return'en el depósito de Tránsito';if(v.id===PGS().ride)return'la vas manejando';const m=v.map==='ext'?(Math.hypot(v.x-HOME_PARK.x,v.y-HOME_PARK.y)<60?'frente a tu casa':v.y>52*T?'en la Calle 3':'en el barrio'):v.map==='chepe'?'en Chepe':v.map==='hoyo'?'en El Hoyo 😬':'¿?';return m}
+// ---- Mis vehículos ----
+appReg({id:'veh',n:'Mis vehículos',ic:'🚗',c:'#2a6fb0',badge:()=>PGS().veh.filter(v=>!v.gone&&(v.varado||v.dep)).length,html(){const p=PGS(),vs=p.veh.filter(v=>!v.gone);
+  if(!vs.length)return'<p>Todavía no tenés ningún vehículo. Buscá en el <b>Marketplace</b> o en la <b>agencia</b>.</p><div class="row"><button data-app="mk">🛒 Marketplace</button><button data-app="ag">🏍 Agencia</button></div>';
+  return vs.map(v=>{const c=VM[v.m],pap=vPapeles(v);return`<div class="qitem"><b>${vName(v)}</b><p>Placa ${v.placa} · ${vWhere(v)}${v.varado?' · <b style="color:#ff9b8f">varada</b>':''}</p>
+    ${c.motor?'<p>⛽ Gasolina '+Math.round(v.gas*100)+'%</p>'+pgBar(v.gas*100,'#e2b33a'):''}<p>🔧 Estado ${Math.round(v.cond)}%</p>${pgBar(v.cond)}
+    ${c.motor?`<p class="note">Marchamo hasta el día ${p.mar[v.id]||'—'} · RTV hasta el día ${p.rtv[v.id]||'—'}${p.seg[v.id]?' · 🛡 asegurada':''}${pap.length?' · <b style="color:#ff9b8f">'+pap.map(x=>({lic:'sin licencia',mar:'marchamo vencido',rtv:'RTV vencida',hot:'¿robada?'}[x])).join(', ')+'</b>':''}</p>`:''}
+    <div class="row">${v.varado||v.cond<30?`<button data-act="grua:${v.id}">🚛 Llamar la grúa (₡12 000)</button>`:''}<button class="alt" data-act="vender:${v.id}">Vender</button></div></div>`}).join('')},
+ act(k,id){const v=vOf(id);if(!v)return;
+  if(k==='grua'){if(S.money<12000)return toast('Te faltan '+fmtC(12000-S.money));spend(12000,'Grúa');if(PGS().ride===v.id)progDismount(true);v.map='ext';if(S.f.kevinHelp){v.x=41.5*T;v.y=60*T+10}else{v.x=HOME_PARK.x;v.y=HOME_PARK.y}v.dir=3;toast('🚛 La grúa la llevó '+(S.f.kevinHelp?'al Taller El Abuelo':'a tu casa'));appOpen('veh')}
+  if(k==='vender'){const c=VM[v.m];if(c.hot){say(null,'Nadie te compra una moto sin papeles. Bueno… el Chino te la recibe en ₡8 000.',[{t:'Vendérsela al Chino',f(){v.gone=1;earn(8000,'Venta de vehículos')}},{t:'Mejor no'}]);closePanel();runDialog();return}
+    const val=Math.round(c.price*.55*(.5+v.cond/200)/500)*500;askYes('Vender '+c.n,'¿Venderla por '+fmtC(val)+'? Alguien del Marketplace la recoge hoy mismo.',()=>{if(PGS().ride===v.id)progDismount(true);v.gone=1;earn(val,'Venta de vehículos');toast('💸 Vendida en '+fmtC(val))},'Sí, vender')}}});
+// ---- Marketplace ----
+appReg({id:'mk',n:'Marketplace',ic:'🛒',c:'#3fa66b',html(){const l=mkListings();return'<p class="note">Anuncios del día. Mañana salen otros.</p>'+l.map((x,i)=>{const c=VM[x.m];return`<div class="qitem"><b>${c.ic} ${c.n} · ${fmtC(x.price)}</b><p>«${esc(x.txt)}»</p><p class="note">${esc(x.who)} · estado ${x.cond}%</p>${x.sold?'<p><b>Vendido</b></p>':`<button class="green" data-act="buy:${i}">Comprar (te la llevan a la casa)</button>`}</div>`}).join('')},
+ act(k,i){const x=mkListings()[+i];if(!x||x.sold)return;if(k==='buy'){const v=vBuy(x.m,'entrega',x.price,{cond:x.cond,gas:VM[x.m].motor?.4:0});if(v){x.sold=1;if(VM[x.m].motor){PGS().mar[v.id]=S.day+(10+((Math.random()*14)|0));PGS().rtv[v.id]=S.day+(6+((Math.random()*12)|0))}appOpen('mk')}}}});
+// ---- agencia ----
+const AG=[['bici_r'],['moto_n',1],['carro',1],['pickup',1]];
+appReg({id:'ag',n:'Agencia del Valle',ic:'🏍',c:'#c0473b',html(){return'<p class="note">Motos y Autos del Valle · «Su sueño sobre ruedas, a cómodas cuotas».</p>'+AG.map(([m,cr])=>{const c=VM[m],prima=Math.round(c.price*.25/500)*500,cuota=Math.round(c.price*.75*1.18/12/50)*50;
+  return`<div class="qitem"><b>${c.ic} ${c.n} · ${fmtC(c.price)}</b><p>${m==='carro'?'Seminuevo de agencia, revisado y con garantía de 3 meses.':m==='pickup'?'Doble tracción, palangana grande. Para trabajos pesados y mudanzas.':m==='moto_n'?'0 km, 150 cc, frenos de disco. Rápida y gasta poquito.':'Liviana y rápida, ideal para repartir.'}</p>
+  <div class="row"><button data-act="cash:${m}">Pagar de contado</button>${cr?`<button class="green" data-act="cred:${m}">Crédito: prima ${fmtC(prima)} + 12 cuotas de ${fmtC(cuota)}/semana</button>`:''}</div></div>`}).join('')},
+ act(k,m){const c=VM[m];if(k==='cash'){if(vBuy(m,'entrega',c.price))appOpen('veh')}
+  if(k==='cred'){const prima=Math.round(c.price*.25/500)*500,cuota=Math.round(c.price*.75*1.18/12/50)*50;askYes('Crédito de la agencia','Prima de '+fmtC(prima)+' hoy y 12 cuotas semanales de '+fmtC(cuota)+'. Si te atrasás 3 cuotas, se la llevan.',()=>{const v=vBuy(m,'entrega',prima);if(v){PGS().cred.push({v:v.id,left:12,cuota,next:S.day+7,mora:0});toast('🏦 Crédito aprobado. Primera cuota el día '+(S.day+7))}},'Firmar el crédito')}}});
+// ---- COSEVI: licencias, multas, depósito ----
+const QUIZ=[['Llegás a una rotonda. ¿Quién tiene la prioridad?',['Los que ya van dentro de la rotonda','El que pite más fuerte','El bus, siempre'],0],
+ ['La luz amarilla del semáforo significa…',['Precaución: detenerse si es seguro','Acelerar antes de que cambie','Que el semáforo está descompuesto'],0],
+ ['Velocidad máxima frente a una escuela:',['25 km/h','60 km/h','La que aguante la moto'],0],
+ ['¿El acompañante en moto debe usar casco?',['Sí, siempre','Solo de noche','Solo si es la suegra'],0],
+ ['Si tomaste guaro en una fiesta…',['No manejo: pido taxi o que maneje otro','Manejo despacito','Me tomo un café y listo'],0],
+ ['Un peatón está cruzando por la zebra:',['Le cedo el paso','Le pito para que se apure','Le paso cerquita para que aprenda'],0],
+ ['¿Se puede usar el celular mientras se maneja?',['No, solo con manos libres','Sí, si es WhatsApp','Sí, en las presas'],0]];
+function licExam(tipo){const p=PGS(),fee=tipo==='moto'?15000:25000;if(p.lic[tipo])return toast('Ya tenés esa licencia');if(p.licT===S.day)return toast('Ya hiciste un examen hoy. Volvé mañana.');if(S.money<fee)return toast('Te faltan '+fmtC(fee-S.money));
+  spend(fee,'Trámites');p.licT=S.day;closePanel();const qs=shuf(QUIZ.slice()).slice(0,4);let ok=0;const insp=fillChar({id:'z_cosevi',name:'Examinadora del COSEVI',hair:'moño',hairColor:'#2b1a10',skin:'#c68642',shirt:'#f4f4f4',pants:'#2d3346',acc:'anteojos',v:1});
+  say(insp,'Buenas. Examen teórico de manejo para '+(tipo==='moto'?'moto (A2)':'carro (B1)')+'. Son cuatro preguntas. Necesita tres buenas. Concéntrese.');
+  const ask=i=>{if(i>=qs.length){const pass=ok>=3;if(pass){fadeDo(()=>passTime(90),()=>{p.lic[tipo]=1;say(insp,'Teórico aprobado ('+ok+'/4). Y la prueba práctica… bueno, solo tumbó un cono. Aprobado. Felicidades.');say(null,'🪪 ¡Ya tenés licencia de '+(tipo==='moto'?'moto':'carro')+'!');if(typeof progRep==='function')progRep(3,'Sacaste la licencia');runDialog()})}else say(insp,'Sacó '+ok+'/4. Así no, joven. Estudie el manual y vuelva mañana. El pago no se devuelve, eso sí.');return}
+    const[q,o,c]=qs[i],ord=shuf([0,1,2]);say(insp,(i+1)+'. '+q,ord.map(j=>({t:o[j],f(){if(j===c)ok++;afterD(()=>{ask(i+1)})}})))};ask(0);runDialog()}
+appReg({id:'cosevi',n:'COSEVI',ic:'🪪',c:'#2d3a6e',badge:()=>PGS().tram.length+PGS().veh.filter(v=>v.dep&&!v.gone).length,html(){const p=PGS();let h='<h3>Licencias</h3>';
+  for(const[t,n,fee]of[['moto','Licencia de moto (A2)',15000],['carro','Licencia de carro (B1)',25000]])h+=`<div class="qitem"><b>${n}</b><p>${p.lic[t]?'✅ La tenés':'Examen teórico y práctico · '+fmtC(fee)}</p>${p.lic[t]?'':`<button class="green" data-act="lic:${t}">Hacer el examen</button>`}</div>`;
+  h+='<h3>Multas y deudas</h3>'+(p.tram.length?p.tram.map((t,i)=>`<div class="qitem"><b>${esc(t.n)}</b><p>${fmtC(t.amt)} · día ${t.day}</p><button data-act="pay:${i}">Pagar</button></div>`).join(''):'<p class="note">No tenés multas. ¡Así se maneja!</p>');
+  const dep=p.veh.filter(v=>v.dep&&!v.gone);if(dep.length)h+='<h3>Depósito de Tránsito</h3>'+dep.map(v=>`<div class="qitem"><b>${vName(v)}</b><p>Para sacarla: ₡8 000 de bodegaje${vPapeles(v).filter(x=>x!=='rtv').length?' · primero tenés que tener licencia y marchamo al día':''}.</p><button data-act="dep:${v.id}">Sacarla del depósito</button></div>`).join('');return h},
+ act(k,a){const p=PGS();if(k==='lic')licExam(a);if(k==='pay'){const t=p.tram[+a];if(!t)return;if(S.money<t.amt)return toast('Te faltan '+fmtC(t.amt-S.money));spend(t.amt,'Multas');p.tram.splice(+a,1);toast('Pagado');appOpen('cosevi')}
+  if(k==='dep'){const v=vOf(a);if(!v)return;if(vPapeles(v).filter(x=>x!=='rtv').length)return toast('Primero: licencia y marchamo al día');if(S.money<8000)return toast('Te faltan '+fmtC(8000-S.money));spend(8000,'Multas');v.dep=0;v.map='ext';v.x=HOME_PARK.x;v.y=HOME_PARK.y;toast('🚛 Te la dejaron frente a tu casa');appOpen('cosevi')}}});
+// ---- RTV y marchamo ----
+appReg({id:'rtv',n:'RTV y marchamo',ic:'🔧',c:'#e2b33a',cond:()=>PGS().veh.some(v=>!v.gone&&VM[v.m].motor),badge:()=>PGS().veh.filter(v=>!v.gone&&VM[v.m].motor&&((PGS().mar[v.id]||0)<S.day||(PGS().rtv[v.id]||0)<S.day)).length,html(){const p=PGS();
+  return p.veh.filter(v=>!v.gone&&VM[v.m].motor).map(v=>{const c=VM[v.m],mv=(p.mar[v.id]||0)<S.day,rv=(p.rtv[v.id]||0)<S.day,rf=c.k==='moto'?7000:12000;
+   return`<div class="qitem"><b>${vName(v)} · ${v.placa}</b><p>Marchamo: ${mv?'<b style="color:#ff9b8f">vencido</b>':'al día hasta el día '+p.mar[v.id]} · RTV: ${rv?'<b style="color:#ff9b8f">vencida</b>':'al día hasta el día '+p.rtv[v.id]}</p>
+   <div class="row"><button data-act="mar:${v.id}">Pagar marchamo (${fmtC(c.mar)})</button><button data-act="rtv:${v.id}">Cita de RTV (${fmtC(rf)})</button></div></div>`}).join('')+'<p class="note">El marchamo dura 28 días y la RTV 21. La RTV solo se pasa si el vehículo está al 55% o más.</p>'},
+ act(k,id){const p=PGS(),v=vOf(id);if(!v)return;const c=VM[v.m];
+  if(k==='mar'){if(c.hot)return toast('🚫 Esa placa no existe en el sistema…');if(S.money<c.mar)return toast('Te faltan '+fmtC(c.mar-S.money));spend(c.mar,'Marchamo');p.mar[v.id]=Math.max(S.day,p.mar[v.id]||0)+28;toast('🧾 Marchamo pagado');appOpen('rtv')}
+  if(k==='rtv'){const rf=c.k==='moto'?7000:12000;if(c.hot)return toast('🚫 En la RTV piden los papeles… y no los tenés');if(S.money<rf)return toast('Te faltan '+fmtC(rf-S.money));spend(rf,'RTV');closePanel();
+    fadeDo(()=>passTime(120),()=>{if(v.cond>=55){p.rtv[v.id]=S.day+21;say(null,'✅ RTV aprobada. El técnico le pegó la calcomanía y te dijo: «Esa '+(c.k==='moto'?'moto':'máquina')+' está bien cuidada».')}else say(null,'❌ RTV rechazada: «Frenos gastados, una luz quemada y una fuga de aceite». Arreglala en el taller y volvé.');runDialog()})}}});
+// ---- INS: seguros ----
+appReg({id:'ins',n:'INS Seguros',ic:'🛡',c:'#3f7fd1',cond:()=>PGS().veh.some(v=>!v.gone),html(){const p=PGS();return'<p class="note">Cubre robo (te devuelve el 70%) y choques (solo pagás el deducible). Se cobra cada 7 días.</p>'+p.veh.filter(v=>!v.gone).map(v=>{const amt=VM[v.m].k==='bici'?800:VM[v.m].k==='moto'?2500:5000;
+  return`<div class="qitem"><b>${vName(v)}</b><p>${p.seg[v.id]?'🛡 Asegurada · '+fmtC(amt)+' por semana':'Sin seguro · '+fmtC(amt)+' por semana'}</p><button class="${p.seg[v.id]?'alt':'green'}" data-act="seg:${v.id}">${p.seg[v.id]?'Cancelar seguro':'Asegurarla'}</button></div>`}).join('')},
+ act(k,id){const p=PGS(),v=vOf(id);if(!v)return;if(VM[v.m].hot)return toast('🚫 El INS no asegura vehículos sin papeles');p.seg[id]=!p.seg[id];toast(p.seg[id]?'🛡 Asegurada':'Seguro cancelado');appOpen('ins')}});
+// ---- Pedidos Mae ----
+appReg({id:'ped',n:'Pedidos Mae',ic:'📦',c:'#f2994a',html(){const p=PGS(),j=p.job;let h=`<p>⭐ Calificación: ${(p.jobs.stars||5).toFixed(1)} · ${p.jobs.n} pedidos entregados · pago +${Math.round(Math.min(.6,p.jobs.n*.01)*100)}% por experiencia</p>`;
+  if(j)h+=`<div class="qitem"><b>Pedido en curso</b><p>${j.st==='pick'?'Recogé en '+j.from.n:'Llevalo a '+j.to.n} · ${fmtC(j.pay)}</p><button class="alt" data-act="cancel">Cancelar pedido</button></div>`;
+  else h+=`<p class="note">Recogés en un negocio del barrio y lo llevás a una casa antes de que se enfríe. Necesitás bici o moto.</p><button class="green" data-act="take">Tomar un pedido</button>`;return h},
+ act(k){if(k==='take')jobStart();if(k==='cancel'){PGS().job=null;PGS().jobs.stars=Math.max(1,(PGS().jobs.stars||5)-.4);toast('Pedido cancelado (bajó tu calificación)');appOpen('ped')}}});
+// estilos de las apps
+{const st=document.createElement('style');st.textContent=`.pg-apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px}
+.pg-app{--b:var(--ac);--bt:#fff;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;border-radius:16px;font-size:12px;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.pg-app .pg-ic{font-size:28px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))}.pg-app b{font-weight:800;line-height:1.1}.pg-app .ph-dot{top:-6px;right:-4px}`;document.head.appendChild(st)}
 
 // </PROG>
 // <UI>
