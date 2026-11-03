@@ -7603,7 +7603,7 @@ function logroCheck(){if(!S||!S.f||!S.f.pg)return;const p=PGS();for(const[id,ic,
 setInterval(()=>{if(typeof mode!=='undefined'&&mode==='play')logroCheck()},5000);
 {const _dt=driveTrip;driveTrip=function(to){const r=_dt.apply(this,arguments);if(to==='chepe')progStat('viajes');return r}}
 {const _q=doneQ;doneQ=function(id){const was=qs(id)===2;const r=_q.apply(this,arguments);if(!was)progRep(3);return r}}
-{const _w=doShift;doShift=function(k,h){const r=_w.apply(this,arguments);progRep(h>=4?1:.5);return r}}
+{const _w=doShift;doShift=function(k,h){const d0=E().jobs[k].d;const r=_w.apply(this,arguments);if(E().jobs[k].d!==d0)progRep(h>=4?1:.5);return r}}
 // ---- metas: qué sigue en tu vida ----
 function metas(){const p=PGS(),n=NEG(),v=INV(),out=[],add=(ic,t,d,pr)=>out.push({ic,t,d,pr});
   if(!p.veh.length)add('🚲','Tu primera bici','Una bici montañera anda por ₡18 000 en la Agencia o el Marketplace (celular → Apps).',S.money/18000);
@@ -7827,14 +7827,15 @@ function monaReady(){const f=S.f;return(f.arRel||0)>=15&&(f.dr4||S.day>=12)&&!(f
       {t:'«Yo también he soñado con ese puente»',f(){relAdd('ar',1);m.cl.sueno=1;say('ariana','…¿Qué? ¿Vos también? ¿Con la señora de la bata?');say(null,'Le contás de la Ruta 27, del peaje, del «no pare», del carro que se apaga en el puente.');say('ariana','Mor, eso no es casualidad. Ayudame a averiguar qué pasó. Por favor.')}},
       {t:'«Seguro es solo un sueño, mor»',f(){relAdd('ar',-1);say('ariana','…Sí. Seguro. Olvidalo.');say(null,'Se le apaga la cara. Mejor averiguás algo por tu cuenta.')}},
       {t:'«¿Querés que le preguntemos a alguien?»',f(){relAdd('ar',.5);say('ariana','No sé a quién. Mi papá no habla de eso. Pero vos conocés a todo el mundo en el barrio…')}}]);return}
-  if(m.st===2&&Object.keys(m.cl).filter(k=>k!=='sueno').length){const c=m.cl;
+  const ck=Object.keys(m.cl).filter(k=>k!=='sueno').sort().join(',');
+  if(m.st===2&&ck&&m.arCk!==ck){const c=m.cl;m.arCk=ck;
     say('ariana','¿Averiguaste algo del puente?');if(c.chepe)say(null,'Le contás lo que dijo Don Chepe: el puente se llama así por una señora, y en el 2009 un taxi rojo del barrio se estrelló ahí.');
     if(c.eulalia)say(null,'Le contás lo de Doña Eulalia, la que camina el puente en bata desde que se le murió el hijo.');if(c.yuca)say(null,'Y le contás, con cuidado, lo que te confesó su papá.');
     if(c.yuca)say('ariana','…Entonces no me caí. Íbamos en el taxi de mi papá. Y él cargó eso solo todos estos años.');else say('ariana','Un taxi rojo… mi papá tenía un taxi rojo cuando yo era chiquita. Lo vendió de un día para otro.');
     if(c.yuca||c.eulalia){m.st=3;say('ariana','Quiero ir. Al puente. De madrugada, como esa noche. Pero esta vez despierta, y con vos manejando.');say('ariana','Si no lo veo con mis propios ojos, esto me va a seguir despertando toda la vida.');toast('🌫 Misión actualizada: llevá a '+N('ariana')+' al Puente de la Vieja')}
     else say('ariana','Todavía falta algo. Alguien tiene que saber quién es la señora de la bata.');return}
-  if(m.st===3&&m.retry>S.day)return say('ariana',pick(['Todavía no estoy lista para volver al puente. Dame unos días.','Esa noche me dejaste sola con el miedo. Ya se me va a pasar… creo.']));
-  if(m.st===4&&m.fin==='paz'&&!m.epi)return say('ariana','¿Ya le diste la estampita a mi papá? Vamos juntos. Yo sola no puedo.');
+  const nota=m.arNota===S.day?null:m.st===3&&m.retry>S.day?pick(['Todavía no estoy lista para volver al puente. Dame unos días.','Esa noche me dejaste sola con el miedo. Ya se me va a pasar… creo.']):m.st===4&&m.fin==='paz'&&!m.epi?'¿Ya le diste la estampita a mi papá? Vamos juntos donde él.':null;
+  if(nota){m.arNota=S.day;say('ariana',nota);const a=arguments,th=this;afterD(()=>_a.apply(th,a));return}
   return _a.apply(this,arguments)}}
 // ---------- Don Chepe, el del peaje (plaza de la Calle 3) ----------
 function chepePeajeTalk(e){const c=e.c,m=monaOn()?MONA():null;
@@ -7862,7 +7863,7 @@ function chepePeajeTalk(e){const c=e.c,m=monaOn()?MONA():null;
 // ---------- Don Alexander: solo se lo cuenta a alguien en quien confía ----------
 {const _p=TALK.papa;TALK.papa=function(){if(!monaOn())return _p.apply(this,arguments);const m=MONA();
   if(m.st===2&&m.cl.chepe&&!m.cl.yuca){const op=S.f.opinion||0;
-    if(op<2.5){say('papa','¿Quién le anda contando chismes del puente? Eso no es asunto suyo, muchacho.');say('papa','…Váyase. Tengo que ir a chapear.');toast('🧔 Don Alexander todavía no confía en vos para contarte eso (necesitás «Te respeta»). Ayudale en la chapea.');return}
+    if(op<2.5){if(m.papaNo===S.day)return _p.apply(this,arguments);m.papaNo=S.day;say('papa','¿Quién le anda contando chismes del puente? Eso no es asunto suyo, muchacho.');toast('🧔 Don Alexander todavía no confía en vos para contarte eso (necesitás «Te respeta»). Ayudale en la chapea.');const a=arguments,th=this;afterD(()=>_p.apply(th,a));return}
     m.cl.yuca=1;say(null,N('papa')+' deja el machete recostado en la tapia y se sienta en la acera. Tarda en hablar.');
     say('papa','Yo manejaba un taxi rojo. Un Corolla. Esa noche venía de Puntarenas, de un viaje largo, con dos turnos encima. Ariana tenía nueve años y venía dormida atrás.');
     say('papa','A las tres y media, en el Puente de la Vieja, cabeceé. Un segundo nada más. Abrí los ojos y había una señora en bata en media calle.');
