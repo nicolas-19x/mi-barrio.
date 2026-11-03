@@ -786,7 +786,7 @@ function hdFences(b,m){
 function hdField(b){const L=(x,y,w,h)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++){const r=hdr(x+i,y+j);if(r>.08)hdP(b,x+i,y+j,[236,236,226],.75+r*.25)}};
   const x0=46*HT,y0=26*HT,x1=57*HT,y1=32*HT;
   // zacate gastado frente a los marcos y en el centro
-  for(const[cx,cy,r]of[[x0+20,29*HT,22],[x1-20,29*HT,22],[51*HT+16,29*HT,16]])for(let y=cy-r;y<cy+r;y++)for(let x=cx-r*1.4;x<cx+r*1.4;x++){const u=(x-cx)/(r*1.4),v=(y-cy)/r,dd=u*u+v*v;if(dd<1&&hdr(x|0,y|0)<(1-dd)*.75)hdP(b,x,y,HDPAL.dirt[3+((hdr(x|0,y|0)*2)|0)],.8)}
+  for(const[cx,cy,r]of[[x0+20,29*HT,22],[x1-20,29*HT,22],[51*HT+16,29*HT,16]])for(let y=cy-r;y<cy+r;y++)for(let x=cx-r*1.4;x<cx+r*1.4;x++){const u=(x-cx)/(r*1.4),v=(y-cy)/r,dd=u*u+v*v;if(dd<1&&hdVN(x,y,6,91)<(1-dd)*.95)hdP(b,x,y,HDPAL.dirt[3+((hdr(x|0,y|0)*2)|0)],.55+(1-dd)*.4)}
   L(x0,y0,2,y1-y0);L(x1-2,y0,2,y1-y0);L(x0,y0,x1-x0,2);L(x0,y1-2,x1-x0,2);L(51*HT+16,y0,2,y1-y0);
   for(let a=0;a<360;a+=1.2){const t=a*Math.PI/180;const x=51*HT+17+Math.cos(t)*28,y=29*HT+Math.sin(t)*28;L(x,y,2,2)}
   for(const gx of[x0,x1]){const dir=gx===x0?1:-1;L(gx+(dir>0?0:-36),28*HT-8,36,2);L(gx+(dir>0?0:-36),30*HT+6,36,2);L(gx+(dir>0?34:-36),28*HT-8,2,46)}
@@ -956,10 +956,10 @@ function hdTreeSprite(seed,kind,s,fruit){
   for(const sg of[-1,1]){let x=tx,y=Hc*.62;for(let i=0;i<14*s;i++){x+=sg*.9;y-=.6;hdR(tb,x,y,2,2,HD_TRUNK[sg<0?3:1])}}
   for(let x=-8*s;x<9*s;x++)hdP(tb,tx+x,baseY+1,HD_TRUNK[0],.5);
   // copa: grupitos de hojas ordenados de arriba hacia abajo
-  const pts=[];for(let gy=0;gy<H;gy+=3)for(let gx=0;gx<W;gx+=4){const x=gx+(hsh(seed+gx,gy)-.5)*2.4+((gy/3)&1?2:0),y=gy+(hsh(gy,seed+gx)-.5)*2;if(x>=0&&y>=0&&x<W&&y<H&&mask[(y|0)*W+(x|0)])pts.push([y,x])}
+  const pts=[];for(let gy=0;gy<H;gy+=4)for(let gx=0;gx<W;gx+=5){const x=gx+(hsh(seed+gx,gy)-.5)*2.4+((gy/4)&1?2.5:0),y=gy+(hsh(gy,seed+gx)-.5)*2;if(x>=0&&y>=0&&x<W&&y<H&&mask[(y|0)*W+(x|0)])pts.push([y,x])}
   pts.sort((a,c)=>a[0]-c[0]);
-  for(const[y,x]of pts){const lit=.72-(y-8*s)/(60*s)*.5-(x-cx0)/(48*s)*.38+(hsh(x*3|0,y*5|0)-.5)*.2;const lv=Math.max(0,Math.min(6,Math.floor(lit*7)))+1;
-    const rx=2.5+hsh(x|0,y|0)*.9,ry=1.8+hsh(y|0,x|0)*.6;
+  for(const[y,x]of pts){const lit=.72-(y-8*s)/(60*s)*.5-(x-cx0)/(48*s)*.38+(hsh(x*3|0,y*5|0)-.5)*.1+(hdVN(x,y,14,seed)-.5)*.16;const lv=Math.max(0,Math.min(6,Math.floor(lit*7)))+1;
+    const rx=3.1+hsh(x|0,y|0)*1.1,ry=2.2+hsh(y|0,x|0)*.7;
     for(let j=-3;j<=3;j++)for(let i=-4;i<=4;i++){const u=(i+.5-(x-(x|0)))/rx,v=(j+.5-(y-(y|0)))/ry;if(u*u+v*v>1)continue;const X=(x|0)+i,Y=(y|0)+j;if(X<0||Y<0||X>=W||Y>=H||!mask[Y*W+X])continue;
       let k=lv;if(v>.5)k=lv-1;if(v>.8)k=lv-2;if(u+v<-.8)k=lv+1;if(u+v<-1.15&&lv>=5)k=lv+2;hdP(cb,X,Y,pal[Math.max(0,Math.min(9,k))])}}
   // hojas sueltas en la silueta
