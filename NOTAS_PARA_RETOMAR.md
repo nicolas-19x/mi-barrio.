@@ -19,6 +19,13 @@ Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** d
    - Pendiente: probar en celulares reales, y la fase 4 (mejenga o penales entre jugadores, pasar plata u objetos, Chepe compartido).
    - Documentos: `PLAN_MULTIJUGADOR.md` (plan) y `server/README.md` (instrucciones de uso).
 
+## Interfaz (UI)
+- Sistema central en `Mi_Barrio.html`: estilos entre `/* <UI> */ ... /* </UI> */` (al final del `<style>`) y lógica entre `// <UI> ... // </UI>` (antes de `// <NET>`).
+- Sello visual: tapitas de botella. Cada ventana tiene un tipo (`#panel[data-kind=quest|bag|board|phone|map|settings|confirm|shop|note|sport]`) que decide acento, tapita y detalle propio.
+- Sonidos: `uiSfx(nombre)` (tap, select, open, close, confirm, cancel, warn, notify, quest, interact), marimba sintetizada; opciones `OPT.ui` y `OPT.uiVol`.
+- Salidas animadas con copias «fantasma» (`.ui-ghost`): la ventana real se cierra al instante, así ninguna animación frena la lógica.
+- En celular (<640px) las ventanas son hojas que suben desde abajo.
+
 ## Pendientes de arte
 - Ariana: cara de perfil.
 - NPC peores (lista ordenada): Don Chito (16) y Don Fito (37) (calvos con bigote), lentes (Randall, Oficinista, Don Chepe, Doña Lin, Doña Tere, Doña Lidia, Doña Rosa, Doña Cecilia), Don Alexander (4), barba de Don Memo (39), sombreros de Don Toño y Don Wálter, gorras, moños blancos, Turista (27), Don Tavo (44), y el cuerpo igual para todos.
