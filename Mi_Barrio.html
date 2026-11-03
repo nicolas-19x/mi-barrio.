@@ -8080,7 +8080,7 @@ function netMsg(m){const now=performance.now();
       netUI();break}
     case'need':if(netHost())netSendWorld(true,m.id);break;
     case'pos':{const e=NET.rem.get(m.id);if(!e)break;const t=netTime(m.id,m.k,now);
-      netPush(e,{t,m:m.m,x:m.x,y:m.y,d:m.d});e.mv=m.mv;e.busy=m.b||'';if(!e.seen){e.seen=1;e.map=m.m;e.x=m.x;e.y=m.y;e.dir=m.d}break}
+      netPush(e,{t,m:m.m,x:m.x,y:m.y,d:m.d});e.mv=m.mv;e.busy=m.b||'';e.rv=m.rv||'';if(!e.seen){e.seen=1;e.map=m.m;e.x=m.x;e.y=m.y;e.dir=m.d}break}
     case'world':if(netGuest())netApplyWorld(m,now);break;
     case'emote':{const e=NET.rem.get(m.id);if(e)netBubble(e,m.k,true);break}
     case'chat':{const e=NET.rem.get(m.id);if(e){netBubble(e,m.m,false);if(e.map!==P.map)toast('💬 '+e.name+': '+m.m)}break}
@@ -8140,8 +8140,8 @@ function netHostTime(dt){if(!S||!S.started||(mode==='play'&&!fading))return;S.t+
 // ---------------------------------------------------------------- estado local → red
 function netBusy(){return COMBAT?'pleito':mode==='trip'?'bus':mode==='view'?'mirador':SPORT?'jugando':mode==='dialog'?'hablando':mode==='panel'?'ocupado':''}
 function netTick(dt){if(!NET.on||!S||!S.started)return;const now=performance.now();
-  if(now-NET.lastPos>=95){const s=[P.map,Math.round(P.x*2)/2,Math.round(P.y*2)/2,P.dir,P.moving?1:0,netBusy()].join('|');
-    if(s!==NET.lastPosS||now-NET.lastPos>1000){NET.lastPos=now;NET.lastPosS=s;netSend({t:'pos',k:Math.round(now),m:P.map,x:Math.round(P.x*2)/2,y:Math.round(P.y*2)/2,d:P.dir,mv:P.moving?1:0,b:netBusy()})}}
+  if(now-NET.lastPos>=95){const rv=netRide(),s=[P.map,Math.round(P.x*2)/2,Math.round(P.y*2)/2,P.dir,P.moving?1:0,netBusy(),rv].join('|');
+    if(s!==NET.lastPosS||now-NET.lastPos>1000){NET.lastPos=now;NET.lastPosS=s;netSend({t:'pos',k:Math.round(now),m:P.map,x:Math.round(P.x*2)/2,y:Math.round(P.y*2)/2,d:P.dir,mv:P.moving?1:0,b:netBusy(),rv})}}
   if(netHost()&&NET.rem.size&&now-NET.lastWorld>=110){NET.lastWorld=now;netSendWorld(false)}
   if(CH.player&&CH.player.shirt&&CH.player.shirt!==NET.shirt){NET.shirt=CH.player.shirt;netSaveCfg();netSend({t:'look',look:{shirt:NET.shirt}})}
   if(now-NET.lastPing>3000){NET.lastPing=now;netSend({t:'ping',k:Math.round(now)})}
@@ -8164,7 +8164,11 @@ async function netWake(on){try{if(on&&navigator.wakeLock&&!document.hidden){if(!
 {const _u=updNPC;updNPC=function(e,dt){if(netGuest()&&e._nb){netInterp(e,performance.now());return}return _u(e,dt)}}
 {const _u=updPed;updPed=function(e,dt){if(netGuest()&&e._nb){netInterp(e,performance.now());return}return _u(e,dt)}}
 {const _u=updAnimal;updAnimal=function(e,dt){if(e.kind==='remote'){netInterp(e,performance.now());return}if(netGuest()&&e._nb){netInterp(e,performance.now());return}return _u(e,dt)}}
-{const _d=npcDraw;npcDraw=function(e){if(e.kind==='remote')return{img:heroSprite(e.dir|0,npcFrame(e),e.shirt),x:-9,y:-27,w:18,h:29};return _d(e)}}
+{const _d=npcDraw;npcDraw=function(e){if(e.kind==='remote'){const r=netRideImg(e);if(r)return r;return{img:heroSprite(e.dir|0,npcFrame(e),e.shirt),x:-9,y:-27,w:18,h:29}}return _d(e)}}
+// vehículos de los demás jugadores: modelo y color viajan con la posición
+function netRide(){if(typeof riding!=='function')return'';const v=riding();return v&&v.map===P.map?v.m+','+v.col+(v.push?',p':''):''}
+function netRideImg(e){if(!e.rv||typeof vSprite!=='function')return null;const[m,col,push]=e.rv.split(',');if(!VM[m]||push)return null;const bici=VM[m].k==='bici',mv=!!e.mv;e.wd=(e.wd||0)+(mv?1:0);
+  const s=vSprite(m,col,e.dir|0,bici&&mv?Math.floor(e.wd/6)%4:Math.floor(e.wd/4)%5,push?null:bici?(mv?'walk':'sit'):'sit',e.shirt);const w=s.width/2,h=s.height/2;return{img:s,x:-w/2,y:-h+3,w,h}}
 {const _l=targetLabel;targetLabel=function(t){if(t&&t.type==='remote')return'Saludar a '+t.e.name;return _l(t)}}
 {const _f=findTarget;findTarget=function(){const t=_f();if(t&&t.type==='remote'&&(t.e.away||t.e.map!==P.map))return null;return t}}
 {const _i=interact;interact=function(){if(mode!=='play'||fading)return _i();const t=target;

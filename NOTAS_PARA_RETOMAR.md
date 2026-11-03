@@ -3,45 +3,48 @@
 Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** del final.
 
 ## Qué es el proyecto
-- Juego en una sola página: `Mi_Barrio.html` (~980 KB). Canvas 2D, sin librerías externas.
+- Juego en una sola página: `Mi_Barrio.html` (~1,27 MB). Canvas 2D, sin librerías externas.
 - Estilo visual «B» (cinematográfico, tipo Eastward): arte HD dibujado por código, sin imágenes externas.
 - Rama de trabajo: **`ccr-ab2778bc-9bjz20`**. Commitear y subir solo ahí. No abrir PR si no lo piden.
 - Commits: terminar el mensaje con `Co-Authored-By: ...` y `Claude-Session: https://claude.ai/code/session_015uL8vRLoU87HCsa932nRq1`. No poner nombres de modelo en commits ni PRs.
 
-## Estado actual (HEAD `c129aa4`)
-1. **Arte HD completo** del barrio, casas, pulpería, tiendas, interiores, luz (día, noche, lluvia), animales y personajes.
-2. **Ariana** tiene modelo propio (`03376ee`): tez clara `#e3b597`, pelo negro lacio `#1e1614`, blusa celeste. Sus datos van en `hd/data_ariana.js` (`ARID`) y en `npcAri()` / `ariSprite()` dentro del bloque HD de `Mi_Barrio.html`. Pendiente: la cara de perfil se ve mal.
-3. **Multijugador LAN** (`c129aa4`), fases 0 a 3:
-   - `server/server.js`: servidor sin dependencias. Puerto por defecto **8080**. Salas de 4 letras. Máximo **6** jugadores por sala.
-   - En el juego: bloque `// <NET> ... // </NET>` dentro de `Mi_Barrio.html`. Constante `NET_DELAY=130`. Función `netOverlay()` dibuja nombres y burbujas.
-   - Un celular (el anfitrión) simula el mundo y lo manda ~9 veces por segundo. Los demás interpolan.
-   - Probado con Playwright (2 y 3 navegadores): posiciones exactas, NPC iguales, chat, gestos, cambio de anfitrión, reconexión.
-   - Pendiente: probar en celulares reales, y la fase 4 (mejenga o penales entre jugadores, pasar plata u objetos, Chepe compartido).
-   - Documentos: `PLAN_MULTIJUGADOR.md` (plan) y `server/README.md` (instrucciones de uso).
+## Cómo está organizado el código (bloques dentro de `Mi_Barrio.html`)
+El script tiene bloques marcados. Se editan directamente en el HTML (los archivos sueltos de las sesiones anteriores vivían en una carpeta temporal y ya no existen).
+- `// <HD> … // </HD>`: todo el arte HD (suelos, casas, luz, personajes, Chepe, bus, tránsito, cuadra sur, El Hoyo). Se evalúa **temprano**.
+- `// <PROG> … // </PROG>` (antes de `// <UI>`): la progresión. Se evalúa **al final**, después de que el barrio ya se generó. Por eso lo que se usa al arrancar tiene que ser `function` (se eleva) o `var`; nunca `const`/`let` de nivel superior que se lean durante el arranque.
+- `// <UI> … // </UI>` y `/* <UI> */ … /* </UI> */`: sistema de interfaz.
+- `// <NET> … // </NET>`: multijugador.
+- Para extender funciones del juego se envuelven por reasignación: `{const _x=fn;fn=function(){…}}`. Ojo: `spend` y `earn` son `const`, no se pueden envolver.
 
-## Interfaz (UI)
-- Sistema central en `Mi_Barrio.html`: estilos entre `/* <UI> */ ... /* </UI> */` (al final del `<style>`) y lógica entre `// <UI> ... // </UI>` (antes de `// <NET>`).
-- Sello visual: tapitas de botella. Cada ventana tiene un tipo (`#panel[data-kind=quest|bag|board|phone|map|settings|confirm|shop|note|sport]`) que decide acento, tapita y detalle propio.
-- Sonidos: `uiSfx(nombre)` (tap, select, open, close, confirm, cancel, warn, notify, quest, interact), marimba sintetizada; opciones `OPT.ui` y `OPT.uiVol`.
-- Salidas animadas con copias «fantasma» (`.ui-ghost`): la ventana real se cierra al instante, así ninguna animación frena la lógica.
-- En celular (<640px) las ventanas son hojas que suben desde abajo.
+## Estado actual
+1. **Arte HD completo**: barrio, casas, tiendas, interiores, luz (día, noche, lluvia), animales, personajes, Chepe, Mercado Central, bus en perspectiva y tránsito con atropellos.
+2. **Mapa ampliado hacia el sur** (84×84): Calle 3, Parroquia San Isidro (con interior), plaza con fuente, servicentro La Pasada, Taller El Abuelo, lote «SE VENDE», casas nuevas y **El Hoyo** (callejón vigilado por El Chiqui y Pelón; contraseña «Tata»).
+3. **Progresión** (bloque PROG, estado en `S.f.pg`, se obtiene con `PGS()`):
+   - F1 Vehículos (`VM`): bici, bici de ruta, motos, Corollita del 96 y La Bestia. Licencia (examen tico en la app COSEVI), gasolina, taller, marchamo, RTV, retenes, robos, crédito, repartidor «Pedidos Mae».
+   - F2 Casa: cochera, tallercito, segundo piso, terraza, decoración (`DECO`) con puntos de comodidad (`comfort()`), inquilino en el cuarto de arriba.
+   - F3 Negocio: carrito de copos (se le compra a Doña Mireya en Chepe; minijuego `srvStart(COPO_CFG)`), **Soda Mi Barrio** en el lote (Don Rigo, Doña Chela de cocinera, permiso sanitario), y la app CoopeBarrio R.L. (ahorro, préstamo, tanda de Doña Rosa). Lotería con Don Toño en la plaza (Chances martes y viernes, Nacional el domingo). Prestamista Don Mauro en El Hoyo.
+   - F4 Respeto del barrio (`progRep`, `REPLV`, 6 niveles), logros (`LOGROS`) y la app **Metas**.
+   - F5 Viaje a **Puntarenas** manejando (mapa `playa`: churchills de Doña Olga, pipas, muelle de Don Chalo con pesca y atardecer, Ariana puede ir). Fiesta en la terraza. **Asociación de Vecinos** (app): turnos, donaciones, elecciones y proyectos que se ven en el mapa (rótulos de vigilado, alumbrado, basureros, mural de carreta, play).
+4. **Multijugador LAN**: `server/server.js` (puerto **8080**, salas de 4 letras, máximo **6** por sala). `NET_DELAY=130`. Ahora cada jugador manda su vehículo (`rv` en el mensaje `pos`) y los demás lo ven manejando.
+5. **Ariana**: modelo propio (`npcAri()` / `ariSprite()`), tez `#e3b597`, pelo negro lacio, blusa celeste.
 
-## Pendientes de arte
-- Ariana: cara de perfil.
-- NPC peores (lista ordenada): Don Chito (16) y Don Fito (37) (calvos con bigote), lentes (Randall, Oficinista, Don Chepe, Doña Lin, Doña Tere, Doña Lidia, Doña Rosa, Doña Cecilia), Don Alexander (4), barba de Don Memo (39), sombreros de Don Toño y Don Wálter, gorras, moños blancos, Turista (27), Don Tavo (44), y el cuerpo igual para todos.
-- **El usuario todavía no eligió cuál NPC retocar.** No empezar uno sin preguntar.
-- Pendientes más grandes: escena del bus en estilo B (`drawTrip`), y rediseño de los edificios de Chepe (hoy solo tienen remasterizado EPX).
+## Pendientes
+- Probar el multijugador en celulares reales.
+- Ariana: la cara de perfil.
+- NPC con peor arte (Don Chito, Don Fito, los de lentes, sombreros y gorras): **el usuario todavía no eligió cuál retocar**. Preguntar antes.
+- Ideas sin hacer: ir a la playa en bus, mejenga entre jugadores, pasar plata entre jugadores.
 
 ## Cómo probar
-- Scripts de prueba en la carpeta de trabajo de la sesión anterior (`scratchpad/t/`): `full.js` (un jugador: sin errores, 60 FPS de noche con lluvia), `crowd.js`, `allnpc.js` (hoja de todos los personajes).
-- Multijugador: `scratchpad/net/t/mp.js` y `mp2.js` (levantan el servidor solos en puertos de prueba).
-- Regenerar el HD: `hd/inject.py` (idempotente). Regenerar NPC: `mk/npcbake.py` y luego `mk/npcexport.py`. Ariana: `mk/ariexport.py`. Multijugador: `server/...` y `inject_net.py` (en la carpeta de scratchpad, bloque `net/net.js`).
-- Si cambias `Mi_Barrio.html`, corre `full.js` antes de commitear.
+- Con Playwright (ya instalado): abrir `file:///home/user/mi-barrio./Mi_Barrio.html`, llamar `startGame(true)` y cerrar diálogos. Revisar que no haya `pageerror`.
+- Para los minijuegos de atención: `SRV`, `srvClick('sir:fresa')`, `srvClick('go')`.
+- Multijugador: `PORT=8092 node server/server.js` y abrir dos páginas en `http://localhost:8092/`.
+- Antes de commitear: extraer el `<script>` y correr `node --check`, y revisar 60 FPS de noche con lluvia.
 
 ## Reglas de trabajo con el usuario
-- Responder en **español** (Costa Rica, tuteo con «vos»/«usted» como el usuario).
-- Mostrar capturas antes de decir que algo quedó bien. Enviarlas con SendUserFile.
+- Responder en **español** de Costa Rica.
+- Mostrar capturas antes de decir que algo quedó bien.
 - No cambiar el juego sin que el usuario lo pida. Para cambios grandes, presentar plan primero.
+- Siempre la esencia tica y el estilo B.
 
 ---
 
@@ -49,12 +52,12 @@ Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** d
 
 Contesta estas preguntas **ejecutando comandos** (`git log`, `grep`), no de memoria. Si no puedes comprobar algo, dilo.
 
-1. ¿Cuál es el hash corto del último commit de la rama, y cuál es su mensaje?
-2. ¿Qué valor tiene `NET_DELAY` y en qué archivo y bloque está?
-3. ¿Qué puerto usa el servidor por defecto y cuántos jugadores caben por sala?
-4. ¿Qué color de piel tiene Ariana y qué función decide si se usa su modelo propio?
+1. ¿Cuál es el hash corto del commit que agregó el viaje a Puntarenas?
+2. ¿Qué valor tiene `NET_DELAY` y en qué bloque está?
+3. ¿Cómo se llama la cocinera que se puede contratar para la soda, y en qué mapa vive?
+4. ¿Qué contraseña piden los vigilantes para entrar a El Hoyo?
 5. ¿Cuál es el nombre de la rama de trabajo?
 
-**Respuestas correctas hoy:** 1) `c129aa4`, «Multijugador local (LAN): servidor sin dependencias, salas, barrio compartido, gestos y chat». 2) `130`, en `Mi_Barrio.html`, bloque `// <NET>`. 3) `8080`, y `6`. 4) `#e3b597`, `npcAri()`. 5) `ccr-ab2778bc-9bjz20`.
+**Respuestas correctas:** 1) `da3dec5`. 2) `130`, bloque `// <NET>`. 3) Doña Chela, en `hoyo` (El Hoyo). 4) «Tata». 5) `ccr-ab2778bc-9bjz20`.
 
 Si respondes algo que no coincide con el repo, o si el repo no tiene `NOTAS_PARA_RETOMAR.md`, **estás en otro repositorio o te confundiste**: detente y avisa al usuario antes de tocar código.
