@@ -7395,21 +7395,21 @@ const COPO_CFG={title:'🍧 Carrito de copos',sub:'Raspá el hielo y servilo com
    return pick(['Uno de '+s,'Regáleme uno de '+s,'Un copo de '+s,'Diay, uno de '+s])+(t.length?' con '+yJoin(t):' solo, sin nada')+(Math.random()<.3?', porfa.':'.')},
  order(){const a=COPO_CFG.cats[0].o,tp=['polvo','cond'].concat(NEG().up.helado?['helado']:[]),o={sir:pick(a)[0],top:[]};for(const k of tp)if(Math.random()<(k==='helado'?.3:.6))o.top.push(k);if(Math.random()<.75&&!o.top.length)o.top.push('cond');return o},
  cup(sel){const s=COPO_CFG.cats[0].o.find(x=>x[0]===sel.sir),c=s?s[2]:'#e8f2f8';return`<div class="srv-cup"><div class="srv-ice" style="--c:${c}">${sel.top.includes('polvo')?'<i class="dots"></i>':''}${sel.top.includes('cond')?'<i class="drz"></i>':''}${sel.top.includes('helado')?'<i class="ball"></i>':''}</div><div class="srv-vaso"></div></div>`}};
-const SODA_CFG={title:'🍛 Soda Mi Barrio',sub:'Casados, gallos y fresco natural. Que no se le enfríe a nadie.',dur:80,
+const SODA_CFG={title:'🍛 Soda Mi Barrio',sub:'Casados, gallos y fresco natural. Que no se le enfríe a nadie.',dur:90,
  cats:[{k:'pla',n:'Plato',one:1,o:[['casado','Casado','#c98a4a'],['gallo','Gallo pinto','#6b4a34'],['arroz','Arroz con pollo','#e2b33a'],['olla','Olla de carne','#b8553c'],['sopa','Sopa negra','#3a2a24']]},
        {k:'fre',n:'Fresco',one:1,o:[['cas','Cas','#e8d27a'],['mora','Mora','#7d3c86'],['tam','Tamarindo','#8a5a2b'],['horch','Horchata','#efe2c8'],['agua','Agua dulce','#c48a3a']]},
        {k:'ext',n:'Extra',o:[['maduro','Maduro','#e2b33a'],['huevo','Huevo frito','#fff6d6'],['natilla','Natilla','#f4f0e6']]}],
  price(o){return(progSodaLv()>1?3500:3000)+700+o.ext.length*400},cost:1500,
  say(o){const C=SODA_CFG.cats,n=(i,k)=>C[i].o.find(x=>x[0]===k)[1].toLowerCase();return pick(['Me da un ','Regáleme un ','Un ','Diay, ¿me hace un '])+n(0,o.pla)+(o.ext.length?' con '+yJoin(o.ext.map(k=>n(2,k))):'')+', y fresco de '+n(1,o.fre)+'.'},
- order(){const C=SODA_CFG.cats,o={pla:pick(C[0].o)[0],fre:pick(C[1].o)[0],ext:[]};for(const x of C[2].o)if(Math.random()<.3)o.ext.push(x[0]);return o},
+ order(){const C=SODA_CFG.cats,o={pla:pick(C[0].o)[0],fre:pick(C[1].o)[0],ext:[]};for(const x of C[2].o)if(Math.random()<.2)o.ext.push(x[0]);return o},
  cup(sel){const C=SODA_CFG.cats,f=(i,k)=>{const x=C[i].o.find(y=>y[0]===k);return x?x[2]:null},p=f(0,sel.pla),d=f(1,sel.fre);
    return`<div class="srv-plate"><div class="plato">${p?`<i style="background:${p}"></i><i class="rice"></i>`:''}${sel.ext.includes('maduro')?'<i class="mad"></i>':''}${sel.ext.includes('huevo')?'<i class="egg"></i>':''}${sel.ext.includes('natilla')?'<i class="nat"></i>':''}</div><div class="vaso" style="--c:${d||'transparent'}"></div></div>`}};
 function srvEmpty(cfg){const o={};for(const c of cfg.cats)o[c.k]=c.one?null:[];return o}
 function srvStart(cfg,opt){const busy=opt.busy||1,s=SRV={cfg,opt,t:cfg.dur,q:[],sel:srvEmpty(cfg),money:0,cost:0,ok:0,bad:0,gone:0,nx:.6,tips:0,stock:opt.stock==null?99:opt.stock};
   openPanel(cfg.title,'<div class="srv" id="srv"></div>');$('#panel').dataset.kind='activity';srvRender();
   s.iv=setInterval(()=>{if(SRV!==s)return clearInterval(s.iv);if($('#panel').classList.contains('hidden'))return srvEnd(true);const dt=.1;s.t-=dt;s.nx-=dt*busy;
-    if(s.nx<=0&&s.q.length<4&&s.t>4){const i=Math.floor(Math.random()*SRV_NAMES.length),pat=(opt.pat||14)*(.8+Math.random()*.4);s.q.push({n:SRV_NAMES[i],f:SRV_FACE[i],o:cfg.order(),p:pat,mx:pat});s.nx=2.2+Math.random()*3.2;beep(1200,.03,'sine',.02)}
-    for(const c of s.q)c.p-=dt;const lost=s.q.filter(c=>c.p<=0);if(lost.length){s.gone+=lost.length;s.q=s.q.filter(c=>c.p>0);beep(220,.12,'sawtooth',.03)}
+    if(s.nx<=0&&s.q.length<3&&s.t>6){const i=Math.floor(Math.random()*SRV_NAMES.length),pat=(opt.pat||14)*(.8+Math.random()*.4);s.q.push({n:SRV_NAMES[i],f:SRV_FACE[i],o:cfg.order(),p:pat,mx:pat});s.nx=5+Math.random()*4;beep(1200,.03,'sine',.02)}
+    s.q.forEach((c,i)=>{c.p-=dt*(i?.25:1)});const lost=s.q.filter(c=>c.p<=0);if(lost.length){s.gone+=lost.length;s.q=s.q.filter(c=>c.p>0);beep(220,.12,'sawtooth',.03)}
     if(s.t<=0)return srvEnd(false);srvTick()},100)}
 function srvTick(){const s=SRV;if(!s)return;const t=$('#srvT');if(t)t.textContent=Math.ceil(s.t);for(const[i,c]of s.q.entries()){const b=document.querySelector('#srvQ [data-i="'+i+'"] i');if(b){b.style.width=Math.max(0,c.p/c.mx*100)+'%';b.style.background=c.p/c.mx<.3?'#d6453c':c.p/c.mx<.6?'#f2c94c':'#57d17a'}}
   if(s.qn!==s.q.length||s.q[0]!==s.q0){s.qn=s.q.length;s.q0=s.q[0];srvRender()}}
@@ -7446,7 +7446,7 @@ const CART_UP={sombrilla:{n:'Sombrilla nueva',c:4000,t:'La gente espera más tra
 function copoBusy(){const h=S.t/60;let b=1;if(h>=11&&h<15)b*=1.35;if(dow()===6)b*=1.4;if(dow()===5)b*=1.2;if(S.rain)b*=.45;if(NEG().up.parlante)b*=1.25;return b*(.8+NEG().fama/120)}
 function cartTalk(){const n=NEG(),h=S.t/60,e=E(),ch=[];
   if(h>=10&&h<18.5)ch.push({t:'Vender copos ('+n.stock+' en insumos)',f(){if(n.stock<=0)return say(null,'No tenés insumos. Sin hielo no hay copo.');if(e.en<15)return say(null,'Estás muy cansado para raspar hielo.');
-    if(S.rain)toast('🌧 Con este aguacero casi nadie quiere copo… pero alguno habrá.');afterD(()=>setTimeout(()=>srvStart(COPO_CFG,{busy:copoBusy(),pat:(n.up.sombrilla?17:13),stock:n.stock,done:copoDone}),80))}});
+    if(S.rain)toast('🌧 Con este aguacero casi nadie quiere copo… pero alguno habrá.');afterD(()=>setTimeout(()=>srvStart(COPO_CFG,{busy:copoBusy(),pat:(n.up.sombrilla?28:22),stock:n.stock,done:copoDone}),80))}});
   else ch.push({t:'Vender copos (de 10 a.m. a 6 p.m.)',f(){say(null,h<10?'Muy temprano: la gente todavía está con el cafecito.':'Ya es muy tarde. La plaza está quedándose sola.')}});
   ch.push({t:'Encargar insumos (₡5 000 · 20 copos)',f(){if(S.money<5000)return say(null,'No te alcanza.');spend(5000,'Negocio');n.stock+=20;toast('🧊 +20 copos en insumos (hielo, siropes y leches)')}});
   const ups=Object.entries(CART_UP).filter(([k])=>!n.up[k]);if(ups.length)ch.push({t:'Mejorar el carrito',f(){say(null,'¿Qué le ponés al carrito?',ups.map(([k,u])=>({t:u.n+' ('+fmtC(u.c)+')',f(){if(S.money<u.c)return say(null,'No te alcanza.');spend(u.c,'Negocio');n.up[k]=1;toast('🍧 '+u.n+': '+u.t);if(k==='ayudante')say(fillChar({id:'z_hoyo5',name:'Chamaco',hair:'rizos',hairColor:'#1c1c1c',skin:'#8d5524',shirt:'#c0473b',pants:'#2d3a6e',v:1}),'¡Pura vida, jefe! Yo le cuido el carrito y le vendo como loco. Usted solo déjeme insumos.')}})).concat([{t:'Nada'}]))}});
@@ -7471,7 +7471,7 @@ function sodaTalk(){const n=NEG(),r=fillChar(Object.assign({v:1},RIGO));
       spend(85000,'Negocio');n.obra={fin:S.day+4,lv:1};n.rentNext=S.day+7;say(r,'¡Trato hecho! Mañana mismo empiezan los maestros. Yo le cobro el alquiler cada semana.');toast('🏗 Obra de la soda: lista el día '+n.obra.fin);if(typeof progRep==='function')progRep(4,'Empezaste tu soda')}},
     {t:'Solo estaba preguntando'}]);return}
   const ch=[];const h=S.t/60;
-  if(h>=6&&h<20&&!n.closed)ch.push({t:'Atender la soda vos mismo',f(){if(E().en<20)return say(null,'Estás muy cansado para la cocina.');afterD(()=>setTimeout(()=>srvStart(SODA_CFG,{busy:.85+n.fama/150+(progSodaLv()>1?.25:0),pat:16,done:sodaDone}),80))}});
+  if(h>=6&&h<20&&!n.closed)ch.push({t:'Atender la soda vos mismo',f(){if(E().en<20)return say(null,'Estás muy cansado para la cocina.');afterD(()=>setTimeout(()=>srvStart(SODA_CFG,{busy:.85+n.fama/150+(progSodaLv()>1?.25:0),pat:34,done:sodaDone}),80))}});
   if(n.closed)ch.push({t:'(Cerrada por el Ministerio de Salud hasta el día '+n.closed+')',f(){}});
   if(!n.cook)ch.push({t:'¿Quién cocina cuando no estoy?',f(){say(null,'Te hace falta una cocinera de confianza… alguien que sepa hacer empanadas y casados como en la casa de la abuela. En El Hoyo, Doña Chela vende las mejores empanadas del barrio.')}});
   else ch.push({t:'Hablar con Doña Chela',f(){const c=fillChar({id:'z_hoyo3',name:'Doña Chela',hair:'moño',hairColor:'#d8d8d8',skin:'#b97a4a',shirt:'#a6d8cb',pants:'#4b3b5b',v:1});say(c,pick(['Mijo, hoy se vendió la olla de carne completita. ¡Ni el caldo quedó!','La gente pregunta por usted. Les digo que el patrón anda en vueltas.','Gracias por la oportunidad, mijo. En El Hoyo nadie me daba trabajo de verdad.','Hay que comprar más tortillas, que el casado sin tortilla no es casado.']),[{t:'Despedirla',f(){n.cook=0;say(c,'Ay, mijo… está bien. Que Dios lo acompañe.')}},{t:'Seguir así'}])}});
