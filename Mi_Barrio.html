@@ -2451,9 +2451,12 @@ function hdSodaB(B,o,lv){const X=o.x*HT,Y=o.y*HT,W=o.w*HT,H=o.h*HT,RH=70,FY=Y+RH
   hdCh_awning(B,X+4,FY+14,W-8,12,'#2a8f6a','#f4f0e6',5);
   hdR(B,X+14,FY+34,W-28,44,[48,34,26]);hdR(B,X+14,FY+62,W-28,9,[196,158,108]);hdR(B,X+14,FY+62,W-28,1,[230,196,150]);HD_EMIT.push({k:'shop',x:X+14,y:FY+34,w:W-28,h:28});
   for(let i=0;i<5;i++){const px=X+24+i*36;hdR(B,px,FY+46,10,8,[244,244,244]);hdR(B,px+1,FY+44,8,2,[150,96,60]);hdR(B,px+14,FY+48,6,6,[214,69,60])}
-  hdSurSign(B,X+W/2-70,FY+6,140,22,'#1e1a24','SODA MI BARRIO','#f2c94c');
-  hdR(B,X+W-48,FY+80,32,22,[244,234,210]);hdR(B,X+W-48,FY+80,32,3,[192,71,59]);hdText(B,X+W-44,FY+86,'CASADO',[60,30,20]);hdText(B,X+W-44,FY+94,lv>1?'C3500':'C3000',[192,71,59]);
-  if(lv>1)for(let i=0;i<2;i++){const tx=X+20+i*90,ty=Y+H+2;hdEll(B,tx+20,ty+18,22,5,[0,0,0],.2);hdR(B,tx,ty,40,4,[220,60,50]);hdR(B,tx+18,ty+4,4,12,[200,200,200]);for(const cx2 of[tx-8,tx+44])hdR(B,cx2,ty+6,8,8,[220,60,50])}}
+  const NM=(typeof sodaNombre==='function'?sodaNombre():'Soda Mi Barrio').toUpperCase();hdSurSign(B,X+W/2-70,FY+6,140,22,'#1e1a24',NM,lv>=5?'#ffd75a':'#f2c94c');
+  if(lv>=3)for(let i=0;i<11;i++){const bx=X+10+i*(W-20)/10;hdEll(B,bx,FY+30,2.2,2.2,[[255,226,140],[255,150,130],[160,230,255]][i%3])}
+  if(lv>=4){hdR(B,X+W/2-34,FY+30,68,11,[125,60,134]);hdText(B,X+W/2-26,FY+33,'EVENTOS',[255,240,255])}
+  if(lv>=5){hdR(B,X+W/2-72,FY+4,144,2,[230,190,70]);hdR(B,X+W/2-72,FY+30,144,2,[230,190,70]);for(const fx of[X+8,X+W-14]){hdR(B,fx+5,Y-34,2,40,[150,150,156]);hdR(B,fx+7,Y-34,16,10,[214,69,60]);hdR(B,fx+7,Y-31,16,4,[250,250,250]);hdR(B,fx+7,Y-29,16,2,[42,82,160])}}
+  hdR(B,X+W-48,FY+80,32,22,[244,234,210]);hdR(B,X+W-48,FY+80,32,3,[192,71,59]);hdText(B,X+W-44,FY+86,'CASADO',[60,30,20]);hdText(B,X+W-44,FY+94,'C'+([0,3000,3500,4000,4500,5200][lv]||3000),[192,71,59]);
+  if(lv>1)for(let i=0;i<(lv>=3?3:2);i++){const tx=X+10+i*(lv>=3?72:90),ty=Y+H+2;hdEll(B,tx+20,ty+18,22,5,[0,0,0],.2);hdR(B,tx,ty,40,4,[220,60,50]);hdR(B,tx+18,ty+4,4,12,[200,200,200]);for(const cx2 of[tx-8,tx+44])hdR(B,cx2,ty+6,8,8,[220,60,50])}}
 // ---- Taller El Abuelo (Carlillos) ----
 function hdTaller(B,o,open){const X=o.x*HT,Y=o.y*HT,W=o.w*HT,H=o.h*HT,RH=64,FY=Y+RH;
   hdRoofZinc(B,X-4,Y,W+8,RH,'#8f9aa1',71,false);hdEave(B,X-4,FY,W+8,'#8f9aa1');
@@ -7380,7 +7383,7 @@ appReg({id:'casa',n:'Mi casa',ic:'🏠',c:'#c4553a',html(){const lv=comfLv(),c=c
 var DOWN=['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
 function yJoin(a){return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1]}
 function dow(d){return((d==null?S.day:d)-1)%7}
-function NEG(){const p=PGS();if(!p.neg||p.neg.v!==1)p.neg=Object.assign({v:1,cart:0,stock:0,sold:0,fama:10,up:{},soda:0,obra:null,cook:0,permiso:0,rentNext:0,rentDebt:0,closed:0,earn:0,best:0,sodaSrv:0,ayud:0},p.neg||{});return p.neg}
+function NEG(){const p=PGS();if(!p.neg||p.neg.v!==1)p.neg=Object.assign({v:1,cart:0,stock:0,sold:0,fama:10,up:{},soda:0,obra:null,cook:0,permiso:0,rentNext:0,rentDebt:0,closed:0,earn:0,best:0,sodaSrv:0,ayud:0},p.neg||{});const n=p.neg;if(n.nombre===undefined)Object.assign(n,{nombre:'Soda Mi Barrio',nombrePend:0,ari:'',ariDias:0,ariAcc:0,ariaGan:0,rec:{},sup:{},fr:{},cat:{dia:0,l:[],act:[],hechos:0},ult:null});return n}
 function progSodaLv(){return S&&S.f&&S.f.pg&&S.f.pg.neg?S.f.pg.neg.soda|0:0}
 const CART_AT={x:53,y:72};
 // ---------- motor de atención (copos y soda) ----------
@@ -7395,15 +7398,15 @@ const COPO_CFG={title:'🍧 Carrito de copos',sub:'Raspá el hielo y servilo com
    return pick(['Uno de '+s,'Regáleme uno de '+s,'Un copo de '+s,'Diay, uno de '+s])+(t.length?' con '+yJoin(t):' solo, sin nada')+(Math.random()<.3?', porfa.':'.')},
  order(){const a=COPO_CFG.cats[0].o,tp=['polvo','cond'].concat(NEG().up.helado?['helado']:[]),o={sir:pick(a)[0],top:[]};for(const k of tp)if(Math.random()<(k==='helado'?.3:.6))o.top.push(k);if(Math.random()<.75&&!o.top.length)o.top.push('cond');return o},
  cup(sel){const s=COPO_CFG.cats[0].o.find(x=>x[0]===sel.sir),c=s?s[2]:'#e8f2f8';return`<div class="srv-cup"><div class="srv-ice" style="--c:${c}">${sel.top.includes('polvo')?'<i class="dots"></i>':''}${sel.top.includes('cond')?'<i class="drz"></i>':''}${sel.top.includes('helado')?'<i class="ball"></i>':''}</div><div class="srv-vaso"></div></div>`}};
-const SODA_CFG={title:'🍛 Soda Mi Barrio',sub:'Casados, gallos y fresco natural. Que no se le enfríe a nadie.',dur:90,
- cats:[{k:'pla',n:'Plato',one:1,o:[['casado','Casado','#c98a4a'],['gallo','Gallo pinto','#6b4a34'],['arroz','Arroz con pollo','#e2b33a'],['olla','Olla de carne','#b8553c'],['sopa','Sopa negra','#3a2a24']]},
+const SODA_CFG={get title(){return'🍛 '+(typeof sodaNombre==='function'?sodaNombre():'Soda Mi Barrio')},sub:'Casados, gallos y fresco natural. Que no se le enfríe a nadie.',dur:90,
+ cats:[{k:'pla',n:'Plato',one:1,o:[['casado','Casado','#c98a4a'],['gallo','Gallo pinto','#6b4a34'],['arroz','Arroz con pollo','#e2b33a'],['olla','Olla de carne','#b8553c'],['sopa','Sopa negra','#3a2a24'],['apollo','Arroz con pollo de la abuela','#e8b13a',()=>recOn('apollo')],['chifri','Chifrijo de Ariana','#c8472f',()=>recOn('chifri')]]},
        {k:'fre',n:'Fresco',one:1,o:[['cas','Cas','#e8d27a'],['mora','Mora','#7d3c86'],['tam','Tamarindo','#8a5a2b'],['horch','Horchata','#efe2c8'],['agua','Agua dulce','#c48a3a']]},
-       {k:'ext',n:'Extra',o:[['maduro','Maduro','#e2b33a'],['huevo','Huevo frito','#fff6d6'],['natilla','Natilla','#f4f0e6']]}],
- price(o){return(progSodaLv()>1?3500:3000)+700+o.ext.length*400},cost:1500,
- say(o){const C=SODA_CFG.cats,n=(i,k)=>C[i].o.find(x=>x[0]===k)[1].toLowerCase();return pick(['Me da un ','Regáleme un ','Un ','Diay, ¿me hace un '])+n(0,o.pla)+(o.ext.length?' con '+yJoin(o.ext.map(k=>n(2,k))):'')+', y fresco de '+n(1,o.fre)+'.'},
- order(){const C=SODA_CFG.cats,o={pla:pick(C[0].o)[0],fre:pick(C[1].o)[0],ext:[]};for(const x of C[2].o)if(Math.random()<.2)o.ext.push(x[0]);return o},
+       {k:'ext',n:'Extra',o:[['maduro','Maduro','#e2b33a'],['huevo','Huevo frito','#fff6d6'],['natilla','Natilla','#f4f0e6'],['tres','Tres leches','#f2ead2',()=>recOn('tres')]]}],
+ price(o){const lv=progSodaLv();return([0,3000,3500,4000,4500,5200][lv]||3000)+700+o.ext.length*400+((o.pla==='apollo'||o.pla==='chifri')?900:0)+(o.ext.includes('tres')?300:0)+(sodaUp('horno')?250:0)},cost:1500,
+ say(o){const C=SODA_CFG.cats,n=(i,k)=>C[i].o.find(x=>x[0]===k)[1].toLowerCase().replace('ariana','Ariana');return pick(['Me da un ','Regáleme un ','Un ','Diay, ¿me hace un '])+n(0,o.pla)+(o.ext.length?' con '+yJoin(o.ext.map(k=>n(2,k))):'')+', y fresco de '+n(1,o.fre)+'.'},
+ order(){const C=SODA_CFG.cats,ok=a=>a.filter(x=>!x[3]||x[3]()),o={pla:pick(ok(C[0].o))[0],fre:pick(ok(C[1].o))[0],ext:[]};for(const x of ok(C[2].o))if(Math.random()<.2)o.ext.push(x[0]);return o},
  cup(sel){const C=SODA_CFG.cats,f=(i,k)=>{const x=C[i].o.find(y=>y[0]===k);return x?x[2]:null},p=f(0,sel.pla),d=f(1,sel.fre);
-   return`<div class="srv-plate"><div class="plato">${p?`<i style="background:${p}"></i><i class="rice"></i>`:''}${sel.ext.includes('maduro')?'<i class="mad"></i>':''}${sel.ext.includes('huevo')?'<i class="egg"></i>':''}${sel.ext.includes('natilla')?'<i class="nat"></i>':''}</div><div class="vaso" style="--c:${d||'transparent'}"></div></div>`}};
+   return`<div class="srv-plate"><div class="plato">${p?`<i style="background:${p}"></i><i class="rice"></i>`:''}${sel.ext.includes('maduro')?'<i class="mad"></i>':''}${sel.ext.includes('huevo')?'<i class="egg"></i>':''}${sel.ext.includes('natilla')?'<i class="nat"></i>':''}${sel.ext.includes('tres')?'<i class="nat" style="background:#f2ead2!important;left:60px;top:8px;width:24px"></i>':''}</div><div class="vaso" style="--c:${d||'transparent'}"></div></div>`}};
 function srvEmpty(cfg){const o={};for(const c of cfg.cats)o[c.k]=c.one?null:[];return o}
 function srvStart(cfg,opt){const busy=opt.busy||1,s=SRV={cfg,opt,t:cfg.dur,q:[],sel:srvEmpty(cfg),money:0,cost:0,ok:0,bad:0,gone:0,nx:.6,tips:0,stock:opt.stock==null?99:opt.stock};
   openPanel(cfg.title,'<div class="srv" id="srv"></div>');$('#panel').dataset.kind='activity';srvRender();
@@ -7465,18 +7468,19 @@ ACT_POINTS.push({map:'ext',x:CART_AT.x,y:CART_AT.y+1,label:'Tu carrito de copos'
 // ---------- la soda del lote ----------
 const RIGO={id:'z_rigo',name:'Don Rigo',hair:'calvo',hairColor:'#cfcfcf',skin:'#e0ac69',shirt:'#e9dcb5',pants:'#5a4a3a',acc:'sombrero',accColor:'#e9dcb5'};
 function sodaTalk(){const n=NEG(),r=fillChar(Object.assign({v:1},RIGO));
-  if(n.obra){return say(null,'Los maestros le están dando duro: «SODA MI BARRIO» va tomando forma. Faltan '+Math.max(0,n.obra.fin-S.day)+' días.')}
+  if(n.obra){return say(null,'Los maestros le están dando duro: «'+sodaNombre().toUpperCase()+'» va tomando forma. Faltan '+Math.max(0,n.obra.fin-S.day)+' días.')}
   if(!n.soda){say(null,'Llamás al número del rótulo: 8701-2244.');say(r,'¿Aló? Sí, el lote es mío. Venderlo no lo vendo barato, pero se lo alquilo: ₡10 000 por semana y usted pone la construcción.',[
     {t:'Montar una soda (₡85 000 · 4 días)',f(){if(n.sold<40)return say(r,'Mire, joven, una soda no es un juego. Primero demuéstreme que sabe vender: venda unos 40 copos y hablamos. (Llevás '+n.sold+').');if(S.money<85000)return say(r,'La construcción, la cocina industrial y las mesas le salen en unos ₡85 000. Cuando los tenga me llama.');
       spend(85000,'Negocio');n.obra={fin:S.day+4,lv:1};n.rentNext=S.day+7;say(r,'¡Trato hecho! Mañana mismo empiezan los maestros. Yo le cobro el alquiler cada semana.');toast('🏗 Obra de la soda: lista el día '+n.obra.fin);if(typeof progRep==='function')progRep(4,'Empezaste tu soda')}},
     {t:'Solo estaba preguntando'}]);return}
+  if(n.nombrePend){n.nombrePend=0;return sodaNombrar(true)}
   const ch=[];const h=S.t/60;
-  if(h>=6&&h<20&&!n.closed)ch.push({t:'Atender la soda vos mismo',f(){if(E().en<20)return say(null,'Estás muy cansado para la cocina.');afterD(()=>setTimeout(()=>srvStart(SODA_CFG,{busy:.85+n.fama/150+(progSodaLv()>1?.25:0),pat:34,done:sodaDone}),80))}});
+  if(h>=6&&h<20&&!n.closed)ch.push({t:'Atender la soda vos mismo',f(){if(E().en<20)return say(null,'Estás muy cansado para la cocina.');afterD(()=>setTimeout(()=>srvStart(SODA_CFG,{busy:.85+n.fama/150+Math.min(.5,(progSodaLv()-1)*.12),pat:34,done:sodaDone}),80))}});
   if(n.closed)ch.push({t:'(Cerrada por el Ministerio de Salud hasta el día '+n.closed+')',f(){}});
   if(!n.cook)ch.push({t:'¿Quién cocina cuando no estoy?',f(){say(null,'Te hace falta una cocinera de confianza… alguien que sepa hacer empanadas y casados como en la casa de la abuela. En El Hoyo, Doña Chela vende las mejores empanadas del barrio.')}});
   else ch.push({t:'Hablar con Doña Chela',f(){const c=fillChar({id:'z_hoyo3',name:'Doña Chela',hair:'moño',hairColor:'#d8d8d8',skin:'#b97a4a',shirt:'#a6d8cb',pants:'#4b3b5b',v:1});say(c,pick(['Mijo, hoy se vendió la olla de carne completita. ¡Ni el caldo quedó!','La gente pregunta por usted. Les digo que el patrón anda en vueltas.','Gracias por la oportunidad, mijo. En El Hoyo nadie me daba trabajo de verdad.','Hay que comprar más tortillas, que el casado sin tortilla no es casado.']),[{t:'Despedirla',f(){n.cook=0;say(c,'Ay, mijo… está bien. Que Dios lo acompañe.')}},{t:'Seguir así'}])}});
   if(!n.permiso)ch.push({t:'Sacar el permiso sanitario (₡15 000)',f(){if(S.money<15000)return say(null,'No te alcanza.');spend(15000,'Negocio');n.permiso=1;toast('📄 Permiso del Ministerio de Salud al día');}});
-  if(progSodaLv()<2)ch.push({t:'Ampliar: terracita con mesas (₡60 000 · 3 días)',f(){if(S.money<60000)return say(null,'No te alcanza.');spend(60000,'Negocio');n.obra={fin:S.day+3,lv:2};toast('🏗 Ampliación de la soda: lista el día '+n.obra.fin)}});
+  ch.push({t:'Administrar la soda (nombre, cocineras, mejoras, franquicias)',f(){afterD(()=>{openPhone();PHV.tab='apps';phRender();appOpen('soda')})}});
   ch.push({t:'Nada'});say(null,'Tu soda: fama '+Math.round(n.fama)+' · alquiler cada '+DOWN[dow(n.rentNext)]+(n.rentDebt?' · le debés '+fmtC(n.rentDebt)+' a Don Rigo':'')+'.',ch)}
 function sodaDone(s){const n=NEG();n.fama=clamp(n.fama+s.ok*.5-s.bad*.8-s.gone,0,100);n.sodaSrv+=s.ok+s.bad;const net=s.money-s.cost;n.best=Math.max(n.best,s.money);n.earn+=net;earn(Math.max(0,net),'Negocio');
   fadeDo(()=>{passTime(180);enAdd(-16)},()=>{say(null,'🍛 Serviste '+(s.ok+s.bad)+' platos: '+fmtC(s.money)+' de venta, '+fmtC(s.cost)+' en ingredientes. Ganancia: '+fmtC(Math.max(0,net))+'.');runDialog();if(typeof progRep==='function')progRep(2);if(typeof progStat==='function')progStat('platos',s.ok+s.bad);saveGame()})}
@@ -7487,10 +7491,9 @@ ACT_POINTS.push({map:'ext',x:23,y:59,label:'El lote de la Calle 3',cond:()=>true
 function sodaRerender(){const m=MAPS.ext;if(m&&HD_ON)renderMap(m)}
 // ---------- noche: negocio, alquiler, inspecciones ----------
 function negNight(){const n=S&&S.f&&S.f.pg&&S.f.pg.neg;if(!n||n.v!==1)return;const msgs=[];
-  if(n.obra&&S.day>=n.obra.fin){n.soda=n.obra.lv;n.obra=null;setTimeout(sodaRerender,50);msgs.push(n.soda>1?'🌇 ¡La terracita de la soda quedó lista! Más mesas, más clientes.':'🍛 ¡Abrió «Soda Mi Barrio»! Ahora te falta quien cocine cuando no estés.')}
+  if(n.obra&&S.day>=n.obra.fin){n.soda=n.obra.lv;n.obra=null;setTimeout(sodaRerender,50);msgs.push(sodaListo(n.soda))}
   if(n.cart&&n.up.ayudante&&n.stock>=6){const k=Math.min(n.stock,Math.round(rnd(6,11)*(S.rain?.5:1)));n.stock-=k;const g=k*1000-k*300-1500;n.sold+=k;n.earn+=g;if(g>0){earn(g,'Negocio');msgs.push('🍧 Chamaco vendió '+k+' copos: te dejó '+fmtC(g))}}
-  if(n.soda&&n.cook){if(n.closed&&S.day<n.closed){}else{n.closed=0;const lv=n.soda,cl=Math.round((14+lv*8)*(.7+n.fama/120)*rnd(.8,1.2)*(S.rain?.85:1)),tk=lv>1?4200:3700,g=Math.round(cl*tk*.24-5000);n.earn+=g;
-    if(g>=0)earn(g,'Negocio');else spend(-g,'Negocio');msgs.push('🍛 La soda atendió '+cl+' clientes · '+(g>=0?'ganancia ':'pérdida ')+fmtC(Math.abs(g))+' (ya con el sueldo de Doña Chela)');n.fama=clamp(n.fama+.4,0,100)}
+  if(n.soda&&(n.cook||n.ari)){if(n.closed&&S.day<n.closed){}else{n.closed=0;msgs.push(sodaDia(n))}
     if(!n.permiso&&Math.random()<.07){n.closed=S.day+2;const f=20000;if(S.money>=f)spend(f,'Multas');else n.rentDebt+=f;msgs.push('🚫 Llegó el Ministerio de Salud sin avisar. Sin permiso sanitario: multa de ₡20 000 y la soda cerrada 2 días.')}
     else if(Math.random()<.05)msgs.push(pick(['📸 Una influencer subió un video de tu casado: «¡el mejor de la zona!». +fama','⚡ Se fue la luz media tarde y Doña Chela cocinó con leña. Los clientes encantados.','🐕 Firulais se robó un chicharrón de la cocina. Doña Chela lo perdonó.']));}
   if(n.soda&&S.day>=n.rentNext){n.rentNext+=7;const r=10000+n.rentDebt;if(S.money>=r){spend(r,'Alquiler');n.rentDebt=0;msgs.push('🏠 Pagaste el alquiler del lote a Don Rigo ('+fmtC(r)+')')}else{n.rentDebt=r;msgs.push('⚠️ No te alcanzó para el alquiler del lote. Don Rigo dice que «se lo apunta», pero ya anda serio.')}}
@@ -7629,6 +7632,115 @@ appReg({id:'metas',n:'Metas',ic:'🎯',c:'#f2c94c',html(){const p=PGS(),L=REPLV[
 {const _n=negNight;negNight=function(){_n();const n=S&&S.f&&S.f.pg&&S.f.pg.neg;if(n&&n.soda&&repLv()>=3)n.fama=clamp(n.fama+.5,0,100)}}
 // subir de respeto con lo que ya hacés en el juego: dormir en casa propia cuenta poquito, ayudar cuenta más
 {const _e=ecoDay;ecoDay=function(){const r=_e();try{logroCheck()}catch(e){}return r}}
+
+// ================= LA SODA CRECE: nombre propio, Ariana en la cocina, mejoras, catering y franquicias =================
+const SODA_LV=[null,
+ {n:'Soda',c:0,cl:22,tk:3700,mg:.24,done:'🍛 ¡Abrió tu soda! Ponele nombre y buscá quién cocine cuando no estés.'},
+ {n:'Soda con terracita',c:60000,d:3,cl:30,tk:4200,mg:.24,done:'🌇 ¡La terracita quedó lista! Más mesas, más clientes.'},
+ {n:'Soda con barra y cocina industrial',c:180000,d:4,cl:38,tk:4800,mg:.25,done:'🍳 ¡Cocina industrial y barra nuevas! Ya caben dos cocineras trabajando a la vez.'},
+ {n:'Restaurante con salón de eventos',c:450000,d:6,cl:48,tk:5600,mg:.26,done:'🎉 ¡Salón de eventos listo! Ya podés recibir encargos de catering y soñar con franquicias.'},
+ {n:'Soda insignia',c:1200000,d:8,cl:60,tk:6500,mg:.27,done:'👑 ¡Tu soda ya es una insignia del barrio! Bandera, fila al mediodía y todo.'}];
+function sodaListo(l){if(l===1)NEG().nombrePend=1;return SODA_LV[l].done}
+function sodaNombre(){const n=S&&S.f&&S.f.pg&&S.f.pg.neg;return(n&&n.nombre)||'Soda Mi Barrio'}
+function sodaUp(k){const n=S&&S.f&&S.f.pg&&S.f.pg.neg;return!!(n&&n.sup&&n.sup[k])}
+function recOn(k){const n=S&&S.f&&S.f.pg&&S.f.pg.neg;return!!(n&&n.rec&&n.rec[k])}
+const SODA_SUP={letrero:{n:'Letrero de neón',ic:'💡',c:40000,t:'Se ve de lejos de noche: +8% de clientes.'},
+ domicilio:{n:'Pedidos a domicilio',ic:'🛵',c:90000,t:'Chamaco y una moto de reparto: +12% de clientes.'},
+ caja:{n:'Caja registradora y SINPE',ic:'💳',c:60000,t:'Aceptás tarjeta y SINPE Móvil: +5% de ticket.'},
+ camara:{n:'Cámara de refrigeración',ic:'🧊',c:120000,t:'Nada se echa a perder: se acaban los días de nevera dañada.'},
+ horno:{n:'Horno de leña',ic:'🔥',c:150000,t:'Platos con sabor a fogón: +8% de ticket y cada plato vale ₡250 más en el minijuego.'}};
+const RECS={apollo:{n:'Arroz con pollo de la abuela',dias:3},chifri:{n:'Chifrijo de Ariana',dias:7},tres:{n:'Tres leches de Ariana',dias:12}};
+const ARI_NOMBRES=['Soda Mi Barrio','Soda La Abuela','Soda El Buen Gusto','Soda El Sabor Tico','Soda Pura Vida','Soda Los Tres Hermanos','Soda Doña Chela'];
+// ---------------------------------------------------------------- quién cocina
+function sodaCook(){const n=NEG(),lv=n.soda||1;let ch=!!n.cook;const ar=n.ari;if(ch&&ar&&lv<3)ch=false;let q=0,sal=0;const who=[];
+  if(ch){q=1;sal+=5000;who.push('Doña Chela')}
+  if(ar){const a=ar==='socia'?1.5:1.35;sal+=ar==='emp'?6000:0;q=ch?a+.25:a;who.push('Ariana')}
+  return{q,sal,who,ch,ar}}
+function sodaDia(n){const lv=n.soda,L=SODA_LV[lv],c=sodaCook();
+  let cl=L.cl*(.7+n.fama/120)*rnd(.8,1.2)*(S.rain?.85:1)*(1+(sodaUp('letrero')?.08:0)+(sodaUp('domicilio')?.12:0));cl=Math.round(cl*c.q);
+  const tk=L.tk*(1+(sodaUp('horno')?.08:0)+(sodaUp('caja')?.05:0)+.02*Object.keys(n.rec).filter(k=>n.rec[k]).length);
+  let g=Math.round(cl*tk*L.mg)-c.sal,extra='';
+  if(!sodaUp('camara')&&Math.random()<.08){g-=9000;extra=' · se dañó la nevera y se perdió comida (−₡9 000)'}
+  let parte=0;if(c.ar==='socia'&&g>0){parte=Math.round(g*.3);g-=parte;n.ariaGan=(n.ariaGan||0)+parte}
+  n.earn+=g;n.ult={cl,g,dia:S.day};if(g>=0)earn(g,'Negocio');else spend(Math.min(S.money,-g),'Negocio');
+  n.fama=clamp(n.fama+.25+(n.ari?.15:0),0,100);
+  if(n.ari){n.ariDias++;n.ariAcc+=n.ari==='socia'?.25:.15;if(n.ariAcc>=1){n.ariAcc-=1;relAdd('ar',1)}
+    for(const k in RECS)if(!n.rec[k]&&n.ariDias>=RECS[k].dias){n.rec[k]=1;setTimeout(()=>{toast('👩‍🍳 Ariana inventó una receta: «'+RECS[k].n+'». Ya está en el menú.');if(typeof phQueue==='function')phQueue('ariana',{apollo:'Mor, hoy probé el arroz con pollo como lo hacía mi abuela. Ya lo puse en el menú de la soda. ¡Quedó igualito! 🥹',chifri:'Mor, inventé un chifrijo con chicharrón crocante y pico de gallo. Los clientes se pelean por él 😂',tres:'Hoy hice mi tres leches. Mi mamá dice que ya me quedó mejor que la de ella. No le creás nada 😜'}[k])},9000)}
+    if(Math.random()<.1&&typeof phQueue==='function')setTimeout(()=>phQueue('ariana',pick(['Hoy fuimos '+cl+' en la soda, mor. Me duelen los pies pero estoy feliz 🥰','Vino un señor y dijo que mi casado es el mejor de Costa Rica. Casi lloro 😭','Don Rigo pasó a ver y se quedó a almorzar. Dijo que así sí vale la pena alquilar el lote 😂','Se acabaron los frijoles a las dos de la tarde. Mañana compramos el doble.'])),11000)}
+  return'🍛 '+n.nombre+': '+cl+' clientes · '+(g>=0?'ganancia ':'pérdida ')+fmtC(Math.abs(g))+(c.who.length?' (cocina '+c.who.join(' y ')+')':'')+(parte?' · la parte de Ariana: '+fmtC(parte):'')+extra}
+// ---------------------------------------------------------------- nombre de la soda
+function sodaNombrar(primera){const n=NEG(),ch=ARI_NOMBRES.slice(0,6).map(x=>({t:x,f(){n.nombre=x;sodaRerender();toast('🪧 Tu soda se llama «'+x+'»');checkLogros()}}));
+  if(n.ari)ch.unshift({t:'Soda Alex y Ariana',f(){n.nombre='Soda Alex y Ariana';sodaRerender();toast('🪧 «Soda Alex y Ariana». Ella se va a morir de la emoción.');relAdd('ar',1);checkLogros()}});
+  ch.push({t:'Escribir otro nombre…',f(){afterD(()=>{const v=prompt('Nombre de tu soda (máximo 18 letras):',n.nombre);if(v==null)return;const t=v.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 '.-]/g,'').trim().slice(0,18);if(t.length<3)return toast('Muy cortito. Probá otra vez.');n.nombre=t;sodaRerender();toast('🪧 Tu soda se llama «'+t+'»');checkLogros()})}});
+  say(null,primera?'🪧 Los maestros ya terminaron. Falta lo más importante: ¿cómo se va a llamar?':'¿Cómo querés que se llame tu soda?',ch);runDialog()}
+function checkLogros(){if(typeof logroCheck==='function')logroCheck()}
+// ---------------------------------------------------------------- Ariana: empleada o socia
+function ariCont(rol){const n=NEG();if(!n.soda)return toast('Primero abrí la soda.');if((S.f.arRel||0)<8)return toast('💛 Ariana todavía no se siente lista para trabajar con vos (cariño ≥ 8).');
+  closePanel();const prev=n.ari;
+  if(!prev){say('ariana',rol==='emp'?'¿Yo, cocinera de tu soda? Mor… ¿vos sabés lo que me estás ofreciendo? Seis mil por día y el almuerzo. ¡Claro que sí! Pero con delantal bonito y sin que me grités como a Doña Chela.':'¿Socia? ¿Yo? ¿De la soda de los dos? …Mor, si se funde, nos fundimos juntos. Pero no se va a fundir, porque yo voy a cocinar como Dios manda.');
+    say(null,rol==='emp'?'Ariana te abraza tan fuerte que te levanta del suelo. «Empiezo mañana a las seis», dice.':'Se le llenan los ojos de lágrimas. «Nadie me había creído tanto», susurra.');relAdd('ar',rol==='socia'?5:3);if(typeof progRep==='function')progRep(rol==='socia'?4:2)}
+  else if(prev==='emp'&&rol==='socia'){say('ariana','¿Me estás ofreciendo ser socia? Mor… vení acá. No sabés lo que significa esto para mí.');relAdd('ar',2)}
+  else if(prev==='socia'&&rol==='emp'){say('ariana','Ah… entonces ya no soy socia. Está bien, mor. Pero ahí me dolió un poquito.');relAdd('ar',-2)}
+  n.ari=rol;placeNPCs(false);checkLogros();runDialog();saveGame()}
+function ariDespedir(){const n=NEG();if(!n.ari)return;closePanel();say('ariana','…¿Me estás despidiendo? Mor, yo sé que es el negocio, pero esto me duele más de lo que pensás.');say('ariana','Bueno. Dejo el delantal en el gancho. Cualquier día de estos me vas a extrañar.');relAdd('ar',-4);n.ari='';placeNPCs(false);runDialog();saveGame()}
+// Ariana trabaja en la soda de día (si la cocinera es ella)
+{const _l=locFor;locFor=function(c){if(c.id==='ariana'&&S.f&&S.f.pg&&S.f.pg.neg&&S.f.pg.neg.ari&&S.f.pg.neg.soda&&!S.f.fiestaOn&&!dateLoc(c)){const p=period();if(p==='m'||p==='t')return'soda'}return _l(c)}}
+if(typeof LOC!=='undefined'&&!LOC.soda)LOC.soda={map:'ext',sp:[[24,59]],l:'La soda'};
+{const _a=TALK.ariana;TALK.ariana=function(){const n=NEG();if(!(n.ari&&NPC.ariana&&NPC.ariana.loc==='soda'&&P.map==='ext'))return _a.apply(this,arguments);const a=arguments,th=this;
+  say('ariana',pick(['¡Mor! Pasá, que hoy la cosa está movida.','Ay, mor, hoy tengo las manos en la masa. Literal. ¿Qué querés?','Justo estaba pensando en vos. ¿Querés probar el arroz? Es el nuevo.']),[
+   {t:'¿Cómo va la soda?',f(){const u=n.ult;say('ariana',u?'Ayer atendimos '+u.cl+' clientes y quedó '+(u.g>=0?'una ganancia de '+fmtC(u.g):'una pérdida de '+fmtC(-u.g))+'. La fama anda en '+Math.round(n.fama)+'.':'Todavía no tenemos números, mor. Dame un día.');if(n.ari==='socia')say('ariana','Y como soy tu socia, me toca opinar: hay que mejorar la cocina. Vení al celular y vemos.')}},
+   {t:'Solo vine a verte',f(){if(n.visDia===S.day)return say('ariana','Mor, ya me viniste a ver hoy. ¡Dejá que trabaje, jaja!');n.visDia=S.day;relAdd('ar',.5);say('ariana',pick(['Qué lindo detalle. Ya me hiciste el día.','Me estás poniendo roja delante de los clientes. Gracias, mor 💛']))}},
+   {t:'Conversar',f(){afterD(()=>_a.apply(th,a))}},{t:'Seguir con lo mío'}])}}
+// ---------------------------------------------------------------- subir de nivel y mejoras
+function sodaSubir(){const n=NEG(),l=(n.soda||0)+1;if(!n.soda||l>5||n.obra)return;const L=SODA_LV[l];if(S.money<L.c)return toast('Te faltan '+fmtC(L.c-S.money));spend(L.c,'Negocio');n.obra={fin:S.day+L.d,lv:l};toast('🏗 Obra: «'+L.n+'» lista el día '+n.obra.fin)}
+function sodaMejora(k){const n=NEG(),u=SODA_SUP[k];if(n.sup[k])return;if(S.money<u.c)return toast('Te faltan '+fmtC(u.c-S.money));spend(u.c,'Negocio');n.sup[k]=1;toast(u.ic+' '+u.n+' instalado');checkLogros()}
+function sodaValor(){const n=S&&S.f&&S.f.pg&&S.f.pg.neg;if(!n||!n.soda)return 0;let v=85000;for(let l=2;l<=n.soda;l++)v+=SODA_LV[l].c;let s=0;for(const k in n.sup)if(n.sup[k])s+=SODA_SUP[k].c;let f=0;for(const k in n.fr)f+=Math.round(FRANQ[k].c*.7);return Math.round(v*.7+s*.6+f)}
+// ---------------------------------------------------------------- catering
+const CAT_T=[['Cumpleaños de quince',60,160000,'Una quinceañera de Cartago quiere gallos, arroz con pollo y tres leches.'],['Turno comunal',80,150000,'La junta de la iglesia necesita almuerzos para toda la plaza.'],['Boda en Heredia',120,380000,'Ciento veinte invitados y un novio nervioso. Que el arroz no se pegue.'],['Graduación del colegio',70,190000,'Café, pan casero y gallos para los graduandos.'],['Velorio de Don Hernán',40,90000,'La familia necesita café, pan y empanadas. Todo muy serio y muy respetuoso.'],['Reunión del Concejo Municipal',30,120000,'El alcalde pidió casados «bien servidos» para los regidores.']];
+function catOfertas(n){const c=n.cat;if(c.dia!==S.day){c.dia=S.day;c.l=[];const k=1+(Math.random()<.5?1:0)+(n.soda>=5?1:0);for(let i=0;i<k;i++){const t=pick(CAT_T);if(!c.l.some(x=>x.t===t[0]))c.l.push({t:t[0],pax:Math.round(t[1]*rnd(.85,1.2)/5)*5,pago:Math.round(t[2]*(.9+n.fama/250)*rnd(.9,1.15)/1000)*1000,d:t[3]})}}return c.l}
+function catAceptar(i){const n=NEG(),o=n.cat.l[i];if(!o||n.soda<4||n.cat.act.length>=2)return toast(n.cat.act.length>=2?'Ya tenés dos encargos en marcha.':'No disponible.');const cost=o.pax*1100;if(S.money<cost)return toast('Te faltan '+fmtC(cost-S.money)+' para los ingredientes.');spend(cost,'Catering');n.cat.l.splice(i,1);n.cat.act.push(Object.assign({},o,{fin:S.day+2,cost}));toast('🍽 Encargo aceptado: «'+o.t+'». Se entrega en 2 días.')}
+function catNight(n){const c=n.cat;if(!c||!c.act.length)return;for(const o of c.act.slice()){if(S.day<o.fin)continue;c.act.splice(c.act.indexOf(o),1);const cq=sodaCook().q||1,p=clamp(.52+cq*.12+n.fama/260+(n.ari==='socia'?.05:0),.4,.97);
+    if(Math.random()<p){earn(o.pago,'Catering');n.earn+=o.pago-o.cost;n.cat.hechos++;n.fama=clamp(n.fama+3,0,100);setTimeout(()=>toast('🍽 ¡«'+o.t+'» fue un éxito! Cobraste '+fmtC(o.pago)+'. «¡Qué rico todo, ya los recomendé!»'),6500);if(typeof progRep==='function')progRep(3)}
+    else{const m=Math.round(o.pago*.4);earn(m,'Catering');n.fama=clamp(n.fama-6,0,100);setTimeout(()=>toast('🍽 «'+o.t+'» salió regular: '+pick(['se acabó el arroz a medio evento','el pollo llegó frío','se quemaron los frijoles','faltaron platos'])+'. Solo te pagaron '+fmtC(m)+'.'),6500)}}}
+// ---------------------------------------------------------------- franquicias
+const FRANQ={cartago:{n:'Cartago',c:900000,r:[34000,48000],t:'La ciudad de la Virgen de los Ángeles: peregrinos con hambre todo el año.'},heredia:{n:'Heredia',c:1100000,r:[44000,60000],t:'La ciudad de las flores. Universitarios, profes y mucho café.'},alajuela:{n:'Alajuela',c:1400000,r:[58000,82000],t:'Cerca del aeropuerto, con el Juan Santamaría al fondo. Hambre de turistas y de choferes.'},
+ liberia:{n:'Liberia',c:1900000,r:[85000,115000],t:'La ciudad blanca. Gallos con tortilla palmeada para guanacastecos.'},limon:{n:'Limón',c:2200000,r:[95000,135000],t:'Rice and beans, patí y casados con pescado frente al Caribe.'},sancarlos:{n:'San Carlos',c:2800000,r:[125000,170000],t:'Ciudad Quesada: lecheros, ganaderos y un hambre de cuidado.'},pz:{n:'Pérez Zeledón',c:3400000,r:[150000,205000],t:'El Valle de El General. Café, pejibaye y mucho trabajo.'}};
+function franComprar(k){const n=NEG(),f=FRANQ[k];if(n.fr[k]||(n.soda||0)<4)return;if(n.fama<40)return toast('🔒 La marca todavía no es famosa: fama ≥ 40.');if(S.money<f.c)return toast('Te faltan '+fmtC(f.c-S.money));spend(f.c,'Franquicias');n.fr[k]={dia:S.day,tot:0};toast('🏪 ¡'+n.nombre+' abrió en '+f.n+'!');if(typeof progRep==='function')progRep(Math.round(f.c/250000)+2);checkLogros()}
+function franVender(k){const n=NEG();if(!n.fr[k])return;const v=Math.round(FRANQ[k].c*.7);delete n.fr[k];earn(v,'Franquicias');toast('🏪 Vendiste la franquicia de '+FRANQ[k].n+' en '+fmtC(v))}
+function franNight(n){let tot=0,msgs=[];for(const k in n.fr){const f=FRANQ[k],o=n.fr[k];let g=Math.round(rnd(f.r[0],f.r[1])*(.55+n.fama/160)*(n.ari==='socia'?1.1:1)*(1+.03*Math.max(0,n.soda-4)));
+    if(Math.random()<.08){const r=Math.random();if(r<.5){const m=15000;spend(Math.min(S.money,m),'Franquicias');msgs.push('🏪 Inspección en '+f.n+': el Ministerio de Salud les puso una multa de '+fmtC(m)+'.')}else{g=Math.round(g*1.8);msgs.push('🏪 '+f.n+': '+pick(['llegó un bus de turistas','salieron en el periódico local','fue día de feria y se llenó']))}}
+    o.tot+=g;tot+=g}
+  if(tot>0){earn(tot,'Franquicias');n.earn+=tot;setTimeout(()=>toast('🏪 Tus franquicias dejaron '+fmtC(tot)+' hoy'),7500)}for(const[i,m]of msgs.entries())setTimeout(()=>toast(m),9500+i*2600)}
+{const _d=ecoDay;ecoDay=function(){const r=_d();try{const n=S.f.pg&&S.f.pg.neg;if(n&&n.v===1&&n.nombre!==undefined){catNight(n);franNight(n);
+    if(n.ari&&(S.f.arRel||0)<-5){n.ari='';placeNPCs(false);setTimeout(()=>toast('💔 Ariana renunció a la soda. «Así no se puede trabajar, Alex».'),4000)}}}catch(e){console.error(e)}return r}}
+// ---------------------------------------------------------------- la app «Mi soda»
+appReg({id:'soda',n:'Mi soda',ic:'🍛',c:'#c0473b',html(){const n=NEG();if(!n.soda)return'<div class="qitem"><b>🍛 Todavía no tenés soda</b><p>Vendé 40 copos con tu carrito y juntá ₡85 000. Llamá al 8701-2244 (Don Rigo, el lote de la Calle 3).</p></div>';
+  const lv=n.soda,L=SODA_LV[lv],cook=sodaCook(),arOk=(S.f.arRel||0)>=8;let h=`<div class="qitem"><b>🪧 ${esc(n.nombre)}</b><p>${L.n} · nivel ${lv}/5 · fama ${Math.round(n.fama)}/100${n.obra?' · 🏗 en obra: «'+SODA_LV[n.obra.lv].n+'» (listo el día '+n.obra.fin+')':''}</p><p class="note">${n.ult?'Ayer: '+n.ult.cl+' clientes · '+(n.ult.g>=0?'+':'')+fmtC(n.ult.g):'Todavía sin números.'}${cook.who.length?' · cocina '+cook.who.join(' y '):' · ⚠️ sin cocinera: no abre sola'}</p><button class="alt" data-act="nom">Cambiar el nombre</button></div>`;
+  h+='<h3>Cocineras</h3><div class="qitem"><b>👩‍🍳 Doña Chela</b><p>'+(n.cook?'Trabaja en tu soda · ₡5 000 al día.':'Todavía no la contrataste (hablá con ella en El Hoyo).')+'</p></div>';
+  h+=`<div class="qitem"><b>💛 Ariana ${n.ari?'· '+(n.ari==='socia'?'socia (30% de las ganancias)':'empleada (₡6 000 al día)'):''}</b><p>${n.ari?'Cocina mejor que nadie: tus ventas suben '+(n.ari==='socia'?'50':'35')+'% y se le ocurren recetas nuevas. Trabaja de día en la soda.':'La mejor cocinera del barrio, y además tu novia. Con ella la soda vende 35-50% más y aprende recetas propias.'}</p>`;
+  if(!arOk&&!n.ari)h+='<p class="note">🔒 Necesitás más cariño con Ariana (≥ 8) para que acepte.</p>';
+  else h+=`<div class="row">${n.ari!=='emp'?`<button class="green" data-act="ari:emp">${n.ari?'Pasarla a empleada':'Contratarla como empleada'}</button>`:''} ${n.ari!=='socia'?`<button class="green" data-act="ari:socia">${n.ari?'Hacerla socia':'Hacerla socia'}</button>`:''} ${n.ari?'<button class="alt" data-act="ari:out">Despedirla</button>':''}</div>`;
+  if(n.cook&&n.ari&&lv<3)h+='<p class="note">⚠️ Con la cocina chiquita solo cabe una cocinera. Cuando amplíes a nivel 3 trabajan las dos juntas.</p>';
+  h+='</div>';
+  const rec=Object.entries(RECS).map(([k,r])=>`${n.rec[k]?'✔':'🔒'} ${r.n}${n.rec[k]?'':' (Ariana, '+r.dias+' días en la cocina)'}`).join('<br>');h+=`<div class="qitem"><b>📖 Recetas de Ariana</b><p>${rec}</p><p class="note">Días que lleva cocinando: ${n.ariDias}.</p></div>`;
+  h+='<h3>Hacer crecer la soda</h3>';
+  if(lv<5){const N=SODA_LV[lv+1];h+=`<div class="qitem"><b>⬆️ ${N.n}</b><p>Más clientes y mejor ticket promedio. Obra de ${N.d} días.</p><button class="green" data-act="sub" ${n.obra||S.money<N.c?'disabled':''}>Construir · ${fmtC(N.c)}</button></div>`}else h+='<div class="qitem"><b>👑 Nivel máximo</b><p>Tu soda ya es una insignia.</p></div>';
+  h+=Object.entries(SODA_SUP).map(([k,u])=>`<div class="qitem"><b>${u.ic} ${u.n}${n.sup[k]?' ✔':''}</b><p>${u.t}</p>${n.sup[k]?'':`<button data-act="mej:${k}" ${S.money<u.c?'disabled':''}>Instalar · ${fmtC(u.c)}</button>`}</div>`).join('');
+  h+='<h3>Catering y eventos</h3>';
+  if(lv<4)h+='<div class="qitem"><p class="note">🔒 Necesitás el salón de eventos (nivel 4).</p></div>';else{const of=catOfertas(n);h+=(n.cat.act.length?'<div class="qitem"><b>🍽 En marcha</b>'+n.cat.act.map(o=>`<p>${esc(o.t)} · ${o.pax} personas · se entrega el día ${o.fin} · ${fmtC(o.pago)}</p>`).join('')+'</div>':'')+(of.length?of.map((o,i)=>`<div class="qitem"><b>🍽 ${esc(o.t)} · ${o.pax} personas</b><p>${esc(o.d)}</p><p class="note">Pagan ${fmtC(o.pago)} · ingredientes por adelantado: ${fmtC(o.pax*1100)}</p><button data-act="cat:${i}" ${n.cat.act.length>=2||S.money<o.pax*1100?'disabled':''}>Aceptar encargo</button></div>`).join(''):'<div class="qitem"><p class="note">Hoy no llegó ningún encargo. Mañana salen otros.</p></div>')+`<p class="note">Encargos hechos: ${n.cat.hechos}.</p>`}
+  h+='<h3>Franquicias</h3>';
+  if(lv<4)h+='<div class="qitem"><p class="note">🔒 Primero el nivel 4 (salón de eventos).</p></div>';else h+=(n.fama<40?`<div class="qitem"><p class="note">🔒 La marca tiene que ser famosa para franquiciar: fama ≥ 40 (llevás ${Math.round(n.fama)}).</p></div>`:'')+Object.entries(FRANQ).map(([k,f])=>{const o=n.fr[k];return`<div class="qitem"><b>🏪 ${esc(n.nombre)} · ${f.n}${o?' ✔':''}</b><p>${f.t}</p>${o?`<p class="note">Ha dejado ${fmtC(o.tot)} · vale ${fmtC(Math.round(f.c*.7))}</p><button class="alt" data-act="fven:${k}">Vender</button>`:`<p class="note">Regalías diarias: ${fmtC(f.r[0])} a ${fmtC(f.r[1])} (según la fama).</p><button class="green" data-act="fcom:${k}" ${n.fama<40||S.money<f.c?'disabled':''}>Abrir · ${fmtC(f.c)}</button>`}</div>`}).join('');return h},
+ act(a,k){if(a==='nom'){closePanel();sodaNombrar(false);return}if(a==='ari'){if(k==='out')ariDespedir();else ariCont(k);return}if(a==='sub')sodaSubir();else if(a==='mej')sodaMejora(k);else if(a==='cat')catAceptar(+k);else if(a==='fcom')franComprar(k);else if(a==='fven')franVender(k);saveGame();appOpen('soda')}});
+// ---------------------------------------------------------------- metas y logros
+LOGROS.push(['ari_coc','👩‍🍳','Ariana en la cocina','Contratá a Ariana en tu soda.',()=>!!NEG().ari,5],['soda_nom','🪧','Con nombre propio','Ponele nombre a tu soda.',()=>NEG().nombre!=='Soda Mi Barrio'&&NEG().nombre!==undefined&&!!NEG().soda,2],['soda5','👑','Soda insignia','Llevá la soda al nivel 5.',()=>NEG().soda>=5,10],
+ ['catering','🍽','Chef de eventos','Cumplí 5 encargos de catering.',()=>(NEG().cat&&NEG().cat.hechos)>=5,6],['franq1','🏪','Primera franquicia','Abrí tu primera franquicia.',()=>Object.keys(NEG().fr||{}).length>=1,8],['franq4','🌎','Imperio del casado','Tené 4 franquicias abiertas.',()=>Object.keys(NEG().fr||{}).length>=4,14]);
+{const _m=metas;metas=function(){const out=_m(),n=NEG();if(n.soda){const a=[];
+  if(!n.cook&&!n.ari)a.push({ic:'👩‍🍳',t:'Una cocinera',d:'Doña Chela (El Hoyo) o Ariana, si ya tenés confianza con ella. Con Ariana vendés mucho más.',pr:0});
+  else if(!n.ari&&(S.f.arRel||0)>=8)a.push({ic:'💛',t:'Ariana en la cocina',d:'Ofrecele ser empleada o socia en Mi soda (celular). Cocina mejor que nadie y se le ocurren recetas.',pr:1});
+  if(n.nombre==='Soda Mi Barrio')a.push({ic:'🪧',t:'Ponele nombre a tu soda',d:'En Mi soda (celular) → Cambiar el nombre. Sale en el rótulo del barrio.',pr:1});
+  if(n.soda<5&&!n.obra){const N=SODA_LV[n.soda+1];a.push({ic:'⬆️',t:N.n,d:'La siguiente ampliación de la soda cuesta '+fmtC(N.c)+'.',pr:S.money/N.c})}
+  else if(n.soda>=4&&n.fama>=40&&!Object.keys(n.fr).length)a.push({ic:'🏪',t:'Tu primera franquicia',d:'Cartago, Heredia, Alajuela… En Mi soda (celular).',pr:S.money/900000});
+  out.unshift(...a)}return out.slice(0,7)}}
 
 // ================= PROGRESO · DESBLOQUEOS: PUNTARENAS, FIESTA EN LA TERRAZA, ASOCIACIÓN DE VECINOS =================
 // ---------------------------------------------------------------- Puntarenas
@@ -8033,7 +8145,7 @@ const TITULOS=[[0,'Mae del barrio','🧢'],[1000000,'Mae con plata','💵'],[500
 function patrimonio(){if(!S||!S.f||!S.f.pg)return 0;const m=MAG(),p=PGS();let v=S.money;
   const iv=p.inv||{};for(const a of(iv.ahorro||[]))v+=a.m;if(iv.cred)v-=iv.cred.cuota*iv.cred.left;if(iv.presta)v-=iv.presta.debe;
   for(const x of p.veh)if(!x.gone)v+=Math.round(VM[x.m].price*.55*(x.cond/100));
-  for(const id in m.emp)v+=empValor(id);for(const id in m.prop)v+=propValor(id);for(const k in m.inv)v+=m.inv[k].val;if(NEG().soda)v+=85000*NEG().soda;return Math.round(v)}
+  for(const id in m.emp)v+=empValor(id);for(const id in m.prop)v+=propValor(id);for(const k in m.inv)v+=m.inv[k].val;v+=typeof sodaValor==='function'?sodaValor():0;return Math.round(v)}
 function titulo(v){v=v==null?patrimonio():v;let t=TITULOS[0];for(const x of TITULOS)if(v>=x[0])t=x;return t}
 // ---------------------------------------------------------------- la noche: empresas, alquileres, plusvalía
 function magNight(){const m=S&&S.f&&S.f.pg&&S.f.pg.mag;if(!m)return;let tot=0;const ev=[];
@@ -8129,7 +8241,7 @@ appReg({id:'prop',n:'Bienes raíces',ic:'🏘',c:'#b07a52',html(){const m=MAG();
 appReg({id:'patri',n:'Patrimonio',ic:'👑',c:'#e2b33a',html(){const v=patrimonio(),t=titulo(v),i=TITULOS.indexOf(t),nx=TITULOS[i+1],m=MAG(),hs=m.hist.length?m.hist:[v],mx=Math.max(...hs,1),mn=Math.min(...hs,0);
   let h=`<div class="qitem"><b>${t[2]} ${t[1]}</b><p style="font-size:20px;margin:4px 0"><b>${fmtMil(v)}</b></p>${nx?`<div class="eco-bar"><i style="width:${Math.round(Math.min(1,(v-t[0])/(nx[0]-t[0]))*100)}%"></i></div><p class="note">Para «${nx[1]}» te faltan ${fmtMil(nx[0]-v)}.</p>`:'<p class="note">Más arriba ya no hay. Sos leyenda.</p>'}</div>`;
   h+=`<div class="qitem"><b>📈 Últimos ${hs.length} días</b><svg viewBox="0 0 300 70" style="width:100%;height:70px"><polyline fill="none" stroke="#f2c94c" stroke-width="2.5" points="${hs.map((x,j)=>Math.round(j/(Math.max(1,hs.length-1))*296+2)+','+Math.round(66-(x-mn)/(mx-mn||1)*60)).join(' ')}"/></svg></div>`;
-  const p=PGS(),rows=[['💵 Efectivo',S.money],['🚗 Vehículos',p.veh.filter(x=>!x.gone).reduce((s,x)=>s+Math.round(VM[x.m].price*.55*x.cond/100),0)],['🏢 Empresas',Object.keys(m.emp).reduce((s,id)=>s+empValor(id),0)+(NEG().soda?85000*NEG().soda:0)],['🏘 Propiedades',Object.keys(m.prop).reduce((s,id)=>s+propValor(id),0)],['📈 Inversiones',Object.values(m.inv).reduce((s,o)=>s+o.val,0)]];
+  const p=PGS(),rows=[['💵 Efectivo',S.money],['🚗 Vehículos',p.veh.filter(x=>!x.gone).reduce((s,x)=>s+Math.round(VM[x.m].price*.55*x.cond/100),0)],['🏢 Empresas',Object.keys(m.emp).reduce((s,id)=>s+empValor(id),0)+(typeof sodaValor==='function'?sodaValor():0)],['🏘 Propiedades',Object.keys(m.prop).reduce((s,id)=>s+propValor(id),0)],['📈 Inversiones',Object.values(m.inv).reduce((s,o)=>s+o.val,0)]];
   h+='<div class="qitem">'+rows.map(r=>`<p style="display:flex;justify-content:space-between;margin:3px 0"><span>${r[0]}</span><b>${fmtMil(Math.round(r[1]))}</b></p>`).join('')+'</div>';return h}});
 appReg({id:'fund',n:'Fundación',ic:'💚',c:'#3fa66b',html(){const m=MAG();return'<p class="note">Lo que el barrio te dio, devolvelo. Cada obra sube tu respeto y cambia la vida de alguien.</p>'+Object.entries(FUND).map(([k,f])=>{const d=m.fund[k],why=!d&&f.req&&f.req();
   return`<div class="qitem"><b>${f.ic} ${f.n}${d?' ✔':''}</b><p>${f.t}</p>${d?`<p class="note">Hecho el día ${d}.</p>`:why?`<p class="note">🔒 ${why}</p>`:`<button class="green" data-act="don:${k}" ${S.money<f.c?'disabled':''}>Donar ${fmtMil(f.c)}</button>`}</div>`}).join('')},
