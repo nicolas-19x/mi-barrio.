@@ -7985,25 +7985,25 @@ function MAG(){const p=PGS();if(!p.mag)p.mag={emp:{},prop:{},inv:{},fund:{},dis:
 // ---------------------------------------------------------------- empresas
 // d: ganancia diaria base (nivel 1) · up: costo de mejora · ev: eventos (buenos y malos)
 const EMP={
- empanadas:{n:'Empanadas a domicilio',ic:'🥟',c:25000,d:[2500,4000],req:()=>NEG().cook?'':'Necesitás tener a Doña Chela de cocinera en la soda.',t:'Doña Chela hace las empanadas en la mañana y Chamaco las reparte en bici por el barrio.',
+ empanadas:{n:'Empanadas a domicilio',ic:'🥟',c:25000,d:[3500,5000],req:()=>NEG().cook?'':'Necesitás tener a Doña Chela de cocinera en la soda.',t:'Doña Chela hace las empanadas en la mañana y Chamaco las reparte en bici por el barrio.',
   ev:[['+','A la iglesia le encargaron 200 empanadas para el turno. ¡Pedidazo!',3],['-','Chamaco se comió media docena en el camino. «Era control de calidad, jefe.»',.6]]},
- feria:{n:'Tramo en la feria del agricultor',ic:'🥬',c:40000,d:[0,0],sab:[14000,22000],t:'Un tramo de verduras y frutas en la feria de los sábados. Solo deja plata los sábados, pero deja bien.',
+ feria:{n:'Tramo en la feria del agricultor',ic:'🥬',c:40000,d:[0,0],sab:[24000,36000],t:'Un tramo de verduras y frutas en la feria de los sábados. Solo deja plata los sábados, pero deja bien.',
   ev:[['+','Se acabaron los aguacates a las 7 de la mañana. Los vendiste al precio que quisiste.',1.6],['-','Llovió toda la mañana y la feria estuvo vacía.',.4]]},
- lavacar:{n:'Lavacar El Chorro',ic:'🚿',c:120000,d:[5500,8500],t:'Un lavacar a la par de la bomba. Lavado sencillo, encerado y aspirado. Los sábados se hace fila.',
+ lavacar:{n:'Lavacar El Chorro',ic:'🚿',c:120000,d:[12000,18000],t:'Un lavacar a la par de la bomba. Lavado sencillo, encerado y aspirado. Los sábados se hace fila.',
   ev:[['-','El AyA cortó el agua todo el día. Ni un carro lavado.',0],['-','Un cliente reclamó un rayón en la puerta. Le pagaste la pintura.',.3],['+','Llegaron los buses de una excursión a lavar. ¡Día redondo!',2.2]]},
- taxi:{n:'Taxi rojo con placa',ic:'🚕',c:420000,d:[9000,14000],t:'Un taxi rojo con su placa del Consejo de Transporte Público. Contratás un chofer y te deja la cuota diaria.',
+ taxi:{n:'Taxi rojo con placa',ic:'🚕',c:420000,d:[30000,40000],t:'Un taxi rojo con su placa del Consejo de Transporte Público. Contratás un chofer y te deja la cuota diaria.',
   ev:[['-','El chofer chocó contra un poste en Hatillo. Taller y deducible.',.1],['-','Hubo bloqueo en la General Cañas todo el día.',.4],['+','Fin de quincena: carreras todo el día.',1.7]]},
- ferreteria:{n:'Ferretería El Clavo Torcido',ic:'🔨',c:650000,d:[16000,24000],req:()=>repLv()>=2?'':'Necesitás ser «Vecino de confianza» para que los proveedores te den crédito.',t:'Clavos, cemento, láminas de zinc y la sabiduría de un dependiente que sabe de todo.',
+ ferreteria:{n:'Ferretería El Clavo Torcido',ic:'🔨',c:650000,d:[48000,60000],req:()=>repLv()>=2?'':'Necesitás ser «Vecino de confianza» para que los proveedores te den crédito.',t:'Clavos, cemento, láminas de zinc y la sabiduría de un dependiente que sabe de todo.',
   ev:[['+','Medio barrio está arreglando techos después del aguacero. Se vendió todo el zinc.',2],['-','Se perdió una caja de tornillos. Nadie sabe nada.',.7]]},
- sucursal:{n:'Soda Mi Barrio · sucursal Chepe',ic:'🍛',c:900000,d:[22000,34000],req:()=>progSodaLv()>=2?'':'Primero agrandá la soda del barrio (terracita con mesas).',t:'Una segunda soda en el centro de San José, cerca del Mercado. Casados para oficinistas.',
+ sucursal:{n:'Soda Mi Barrio · sucursal Chepe',ic:'🍛',c:900000,d:[65000,85000],req:()=>progSodaLv()>=2?'':'Primero agrandá la soda del barrio (terracita con mesas).',t:'Una segunda soda en el centro de San José, cerca del Mercado. Casados para oficinistas.',
   ev:[['+','Salió en un programa de tele: «el mejor casado del centro». Fila hasta la esquina.',2.4],['-','El Ministerio de Salud pidió cambiar la campana de la cocina. Cerrado medio día.',.4]]},
- bus:{n:'Ruta de buses Barrio–San José',ic:'🚌',c:3000000,d:[60000,90000],req:()=>repLv()>=4?'':'Para una concesión de ruta necesitás ser «Mae importante».',t:'La concesión de la ruta del barrio. Contratás a Don Beto y a dos choferes más. Los buses se pintan con el nombre del barrio.',
+ bus:{n:'Ruta de buses Barrio–San José',ic:'🚌',c:3000000,d:[190000,240000],req:()=>repLv()>=4?'':'Para una concesión de ruta necesitás ser «Mae importante».',t:'La concesión de la ruta del barrio. Contratás a Don Beto y a dos choferes más. Los buses se pintan con el nombre del barrio.',
   ev:[['-','La ARESEP no aprobó el aumento de la tarifa. Otro mes igual.',.6],['-','Un bus se varó en la Circunvalación en plena hora pico.',.4],['+','Inicio de clases: los buses van llenos hasta la puerta.',1.8]]},
- finca:{n:'Finca de café en Tarrazú',ic:'☕',c:5000000,d:[0,0],cos:[900000,1600000],t:'Cuarenta manzanas de café de altura en Los Santos. Deja plata cada cosecha (cada 14 días).',
+ finca:{n:'Finca de café en Tarrazú',ic:'☕',c:5000000,d:[0,0],cos:[3500000,4800000],t:'Cuarenta manzanas de café de altura en Los Santos. Deja plata cada cosecha (cada 14 días).',
   ev:[['-','Llegó la roya a un lote del cafetal. Se perdió parte de la cosecha.',.5],['+','Un comprador de Japón pagó precio de especialidad por tu café.',1.9]]},
- hotel:{n:'Hotelito en Puntarenas',ic:'🏨',c:12000000,d:[220000,360000],req:()=>stat('playa')>0?'':'Primero tenés que conocer Puntarenas.',t:'Doce cuartos frente al Paseo de los Turistas, con piscina y vista al golfo.',
+ hotel:{n:'Hotelito en Puntarenas',ic:'🏨',c:12000000,d:[560000,780000],req:()=>stat('playa')>0?'':'Primero tenés que conocer Puntarenas.',t:'Doce cuartos frente al Paseo de los Turistas, con piscina y vista al golfo.',
   ev:[['-','Temporada baja. Medio hotel vacío.',.5],['+','Semana Santa: todo lleno, hasta el cuarto de la escoba.',2.3],['-','Se dañó la bomba de la piscina.',.7]]}};
-const EMP_LV=[1,1.45,2.05],EMP_UP=[0,1.6,2.6];   // ganancia y costo por nivel
+const EMP_LV=[1,1.5,2.3],EMP_UP=[0,.6,1.0];   // ganancia y costo por nivel
 function empGan(id){const e=EMP[id],o=MAG().emp[id];if(!o)return 0;const r=e.d,base=r[0]+Math.random()*(r[1]-r[0]);return Math.round(base*EMP_LV[o.lv-1]/50)*50}
 function empValor(id){const o=MAG().emp[id];if(!o)return 0;let v=EMP[id].c;for(let l=2;l<=o.lv;l++)v+=EMP[id].c*EMP_UP[l-1];return Math.round(v*.7)}
 function empComprar(id){const e=EMP[id],m=MAG();if(m.emp[id])return;const why=e.req&&e.req();if(why)return toast('🔒 '+why);if(S.money<e.c)return toast('Te faltan '+fmtC(e.c-S.money));
@@ -8016,16 +8016,16 @@ const PROPS=['casa_extra3','casa_extra4','casa_sur1','casa_sur2','casa_sur3','ca
 const INQ_N=['la familia Mora','un profe de colegio','dos estudiantes de la UNA','Doña Marjorie y sus gatos','una pareja de recién casados','un señor gringo pensionado','la familia Quesada','un muchacho que trabaja en call center','unos nicas muy trabajadores','una enfermera del Calderón Guardia'];
 function propPrecio(id){const b=BMAP[id];return Math.round((380000+(b.w*b.h-36)*9000+hsh(b.x,b.y)*160000)/1000)*1000}
 function propValor(id){const o=MAG().prop[id];return o?Math.round(o.val):0}
-function propRenta(id){const o=MAG().prop[id];return Math.round(propPrecio(id)*.065*(o&&o.rem?1.4:1)/500)*500}
+function propRenta(id){const o=MAG().prop[id];return Math.round(propPrecio(id)*.2*(o&&o.rem?1.4:1)/500)*500}
 function propComprar(id){const m=MAG();if(m.prop[id])return;const c=propPrecio(id);if(S.money<c)return toast('Te faltan '+fmtC(c-S.money));spend(c,'Propiedades');m.prop[id]={val:c,inq:null,busca:S.day+1+(Math.random()*3|0),next:0,rem:0,mora:0};
   toast('🏠 Compraste '+propNom(id)+'. Ya le pusiste el rótulo de «SE ALQUILA».');if(typeof progRep==='function')progRep(3);magRedraw();saveGame()}
 function propNom(id){const n=PROPS.indexOf(id);return'la casa '+(id.startsWith('casa_sur')?'de la cuadra sur #'+id.slice(-1):'de la esquina #'+(n+1))}
 function propRemodelar(id){const o=MAG().prop[id];if(!o||o.rem)return;const c=Math.round(propPrecio(id)*.28/1000)*1000;if(S.money<c)return toast('Te faltan '+fmtC(c-S.money));spend(c,'Propiedades');o.rem=1;o.val+=c*1.25;toast('🛠 Remodelaste '+propNom(id)+': cocina nueva, piso de cerámica y pintura. El alquiler sube 40%.')}
 function propVender(id){const m=MAG(),v=propValor(id);if(!m.prop[id])return;delete m.prop[id];earn(v,'Venta de propiedades');toast('🏠 Vendiste '+propNom(id)+' en '+fmtC(v));magRedraw()}
 // inversiones grandes fuera del barrio (plusvalía)
-const INVS={guana:{n:'Lote en Guanacaste',ic:'🌵',c:1800000,t:'Un lote cerca de la playa. Si llega un hotel grande, vale oro.',vol:.012,mu:.0016},
- escazu:{n:'Apartamento en Escazú',ic:'🏙',c:4500000,t:'Un apartamento para alquilar a extranjeros. Sube poco, pero renta ₡120 000 por semana.',vol:.004,mu:.0007,renta:120000},
- acciones:{n:'Acciones en la Bolsa Nacional',ic:'📈',c:500000,t:'Sube y baja. A veces mucho.',vol:.03,mu:.0012}};
+const INVS={guana:{n:'Lote en Guanacaste',ic:'🌵',c:1800000,t:'Un lote cerca de la playa. Si llega un hotel grande, vale oro.',vol:.02,mu:.006},
+ escazu:{n:'Apartamento en Escazú',ic:'🏙',c:4500000,t:'Un apartamento para alquilar a extranjeros. Sube poco, pero renta ₡650 000 por semana.',vol:.004,mu:.002,renta:650000},
+ acciones:{n:'Acciones en la Bolsa Nacional',ic:'📈',c:500000,t:'Sube y baja. A veces mucho, a veces te duele.',vol:.03,mu:.004}};
 function invComprar(k){const m=MAG(),d=INVS[k];if(S.money<d.c)return toast('Te faltan '+fmtC(d.c-S.money));spend(d.c,'Inversiones');const o=m.inv[k]||(m.inv[k]={n:0,val:0,next:S.day+7});o.n++;o.val+=d.c;toast(d.ic+' Compraste: '+d.n)}
 function invVender(k){const m=MAG(),o=m.inv[k];if(!o||!o.n)return;const v=Math.round(o.val/o.n);o.n--;o.val-=v;earn(v,'Inversiones');toast(INVS[k].ic+' Vendiste por '+fmtC(v));if(!o.n)delete m.inv[k]}
 // ---------------------------------------------------------------- patrimonio
