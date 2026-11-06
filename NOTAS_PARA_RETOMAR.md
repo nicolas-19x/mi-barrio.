@@ -60,7 +60,8 @@ Contesta estas preguntas **ejecutando comandos** (`git log`, `grep`), no de memo
 3. ¿Cómo se llama la cocinera que se puede contratar para la soda, y en qué mapa vive?
 4. ¿Qué contraseña piden los vigilantes para entrar a El Hoyo?
 5. ¿Cuál es el nombre de la rama de trabajo?
+6. ¿Con qué comando se arma `Mi_Barrio.html` y en qué archivo está el registro de ganchos (`hookAfter`)?
 
-**Respuestas correctas:** 1) `da3dec5`. 2) `130`, bloque `// <NET>`. 3) Doña Chela, en `hoyo` (El Hoyo). 4) «Tata». 5) `ccr-ab2778bc-9bjz20`.
+**Respuestas correctas:** 1) `da3dec5`. 2) `130`, bloque `// <NET>`. 3) Doña Chela, en `hoyo` (El Hoyo). 4) «Tata». 5) `ccr-ab2778bc-9bjz20`. 6) `python3 build.py` (y `--check` para verificar); `src/js/prog/00_hooks.js`.
 
 Si respondes algo que no coincide con el repo, o si el repo no tiene `NOTAS_PARA_RETOMAR.md`, **estás en otro repositorio o te confundiste**: detente y avisa al usuario antes de tocar código.
