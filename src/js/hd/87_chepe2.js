@@ -134,11 +134,7 @@ function hdCityObj(b,o,m){const X=o.x*HT,Y=o.y*HT,W=o.w*HT,H=o.h*HT;
   switch(o.type){
   case'bench':hdBench(b,X,Y);break;
   case'busstop':hdBusStop(b,X,Y,W);break;
-  case'templete':{hdEll(b,X+W/2,Y+H-18,W/2+4,20,[20,20,24],.25);
-    for(let j=0;j<H-30;j++){const ww=W-8-Math.max(0,(j-(H-60))*.6);hdR(b,X+W/2-ww/2,Y+20+j,ww,1,hdS([214,206,190],.92+.1*(j/(H-30))))}
-    for(let k=0;k<3;k++){hdR(b,X+18+k*4,Y+H-14+k*4,W-36-k*8,4,hdS([206,198,182],1.06-k*.08));hdR(b,X+18+k*4,Y+H-14+k*4,W-36-k*8,1,[236,230,216])}
-    for(let i=0;i<7;i++){const cx=X+16+i*((W-40)/6);hdCh_column(b,cx,Y+28,8,H-62,'#fbf8f0')}
-    hdR(b,X+W/2-30,Y+H-48,60,10,[150,110,70]);break}
+  case'templete':{const k=hdTemplete(o);hdBlit(b,k.lo,k.X,k.Y+k.split);break}   // ver 87_parque.js
   case'marimba':{hdR(b,X+6,Y+16,4,16,[70,48,30]);hdR(b,X+W-10,Y+16,4,16,[70,48,30]);hdR(b,X+2,Y+8,W-4,10,[122,75,42]);hdR(b,X+2,Y+8,W-4,2,[160,108,66]);
     for(let i=0;i<14;i++){hdR(b,X+4+i*4,Y+4,3,8,i%2?[214,150,82]:[178,118,62]);hdR(b,X+4+i*4,Y+4,3,1,[240,190,120])}for(let i=0;i<7;i++)hdR(b,X+6+i*8,Y+18,3,8+(i%3)*2,[58,42,30]);break}
   case'kioscoP':{hdR(b,X+4,Y+H-8,W,8,[20,20,24],.25);hdR(b,X+4,Y+12,W-8,H-16,[47,122,82]);hdR(b,X+4,Y+12,4,H-16,[80,160,112]);
@@ -156,10 +152,7 @@ function hdCityObjTop(tg,o){const X=o.x*HT,Y=o.y*HT,W=o.w*HT;
     hdR(b,13,8,6,8,[38,38,44]);hdR(b,14,9,4,6,[250,222,140]);tg.drawImage(hdToCanvas(b),X,Y-44)}
   else if(o.type==='farolS'){const b=hdBuf(40,100);hdR(b,14,6,4,96,[126,132,138]);hdR(b,14,6,1,96,[170,176,182]);hdR(b,14,4,24,4,[126,132,138]);hdR(b,26,6,12,5,[42,42,48]);hdR(b,28,10,8,2,[250,240,190]);tg.drawImage(hdToCanvas(b),X,Y-70)}
   else if(o.type==='taxis'){const b=hdBuf(32,22);hdR(b,1,0,30,18,[242,201,76]);hdR(b,1,0,30,2,[255,232,140]);hdR(b,1,16,30,2,[180,140,40]);hdText(b,5,6,'TAXI',[30,26,34]);tg.drawImage(hdToCanvas(b),X,Y-20)}
-  else if(o.type==='templete'){const cx=W/2,b=hdBuf(W+20,90);
-    for(let i=0;i<9;i++){const ww=W+12-i*22,yy=60-i*7;if(ww<10)break;for(let j=0;j<8;j++)for(let k=0;k<ww;k++){const u=k/ww;hdP(b,cx+10-ww/2+k,yy+j,hdS(i%2?[84,140,128]:[98,158,144],.8+.4*Math.sin(u*Math.PI)*(1-j/16)+(k%10<1?-.1:0)))}}
-    hdR(b,4,66,W+12,6,[54,96,86]);hdR(b,4,66,W+12,1,[130,190,176]);for(let k=10;k<W+10;k+=16)hdR(b,k,72,8,4,[240,236,226]);
-    hdR(b,cx+8,0,4,12,[214,176,82]);hdEll(b,cx+10,2,4,4,[240,204,100]);tg.drawImage(hdToCanvas(b),X-10,Y-40)}
+  else if(o.type==='templete'){const k=hdTemplete(o);tg.drawImage(hdToCanvas(k.hi),k.X,k.Y)}
   else if(o.type==='jardinera'){const b=hdBuf(W,24);for(let i=0;i<W/6;i++){const cx=4+i*6+hsh(i,o.x)*3;hdEll(b,cx,14,6,7,i%2?[62,128,58]:[76,150,66]);hdEll(b,cx-1,11,3,3,[110,180,90])}for(let i=0;i<5;i++)hdR(b,6+((hsh(i,o.x)*(W-12))|0),6+((hsh(o.x,i)*10)|0),3,3,[[242,147,180],[242,201,76],[244,244,244]][i%3]);tg.drawImage(hdToCanvas(b),X,Y-6)}
   else if(o.type==='copos'){const b=hdBuf(80,60);hdR(b,40,20,2,40,[120,120,128]);for(let i=0;i<9;i++){const w2=78-Math.abs(i-4)*0;for(let k=0;k<9;k++)hdR(b,i*9,12+Math.abs(i-4)*2,9,10-Math.abs(i-4),[[214,69,69],[244,244,244],[242,201,76]][i%3])}
     for(let k=0;k<80;k++)hdP(b,k,10+Math.abs((k/9|0)-4)*2,[255,255,255],.5);tg.drawImage(hdToCanvas(b),X+W/2-40,Y-46)}
