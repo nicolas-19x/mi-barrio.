@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Mi Barrio</title>
+<style>/*@@CSS@@*/
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<canvas id="combatWorld" class="hidden" aria-label="Enfrentamiento callejero"></canvas>
+<div id="combatUI" class="hidden"><div class="combat-top"><div class="combat-status"><span id="combatTitle" class="chip"></span><span id="combatHealth" class="chip"></span><span id="combatAmmo" class="chip"></span><span id="combatCount" class="chip"></span></div><div class="combat-tools"><button id="combatReload" class="alt" title="Recargar (R)">↻ Recargar</button><button id="combatPause" class="alt" title="Pausar (Escape)">Ⅱ</button><button id="combatLeave" class="red">Salir</button></div></div><div id="combatAim" class="hidden" role="slider" tabindex="0" aria-label="Dirección de disparo" aria-valuemin="0" aria-valuemax="359" aria-valuenow="0">⌖</div><div id="combatFlash"></div><div id="combatResult" class="hidden"></div></div>
+<div id="hud" class="hidden">
+  <div id="hudL"><div class="plate"><div class="pl1"><b id="hTime"></b><span id="hAmpm"></span><span id="hRain" class="hidden" aria-label="Lloviendo">☂</span><span id="hDay"></span></div><div class="pl2"><span id="hMoney"></span><span class="en" title="Energía"><i id="hEn"></i></span><span id="hEnN"></span></div><div class="pl3"><span id="loc"></span><span id="qhint"></span></div></div></div>
+  <canvas id="mini" width="148" height="104" title="Tocá para abrir el mapa (M)"></canvas>
+  <nav id="dock" aria-label="Menú del juego"><button class="cap" data-a="phone" style="--c:#d6453c;--ic:#f4ead2" aria-label="Celular"><span class="lid"><svg viewBox="0 0 12 12" aria-hidden="true" shape-rendering="crispEdges"><rect x="3" y="0" width="6" height="1"/><rect x="3" y="11" width="6" height="1"/><rect x="2" y="1" width="1" height="10"/><rect x="9" y="1" width="1" height="10"/><rect x="3" y="8" width="6" height="1"/><rect x="5" y="9" width="2" height="1" class="d"/><rect x="4" y="2" width="1" height="1" class="d"/></svg></span><b>Celular</b><i id="phBadge"></i></button><button class="cap" data-a="map" style="--c:#3f7fd1;--ic:#f4ead2" aria-label="Mapa"><span class="lid"><svg viewBox="0 0 12 12" aria-hidden="true" shape-rendering="crispEdges"><rect x="1" y="3" width="3" height="8"/><rect x="4" y="2" width="4" height="8"/><rect x="8" y="3" width="3" height="8"/><rect x="2" y="8" width="1" height="1" class="d"/><rect x="3" y="7" width="1" height="1" class="d"/><rect x="5" y="6" width="1" height="1" class="d"/><rect x="6" y="5" width="1" height="1" class="d"/><rect x="9" y="4" width="1" height="1" class="d"/><rect x="9" y="5" width="1" height="1" class="d"/></svg></span><b>Mapa</b></button><button class="cap" data-a="quests" style="--c:#f2b632;--ic:#14101c" aria-label="Misiones"><span class="lid"><svg viewBox="0 0 12 12" aria-hidden="true" shape-rendering="crispEdges"><rect x="2" y="2" width="8" height="10"/><rect x="4" y="1" width="4" height="2"/><rect x="4" y="5" width="4" height="1" class="d"/><rect x="4" y="7" width="4" height="1" class="d"/><rect x="4" y="9" width="3" height="1" class="d"/><rect x="3" y="5" width="1" height="1" class="d"/><rect x="3" y="7" width="1" height="1" class="d"/></svg></span><b>Misiones</b></button><button class="cap" data-a="inv" style="--c:#3fa66b;--ic:#f4ead2" aria-label="Mochila"><span class="lid"><svg viewBox="0 0 12 12" aria-hidden="true" shape-rendering="crispEdges"><rect x="5" y="0" width="2" height="1"/><rect x="4" y="1" width="1" height="2"/><rect x="7" y="1" width="1" height="2"/><rect x="3" y="3" width="6" height="1"/><rect x="2" y="4" width="8" height="8"/><rect x="2" y="6" width="8" height="1" class="d"/><rect x="5" y="6" width="2" height="2" class="d"/><rect x="4" y="9" width="4" height="1" class="d"/></svg></span><b>Mochila</b></button><button class="cap" data-a="activities" style="--c:#f193b4;--ic:#14101c" aria-label="Vida de barrio"><span class="lid"><svg viewBox="0 0 12 12" aria-hidden="true" shape-rendering="crispEdges"><rect x="4" y="1" width="4" height="1"/><rect x="2" y="2" width="8" height="1"/><rect x="1" y="3" width="10" height="6"/><rect x="2" y="9" width="8" height="1"/><rect x="4" y="10" width="4" height="1"/><rect x="5" y="4" width="2" height="2" class="d"/><rect x="2" y="6" width="1" height="1" class="d"/><rect x="9" y="6" width="1" height="1" class="d"/><rect x="4" y="8" width="1" height="1" class="d"/><rect x="7" y="8" width="1" height="1" class="d"/></svg></span><b>Barrio</b></button><button class="cap" data-a="pause" style="--c:#f4ead2;--ic:#14101c" aria-label="Menú"><span class="lid"><svg viewBox="0 0 12 12" aria-hidden="true" shape-rendering="crispEdges"><rect x="2" y="2" width="8" height="2"/><rect x="2" y="5" width="8" height="2"/><rect x="2" y="8" width="8" height="2"/></svg></span><b>Menú</b></button></nav>
+</div>
+<div id="prompt" class="chip hidden"></div>
+<div id="touch" class="hidden"><div id="joy"><div id="knob"></div></div><button id="btnA">A</button></div>
+<div id="dialog" class="hidden"><canvas id="portrait" width="64" height="64"></canvas><div class="dbody"><div id="dname"></div><div id="dtext"></div><div id="dchoices"></div><div id="dmore">▼</div></div></div>
+<div id="panel" class="overlay hidden"><div class="box"><h2 id="ptitle"></h2><div id="pbody"></div><div class="row" style="justify-content:flex-end;margin-top:10px"><button data-a="closePanel">Cerrar</button></div></div></div>
+<div id="menu" class="overlay"><div class="box">
+  <div class="logo">MI BARRIO</div>
+  <div class="sub">Un barrio tico, tu gente y un sábado cualquiera.</div>
+  <div class="mbtns">
+    <button data-a="continue" id="bCont" class="green">Continuar</button>
+    <button data-a="new">Nueva partida</button>
+    <button data-a="editor" class="alt">Personajes</button>
+    <button data-a="options" class="alt">Opciones</button>
+  </div>
+  <p class="note" style="margin-top:14px">Computadora: flechas/WASD para caminar · E o Espacio para hablar · J misiones · I mochila<br>Celular: joystick a la izquierda y botón A a la derecha</p>
+</div></div>
+<div id="editor" class="overlay hidden"><div class="box">
+  <div class="ehead"><h2>Personajes</h2><div class="row"><button data-a="addChar" class="green">+ Añadir</button><button data-a="closeEditor">Listo</button></div></div>
+  <div class="ecols"><div id="elist"></div><div id="eform"></div></div>
+</div></div>
+<div id="vista" class="hidden"><canvas id="vcan" width="320" height="180"></canvas><div class="vcap"><b>Mirador del Barrio</b><span id="vtime"></span></div><div class="vbtns"><button data-a="vistaWait" id="vWait" class="alt">⏳ Esperar una hora</button><button data-a="closeVista">Volver</button></div></div>
+<div id="pro" class="hidden"><canvas id="pcan" width="320" height="180"></canvas><div id="pcap" class="hidden"><b id="pwho"></b><span id="ptxt"></span></div><div id="phint"></div>
+<div id="pchoice" class="hidden"><button id="pL">◀ Izquierda</button><button id="pR">Derecha ▶</button></div>
+<div id="pbtns"><button id="pKey" class="pbig hidden">🔑 Arrancar</button><button id="pGear" class="pbig hidden">Bajar marcha</button><button id="pBrake" class="pbig">Frenar</button></div><button id="pSkip" class="alt hidden">Saltar ⏩</button><div id="pfade"></div></div>
+<div id="trip" class="hidden"><canvas id="tcan" width="320" height="180"></canvas><div class="tcap"><b id="ttitle">La Chancha</b><span id="ttime"></span><div class="tbar"><i id="tprog"></i></div></div><div id="tev" class="hidden"><p id="tevt"></p><div id="tevb"></div></div><div class="tbtns"><button id="tSkip" class="alt" onclick="skipTrip()">⏩ Llegar</button></div></div>
+<div id="toast"></div>
+<div id="fade"></div>
+<script>//@@JS@@</script>
+</body>
+</html>

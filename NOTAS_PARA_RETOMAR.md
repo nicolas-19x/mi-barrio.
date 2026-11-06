@@ -3,18 +3,18 @@
 Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** del final.
 
 ## Qué es el proyecto
-- Juego en una sola página: `Mi_Barrio.html` (~1,27 MB). Canvas 2D, sin librerías externas.
+- Juego en una sola página: `Mi_Barrio.html` (~1,36 MB), armado desde `src/`. Canvas 2D, sin librerías externas.
 - Estilo visual «B» (cinematográfico, tipo Eastward): arte HD dibujado por código, sin imágenes externas.
 - Rama de trabajo: **`ccr-ab2778bc-9bjz20`**. Commitear y subir solo ahí. No abrir PR si no lo piden.
 - Commits: terminar el mensaje con `Co-Authored-By: ...` y `Claude-Session: https://claude.ai/code/session_015uL8vRLoU87HCsa932nRq1`. No poner nombres de modelo en commits ni PRs.
 
-## Cómo está organizado el código (bloques dentro de `Mi_Barrio.html`)
-El script tiene bloques marcados. Se editan directamente en el HTML (los archivos sueltos de las sesiones anteriores vivían en una carpeta temporal y ya no existen).
-- `// <HD> … // </HD>`: todo el arte HD (suelos, casas, luz, personajes, Chepe, bus, tránsito, cuadra sur, El Hoyo). Se evalúa **temprano**.
-- `// <PROG> … // </PROG>` (antes de `// <UI>`): la progresión. Se evalúa **al final**, después de que el barrio ya se generó. Por eso lo que se usa al arrancar tiene que ser `function` (se eleva) o `var`; nunca `const`/`let` de nivel superior que se lean durante el arranque.
-- `// <UI> … // </UI>` y `/* <UI> */ … /* </UI> */`: sistema de interfaz.
-- `// <NET> … // </NET>`: multijugador.
-- Para extender funciones del juego se envuelven por reasignación: `{const _x=fn;fn=function(){…}}`. Ojo: `spend` y `earn` son `const`, no se pueden envolver.
+## Cómo está organizado el código
+- **Se edita en `src/` y se arma con `python3 build.py`** (que escribe `Mi_Barrio.html`). `python3 build.py --check` dice si el HTML está al día. Si se edita el HTML a mano, el próximo build lo pisa.
+- La guía completa está en **`src/README.md`**: qué hay en cada carpeta (`js/core` motor y contenido original por secciones, `js/hd` arte estilo B, `js/prog` progresión, `js/ui`, `js/net`, `css/`), y recetas para agregar NPC, misiones, apps, mapas y logros.
+- El HTML armado conserva los marcadores `// <HD>`, `// <PROG>`, `// <UI>`, `// <NET>`. HD se evalúa **temprano**; PROG/UI/NET al **final**, cuando el barrio ya se generó: en `prog/`, lo que se use al arrancar tiene que ser `function` o `var`, no `const`/`let` de nivel superior.
+- Para engancharse a funciones del juego se usan los **ganchos** de `js/prog/00_hooks.js`: `hookAfter('ecoDay', fn)`, `hookBefore`, `hookFilter('metas', fn)`. Conservan el orden de los viejos envoltorios encadenados. Otras funciones todavía se envuelven a mano `{const _x=fn;fn=function(){…}}`. Ojo: `spend` y `earn` son `const`, no se pueden envolver.
+- **Música: se quitó a pedido del usuario** (se rehará después). Quedan `OPT.music`/`OPT.musicVol` en las opciones guardadas y las marcas `proMus(...)` del prólogo; los efectos de sonido siguen.
+- Para comprobar que un cambio técnico no altera el juego: la herramienta de equivalencia (Playwright con reloj y azar fijos que compara huellas de 53 pantallas y del estado guardado entre dos HTML) se describe en `src/README.md` → sección de pruebas.
 
 ## Estado actual
 1. **Arte HD completo**: barrio, casas, tiendas, interiores, luz (día, noche, lluvia), animales, personajes, Chepe, Mercado Central, bus en perspectiva y tránsito con atropellos.
