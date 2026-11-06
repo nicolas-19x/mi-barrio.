@@ -1536,9 +1536,9 @@ function hdShadows(m,list,cx,cy){const sun=m.interior?null:hdSun();if(!sun||sun.
     else{g.ellipse(ex,ey,t.rx*(1+Math.abs(vx)*.12),t.ry,0,0,Math.PI*2);g.fill()}}
   for(const o of C.domes){const gx=o.x*T+56;if(gx<x0-140||gx>x1+140||o.y*T>y1||o.y*T+100<y0)continue;if(typeof tplSombra==='function')tplSombra(g,o,vx,vy)}
   g.lineWidth=1.5;for(const p of C.poles){if(p.x<x0-120||p.x>x1+120||p.y<y0||p.y>y1)continue;g.beginPath();g.moveTo(p.x,p.y);const ex=p.x+vx*p.h,ey=p.y+vy*p.h;g.lineTo(ex,ey);g.stroke();g.beginPath();g.moveTo(ex-10,ey);g.lineTo(ex+10,ey);g.stroke()}
-  for(const e of list){if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue;const d=hdEntDraw(e);if(!d||!d.img)continue;const X=Math.round(e.x),Y=Math.round(e.y);
+  for(const e of list){if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue;if(e===P&&(e.zl||0)>1)continue;const d=hdEntDraw(e);if(!d||!d.img)continue;const X=Math.round(e.x),Y=Math.round(e.y);
     g.save();g.transform(1,0,-vx,-vy,vx*Y,(1+vy)*Y);g.drawImage(hdSil(d.img),X+d.x,Y+d.y,d.w,d.h);g.restore()}
-  g.globalCompositeOperation='destination-out';for(const f of C.foot)g.fillRect(f[0],f[1],f[2],f[3]);g.globalCompositeOperation='source-over';
+  g.globalCompositeOperation='destination-out';for(const f of C.foot)g.fillRect(f[0],f[1],f[2],f[3]);for(const o of C.domes)if(typeof tplSilueta==='function')tplSilueta(g,o);g.globalCompositeOperation='source-over';
   ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=sun.a;ctx.imageSmoothingEnabled=false;
   // sombra azulada (tinte frío) en vez de negra
   ctx.globalCompositeOperation='multiply';ctx.drawImage(HDSH.c,0,0,VW,VH);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=sun.a*.35;ctx.drawImage(HDSH.c,0,0,VW,VH);
@@ -1932,7 +1932,7 @@ function hdCityObj(b,o,m){const X=o.x*HT,Y=o.y*HT,W=o.w*HT,H=o.h*HT;
   switch(o.type){
   case'bench':hdBench(b,X,Y);break;
   case'busstop':hdBusStop(b,X,Y,W);break;
-  case'templete':{const k=hdTemplete(o);hdBlit(b,k.lo,k.X,k.Y+k.split);break}   // ver 87_parque.js
+  case'templete':{const k=hdTemplete(o);hdBlit(b,k.b,k.X,k.Y);break}   // ver 87_parque.js
   case'sjo':{const k=hdSjo(o);hdBlit(b,k.lo,k.X,k.Y+k.split);break}
   case'marimba':{hdR(b,X+6,Y+16,4,16,[70,48,30]);hdR(b,X+W-10,Y+16,4,16,[70,48,30]);hdR(b,X+2,Y+8,W-4,10,[122,75,42]);hdR(b,X+2,Y+8,W-4,2,[160,108,66]);
     for(let i=0;i<14;i++){hdR(b,X+4+i*4,Y+4,3,8,i%2?[214,150,82]:[178,118,62]);hdR(b,X+4+i*4,Y+4,3,1,[240,190,120])}for(let i=0;i<7;i++)hdR(b,X+6+i*8,Y+18,3,8+(i%3)*2,[58,42,30]);break}
@@ -1951,7 +1951,6 @@ function hdCityObjTop(tg,o){const X=o.x*HT,Y=o.y*HT,W=o.w*HT;
     hdR(b,13,8,6,8,[38,38,44]);hdR(b,14,9,4,6,[250,222,140]);tg.drawImage(hdToCanvas(b),X,Y-44)}
   else if(o.type==='farolS'){const b=hdBuf(40,100);hdR(b,14,6,4,96,[126,132,138]);hdR(b,14,6,1,96,[170,176,182]);hdR(b,14,4,24,4,[126,132,138]);hdR(b,26,6,12,5,[42,42,48]);hdR(b,28,10,8,2,[250,240,190]);tg.drawImage(hdToCanvas(b),X,Y-70)}
   else if(o.type==='taxis'){const b=hdBuf(32,22);hdR(b,1,0,30,18,[242,201,76]);hdR(b,1,0,30,2,[255,232,140]);hdR(b,1,16,30,2,[180,140,40]);hdText(b,5,6,'TAXI',[30,26,34]);tg.drawImage(hdToCanvas(b),X,Y-20)}
-  else if(o.type==='templete'){const k=hdTemplete(o);tg.drawImage(hdToCanvas(k.hi),k.X,k.Y)}
   else if(o.type==='sjo'){const k=hdSjo(o);tg.drawImage(hdToCanvas(k.hi),k.X,k.Y)}
   else if(o.type==='jardinera'){const b=hdBuf(W,24);for(let i=0;i<W/6;i++){const cx=4+i*6+hsh(i,o.x)*3;hdEll(b,cx,14,6,7,i%2?[62,128,58]:[76,150,66]);hdEll(b,cx-1,11,3,3,[110,180,90])}for(let i=0;i<5;i++)hdR(b,6+((hsh(i,o.x)*(W-12))|0),6+((hsh(o.x,i)*10)|0),3,3,[[242,147,180],[242,201,76],[244,244,244]][i%3]);tg.drawImage(hdToCanvas(b),X,Y-6)}
   else if(o.type==='copos'){const b=hdBuf(80,60);hdR(b,40,20,2,40,[120,120,128]);for(let i=0;i<9;i++){const w2=78-Math.abs(i-4)*0;for(let k=0;k<9;k++)hdR(b,i*9,12+Math.abs(i-4)*2,9,10-Math.abs(i-4),[[214,69,69],[244,244,244],[242,201,76]][i%3])}
@@ -2105,6 +2104,7 @@ function tplShade(p,h,X,Y,Z,px,py,lit,amb){const r=Math.hypot(X,Y),ph=Math.atan2
   return[pal,v+n]}
 // ---- pintar el templete en un búfer propio ----
 function hdTempleteBuf(){const t0=performance.now(),S=TPL,W=S.KW,H=S.KH,b=hdBuf(W,H),P=tplScene(),L=S.L,K=S.K,dl=Math.hypot(1,K),d=[0,-1/dl,-K/dl];
+  const DEP=new Int16Array(W*H).fill(-32768);   // profundidad de cada píxel: Y de la escena × 4 (más grande = más cerca de la cámara)
   const T=new Float32Array(W*H).fill(1e9),q=S.pit,SH=P.filter(p=>p.m!=='vidrio').sort((a,c)=>(c.m==='domo'||c.m==='corn'||c.m==='friso')-(a.m==='domo'||a.m==='corn'||a.m==='friso'));
   for(let py=0;py<H;py++)for(let px=0;px<W;px++){const x=px+.5-S.CX,s=py+.5-S.GY,o=[x,600,K*600-s];let best=null,bp=null;
     const sy=py+.5;for(const p of P){if(x<p.bx[0]-.5||x>p.bx[1]+.5||sy<p.sy0||sy>p.sy1)continue;const h=tplIsect(p,o,d);if(h&&(!best||h[0]<best[0])){best=h;bp=p}}
@@ -2119,13 +2119,14 @@ function hdTempleteBuf(){const t0=performance.now(),S=TPL,W=S.KW,H=S.KH,b=hdBuf(
     let lit=0;if(nd>0){let sh=false;const so=[X+best[1]*.05+L[0]*.05,Y+best[2]*.05+L[1]*.05,Z+best[3]*.05+L[2]*.05];
       for(const p of SH){if(!tplBox(so,L,p.bb))continue;if(tplIsect(p,so,L)){sh=true;break}}if(!sh)lit=nd*.66}
     const r=Math.hypot(X,Y);let amb=.34*(.8+.2*best[3]);if(r<88&&Z>24&&Z<96)amb*=.62;if(Z<0)amb*=.72+.28*Math.max(0,1+Z/40);
+    DEP[py*W+px]=Math.round(Y*4);
     const[pal,v]=tplShade(bp,best,X,Y,Z,px,py,lit,amb);const N=pal.length,k=Math.max(0,Math.min(N-1,Math.floor(v*1.08*(N-1)+.5+TPL_BAYER[(py&3)*4+(px&3)]*.9)));hdP(b,px,py,pal[k])}
   // contornos: el píxel lejano junto a uno cercano se oscurece (lectura clara de las piezas)
   const D=b.d,mul=(i,f)=>{D[i]*=f;D[i+1]*=f;D[i+2]*=f};
   for(let py=1;py<H-1;py++)for(let px=1;px<W-1;px++){const i=py*W+px,t=T[i];if(t>=1e9)continue;
     const nb=[T[i-1],T[i+1],T[i-W],T[i+W]];let far=false;for(const u of nb)if(u<t-7){far=true;break}if(far)mul(i<<2,.8);
     if(T[i+W]>=1e9&&D[((i+W)<<2)+3]<200)mul(i<<2,.78);if(T[i+1]>=1e9&&D[((i+1)<<2)+3]<200)mul(i<<2,.86)}
-  hdTempleteDetalles(b);TPL.ms=Math.round(performance.now()-t0);return b}
+  hdTempleteDetalles(b);b.dep=DEP;TPL.ms=Math.round(performance.now()-t0);return b}
 // proyección de un punto del templete a su búfer
 const tplPt=(x,y,z)=>[TPL.CX+x,TPL.GY+TPL.K*y-z];
 function hdTempleteDetalles(b){const M=TPL_PAL.metal,pt=tplPt;
@@ -2144,15 +2145,17 @@ function hdTempleteDetalles(b){const M=TPL_PAL.metal,pt=tplPt;
   for(const a of[1.25,1.9,2.45]){const[sx,sy]=pt(95*Math.cos(a),95*Math.sin(a),107);for(let k=0;k<3;k++){const X=Math.round(sx-3+hsh(a*9,k)*6);for(let j=0;j<2+((hsh(k,a*7)*4)|0);j++)hdP(b,X,Math.round(sy)+j,[226,224,214],.7-j*.12)}}
   // un grafiti viejo, medio borrado, en el podio (Chepe es Chepe)
   {const[sx,sy]=pt(97*Math.cos(2.5),97*Math.sin(2.5),13),C=[44,60,130];const pts=[[0,2],[2,0],[3,3],[5,0],[6,3],[8,1],[9,3],[11,0]];for(let i=1;i<pts.length;i++)hdLine(b,sx+pts[i-1][0],sy+pts[i-1][1],sx+pts[i][0],sy+pts[i][1],C,.45,1);hdLine(b,sx,sy+5,sx+11,sy+4,[150,40,40],.35,1)}}
-// el templete partido en dos capas: lo bajo (la gente de enfrente pasa por delante) y lo alto (tapa al que pasa por detrás)
-function hdTemplete(o){if(o._hd)return o._hd;const b=hdTempleteBuf(),S=TPL,split=S.MY+124,W=b.w;
-  const lo=hdBuf(W,b.h-split),hi=hdBuf(W,split);hi.d.set(b.d.subarray(0,split*W*4));lo.d.set(b.d.subarray(split*W*4));
-  const X=o.x*HT-S.MX,Y=o.y*HT-S.MY;o._hd={lo,hi,X,Y,split};return o._hd}
+// el templete se pinta entero en el suelo del mapa; lo que queda más cerca de la cámara que un personaje se le dibuja encima
+// en cada cuadro con el mapa de profundidad (ver prog/86_templete.js), así se puede subir y quedar tapado por el techo.
+function hdTemplete(o){if(o._hd)return o._hd;const b=hdTempleteBuf();o._hd={b,X:o.x*HT-TPL.MX,Y:o.y*HT-TPL.MY};return o._hd}
 // ---- luces y sombra del templete (las farolas de la escalinata se encienden de noche) ----
 function hdParqueExtras(m,EM){const o=m.objs.find(o=>o.type==='templete');if(!o)return;const S=TPL,X0=o.x*HT-S.MX,Y0=o.y*HT-S.MY;
   for(const sg of[-1,1]){const[sx,sy]=tplPt(46*sg,124,51);EM.push({k:'lamp',x:X0+sx-4,y:Y0+sy,w:8,h:10});
     if(!m._tplLuz){const[gx,gy]=tplPt(46*sg,124,0);m.lights.push({x:(X0+gx)/2,y:(Y0+gy)/2,r:46,pole:1})}}
   m._tplLuz=1}
+// la sombra no se pinta sobre la propia imagen del templete (a mediodía caería encima de la cúpula): se borra su silueta
+function tplSilueta(g,o){const k=hdTemplete(o);if(!k.sil){const b=k.b,c=mk(b.w,b.h),x=c.getContext('2d'),im=x.createImageData(b.w,b.h);for(let i=0;i<b.w*b.h;i++)if(b.d[i*4+3]>=200)im.data[i*4+3]=255;x.putImageData(im,0,0);k.sil=c}
+  g.imageSmoothingEnabled=false;g.drawImage(k.sil,0,0,k.b.w,k.b.h,k.X/2,k.Y/2,k.b.w/2,k.b.h/2)}
 // sombra del sol (la pinta hdShadows en unidades del mundo): podio, columnas, friso y cúpula
 function tplSombra(g,o,vx,vy){const S=TPL,X0=o.x*HT-S.MX,Y0=o.y*HT-S.MY,gx=(X0+S.CX)/2,gy=(Y0+S.GY)/2,E=(x,y,rx,ry)=>{g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill()};
   for(let h=0;h<=12.5;h+=3.1)E(gx+vx*h,gy+vy*h,48.5,24.2);
@@ -4754,7 +4757,7 @@ function render(dt){if(COMBAT){drawCombat();return}qBlink+=dt;ctx.setTransform(1
   // entities
   const list=ENTS.filter(e=>e.map===P.map&&(e.kind!=='animal'||animalActive(e)||(e.special==='firulais'&&S.f.dogFollow)));list.push(P);if(HD_ON&&typeof carProxies==='function')carProxies(list,P.map);if(typeof progProxies==='function')progProxies(list,P.map);list.sort((a,b)=>a.y-b.y);
   if(HD_ON){for(const e of list)npcTick(e);hdShadows(m,list,cx,cy)}
-  for(const e of list){if(e.kind==='carv'){e.draw(ctx);continue}const X=Math.round(e.x),Y=Math.round(e.y);R(ctx,'rgba(0,0,0,.25)',X-5,Y-2,10,3);R(ctx,'rgba(0,0,0,.18)',X-6,Y-1,12,1);
+  for(const e of list){if(e.kind==='carv'){e.draw(ctx);continue}const X=Math.round(e.x),Y=Math.round(e.y-(e.zl||0));R(ctx,'rgba(0,0,0,.25)',X-5,Y-2,10,3);R(ctx,'rgba(0,0,0,.18)',X-6,Y-1,12,1);
     if(e.kind==='animal'){if(HD_ON){const d=aniDraw(e);ctx.drawImage(d.img,X+d.x,Y+d.y,d.w,d.h)}else{const s=animSpr(e.type,e.col,e.fr,e.dir===2);ctx.drawImage(s,X-(s.width>>1),Y-s.height+1)}}
     else{const c=e===P?CH.player:e.c;if(e===P)heroDraw(ctx,X,Y,e);else if(HD_ON&&e.c){const d=npcDraw(e);ctx.drawImage(d.img,X+d.x,Y+d.y,d.w,d.h)}else ctx.drawImage(sprite(c,e.dir,e.fr),X-9,Y-25);if(e.kind==='npc'&&(questNPC(c.id)||S.activities.delivery===c.id)){const b=Math.round(Math.sin(qBlink*5)*1.5);R(ctx,'#1d1a24',X-2,Y-36+b,5,9);R(ctx,'#f2c94c',X-1,Y-35+b,3,5);R(ctx,'#f2c94c',X-1,Y-29+b,3,2)}}}
   if(P.map==='ext'&&bus.active){const X=Math.round(bus.x),Y=21*T-14;R(ctx,'rgba(0,0,0,.25)',X+2,Y+26,84,4);R(ctx,'#1d1a24',X-1,Y-1,90,28);R(ctx,'#f4f4f4',X,Y,88,26);R(ctx,'#2a6fb0',X,Y+14,88,5);R(ctx,'#d6453c',X,Y+19,88,2);for(let i=0;i<6;i++)R(ctx,'#5b7c99',X+6+i*13,Y+3,10,9);R(ctx,'#5b7c99',X+80,Y+3,7,12);R(ctx,'#2a2a30',X+12,Y+23,10,5);R(ctx,'#2a2a30',X+64,Y+23,10,5);R(ctx,'#f2c94c',X+85,Y+19,3,3)}
@@ -8405,6 +8408,68 @@ hookAfter('progProxies',function(list,map){const e=typeof NPC!=='undefined'&&NPC
   const x=pick(L);say(null,x[0]);say('kevin',x[1],[{t:'«Eso mata, mae.»',f(){say('kevin','Diay, todo mata, mop. El tráfico de Chepe, el colesterol del chicharrón, la suegra… Pero tranquilo, que este es el último. Desde hace tres años.');afterD(()=>_k.apply(th,a))}},
    {t:'«Huele a Tata.»',f(){say('kevin','…Sí, verdad. Huele a él. Por eso me lo fumo aquí, en la entrada, donde él se sentaba a ver pasar la gente antes de que le diera lo del corazón.');afterD(()=>_k.apply(th,a))}},
    {t:'Toser y seguir',f(){afterD(()=>_k.apply(th,a))}}]);runDialog()}}
+
+// ---------- Templete del Parque Central: escalinata, plataforma, techo y físicas ----------
+// El templete se puede subir. Para el jugador, la huella del templete deja de ser un bloque sólido de casillas y pasa a ser
+// el suelo real de la escena (ver hd/87_parque.js): se sube por la escalinata del frente (cinco gradas), se camina por la
+// plataforma y por debajo de la cúpula, se pasa entre las seis columnas por los arcos y se puede rodear el techo por la orilla.
+// Bloquean: las columnas, las mejillas (los muros de los lados de la escalera), el hueco del sótano y el borde de la plataforma.
+//
+// Coordenadas: la «escena» del templete es un plano de suelo visto con K=0.5 (hd/87_parque.js). Un punto del mundo (x,y) en
+// píxeles de juego pasa a la escena como sx=(x-cx)*2, sy=(y-cy)*(2/K). El alto (z) se dibuja subiendo al personaje z/2 píxeles.
+//
+// Para que el personaje desaparezca bajo el techo no hay capas fijas: cada píxel del templete guarda su profundidad (Y de la
+// escena). Después de dibujar a cada personaje que se cruza con el templete, se le dibuja encima, recortado a su silueta,
+// lo que del templete queda más cerca de la cámara que él. Sirve igual para el jugador y para los vecinos que pasan por detrás.
+var TPLC={m:null,o:null,id:null,cv:null,tread:-1,CA:.0};
+var TPL_MARG=5;                        // margen (en unidades de escena) para que el suelo donde está parado no lo tape
+function tplObj(){const m=MAPS.chepe;if(!m)return null;if(TPLC.m!==m){TPLC.m=m;TPLC.o=m.objs.find(o=>o.type==='templete')||null}return TPLC.o&&TPLC.o._hd?TPLC.o:null}
+function tplScn(o,wx,wy){const k=o._hd;return[(wx-(k.X+TPL.CX)/2)*2,(wy-(k.Y+TPL.GY)/2)*(2/TPL.K)]}
+// ¿se puede pisar este punto de la escena? (escalinata y plataforma, menos las columnas)
+function tplIn(sx,sy){
+  if(sx>=-31&&sx<=31&&sy>=88&&sy<=134)return true;                       // escalinata (con un poco de plataforma)
+  if(sx*sx+sy*sy>97*97)return false;                                     // borde de la plataforma
+  for(let i=0;i<6;i++){const a=i*TPL.SEG,cx=82*Math.cos(a),cy=82*Math.sin(a);if((sx-cx)*(sx-cx)+(sy-cy)*(sy-cy)<144)return false}   // columnas
+  return true}
+// alto del suelo en ese punto (unidades de escena): 25 la plataforma y cinco gradas de 5, 9, 13, 17 y 21
+function tplElev(sx,sy){
+  if(sx>=-31&&sx<=31&&sy>=88&&sy<=134){if(sy<100)return 25;return sy>=130?0:sy>=124?5:sy>=118?9:sy>=112?13:sy>=106?17:21}
+  return tplIn(sx,sy)?25:0}
+const tplTreadOf=(sx,sy)=>(sx>=-31&&sx<=31&&sy>=88&&sy<=134)?(sy<100?6:sy>=130?0:sy>=124?1:sy>=118?2:sy>=112?3:sy>=106?4:5):(tplIn(sx,sy)?6:0);
+// colisión del jugador: igual que feetBlocked, pero una casilla sólida del templete se puede pisar si es suelo del templete
+function tplBlocked(m,o,x,y){for(const[cx,cy]of[[x-5,y-4],[x+5,y-4],[x-5,y-.5],[x+5,y-.5]]){
+    if(!solidT(m,Math.floor(cx/T),Math.floor(cy/T)))continue;const s=tplScn(o,cx,cy);if(!tplIn(s[0],s[1]))return true}return false}
+{const _mv=moveEnt;moveEnt=function(e,dx,dy){
+  const o=e===P&&P.map==='chepe'?tplObj():null;if(!o||(typeof riding==='function'&&riding()))return _mv(e,dx,dy);
+  const m=MAPS.chepe;let moved=false;
+  if(dx&&!tplBlocked(m,o,e.x+dx,e.y)){e.x+=dx;moved=true}
+  if(dy&&!tplBlocked(m,o,e.x,e.y+dy)){e.y+=dy;moved=true}
+  return moved}}
+// altura del jugador (e.zl, en píxeles del mundo): sube y baja suave, y suena un clic en cada grada
+function tplTick(dt){
+  const o=P.map==='chepe'?tplObj():null;
+  if(!o||(typeof riding==='function'&&riding())){if(P.zl)P.zl=0;TPLC.tread=-1;return}
+  const s=tplScn(o,P.x,P.y-2),tz=tplElev(s[0],s[1])/2;
+  P.zl=P.zl||0;const dz=tz-P.zl;P.zl=Math.abs(dz)<.04?tz:P.zl+dz*(1-Math.exp(-dt*22));
+  const t=tplTreadOf(s[0],s[1]);
+  if(t!==TPLC.tread){if(TPLC.tread>=0&&P.moving&&typeof beep==='function')beep(190+t*38,.04,'triangle',.016);TPLC.tread=t}}
+hookAfter('update',function(dt){tplTick(dt)});
+// el que se cruza con el templete: se le dibuja encima lo que queda delante de él
+function tplOverlay(g,o,e){const k=o._hd,b=k.b,W=b.w,H=b.h,D=b.dep,zl=e.zl||0,SC=2/TPL.K,
+    Ye=Math.round(((e.y-1)-(k.Y+TPL.GY)/2)*SC*4+TPL_MARG*4),
+    bx0=Math.max(0,Math.floor((e.x-14)*2-k.X)),bx1=Math.min(W,Math.ceil((e.x+14)*2-k.X)),by0=Math.max(0,Math.floor((e.y-zl-42)*2-k.Y)),by1=Math.min(H,Math.ceil((e.y-zl+6)*2-k.Y)),w=bx1-bx0,h=by1-by0;
+  if(w<=0||h<=0)return;
+  if(!TPLC.id){TPLC.id=new ImageData(64,112);TPLC.cv=mk(64,112)}
+  const dd=TPLC.id.data,sd=b.d;dd.fill(0);let any=false;
+  for(let y=by0;y<by1;y++){let i=y*W+bx0,j=(y-by0)*64*4;for(let x=bx0;x<bx1;x++,i++,j+=4){if(D[i]>Ye){const s=i<<2;if(!sd[s+3])continue;dd[j]=sd[s];dd[j+1]=sd[s+1];dd[j+2]=sd[s+2];dd[j+3]=sd[s+3];any=true}}}
+  if(!any)return;
+  TPLC.cv.getContext('2d').putImageData(TPLC.id,0,0,0,0,w,h);g.imageSmoothingEnabled=false;
+  g.drawImage(TPLC.cv,0,0,w,h,(k.X+bx0)/2,(k.Y+by0)/2,w/2,h/2)}
+hookAfter('progProxies',function(list,map){
+  if(map!=='chepe')return;const o=tplObj();if(!o)return;const k=o._hd,wx0=k.X/2,wy0=k.Y/2,ww=k.b.w/2,wh=k.b.h/2,n=list.length;
+  for(let i=0;i<n;i++){const e=list[i];if(e.kind==='carv'||e.map!=='chepe')continue;const zl=e.zl||0;
+    if(e.x+14<wx0||e.x-14>wx0+ww||e.y-zl+6<wy0||e.y-zl-42>wy0+wh)continue;
+    list.push({kind:'carv',map,x:e.x,y:e.y+.02,draw:g=>tplOverlay(g,o,e)})}});
 
 // ================= PROGRESO · APPS DEL CELULAR =================
 // Pestaña «📱 Apps»: Marketplace, la agencia, COSEVI, RTV y marchamo, INS, Pedidos Mae, Mis vehículos

@@ -37,9 +37,9 @@ function hdShadows(m,list,cx,cy){const sun=m.interior?null:hdSun();if(!sun||sun.
     else{g.ellipse(ex,ey,t.rx*(1+Math.abs(vx)*.12),t.ry,0,0,Math.PI*2);g.fill()}}
   for(const o of C.domes){const gx=o.x*T+56;if(gx<x0-140||gx>x1+140||o.y*T>y1||o.y*T+100<y0)continue;if(typeof tplSombra==='function')tplSombra(g,o,vx,vy)}
   g.lineWidth=1.5;for(const p of C.poles){if(p.x<x0-120||p.x>x1+120||p.y<y0||p.y>y1)continue;g.beginPath();g.moveTo(p.x,p.y);const ex=p.x+vx*p.h,ey=p.y+vy*p.h;g.lineTo(ex,ey);g.stroke();g.beginPath();g.moveTo(ex-10,ey);g.lineTo(ex+10,ey);g.stroke()}
-  for(const e of list){if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue;const d=hdEntDraw(e);if(!d||!d.img)continue;const X=Math.round(e.x),Y=Math.round(e.y);
+  for(const e of list){if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue;if(e===P&&(e.zl||0)>1)continue;const d=hdEntDraw(e);if(!d||!d.img)continue;const X=Math.round(e.x),Y=Math.round(e.y);
     g.save();g.transform(1,0,-vx,-vy,vx*Y,(1+vy)*Y);g.drawImage(hdSil(d.img),X+d.x,Y+d.y,d.w,d.h);g.restore()}
-  g.globalCompositeOperation='destination-out';for(const f of C.foot)g.fillRect(f[0],f[1],f[2],f[3]);g.globalCompositeOperation='source-over';
+  g.globalCompositeOperation='destination-out';for(const f of C.foot)g.fillRect(f[0],f[1],f[2],f[3]);for(const o of C.domes)if(typeof tplSilueta==='function')tplSilueta(g,o);g.globalCompositeOperation='source-over';
   ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=sun.a;ctx.imageSmoothingEnabled=false;
   // sombra azulada (tinte frío) en vez de negra
   ctx.globalCompositeOperation='multiply';ctx.drawImage(HDSH.c,0,0,VW,VH);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=sun.a*.35;ctx.drawImage(HDSH.c,0,0,VW,VH);

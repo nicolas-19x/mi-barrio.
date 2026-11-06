@@ -134,7 +134,7 @@ function hdCityObj(b,o,m){const X=o.x*HT,Y=o.y*HT,W=o.w*HT,H=o.h*HT;
   switch(o.type){
   case'bench':hdBench(b,X,Y);break;
   case'busstop':hdBusStop(b,X,Y,W);break;
-  case'templete':{const k=hdTemplete(o);hdBlit(b,k.lo,k.X,k.Y+k.split);break}   // ver 87_parque.js
+  case'templete':{const k=hdTemplete(o);hdBlit(b,k.b,k.X,k.Y);break}   // ver 87_parque.js
   case'sjo':{const k=hdSjo(o);hdBlit(b,k.lo,k.X,k.Y+k.split);break}
   case'marimba':{hdR(b,X+6,Y+16,4,16,[70,48,30]);hdR(b,X+W-10,Y+16,4,16,[70,48,30]);hdR(b,X+2,Y+8,W-4,10,[122,75,42]);hdR(b,X+2,Y+8,W-4,2,[160,108,66]);
     for(let i=0;i<14;i++){hdR(b,X+4+i*4,Y+4,3,8,i%2?[214,150,82]:[178,118,62]);hdR(b,X+4+i*4,Y+4,3,1,[240,190,120])}for(let i=0;i<7;i++)hdR(b,X+6+i*8,Y+18,3,8+(i%3)*2,[58,42,30]);break}
@@ -153,7 +153,6 @@ function hdCityObjTop(tg,o){const X=o.x*HT,Y=o.y*HT,W=o.w*HT;
     hdR(b,13,8,6,8,[38,38,44]);hdR(b,14,9,4,6,[250,222,140]);tg.drawImage(hdToCanvas(b),X,Y-44)}
   else if(o.type==='farolS'){const b=hdBuf(40,100);hdR(b,14,6,4,96,[126,132,138]);hdR(b,14,6,1,96,[170,176,182]);hdR(b,14,4,24,4,[126,132,138]);hdR(b,26,6,12,5,[42,42,48]);hdR(b,28,10,8,2,[250,240,190]);tg.drawImage(hdToCanvas(b),X,Y-70)}
   else if(o.type==='taxis'){const b=hdBuf(32,22);hdR(b,1,0,30,18,[242,201,76]);hdR(b,1,0,30,2,[255,232,140]);hdR(b,1,16,30,2,[180,140,40]);hdText(b,5,6,'TAXI',[30,26,34]);tg.drawImage(hdToCanvas(b),X,Y-20)}
-  else if(o.type==='templete'){const k=hdTemplete(o);tg.drawImage(hdToCanvas(k.hi),k.X,k.Y)}
   else if(o.type==='sjo'){const k=hdSjo(o);tg.drawImage(hdToCanvas(k.hi),k.X,k.Y)}
   else if(o.type==='jardinera'){const b=hdBuf(W,24);for(let i=0;i<W/6;i++){const cx=4+i*6+hsh(i,o.x)*3;hdEll(b,cx,14,6,7,i%2?[62,128,58]:[76,150,66]);hdEll(b,cx-1,11,3,3,[110,180,90])}for(let i=0;i<5;i++)hdR(b,6+((hsh(i,o.x)*(W-12))|0),6+((hsh(o.x,i)*10)|0),3,3,[[242,147,180],[242,201,76],[244,244,244]][i%3]);tg.drawImage(hdToCanvas(b),X,Y-6)}
   else if(o.type==='copos'){const b=hdBuf(80,60);hdR(b,40,20,2,40,[120,120,128]);for(let i=0;i<9;i++){const w2=78-Math.abs(i-4)*0;for(let k=0;k<9;k++)hdR(b,i*9,12+Math.abs(i-4)*2,9,10-Math.abs(i-4),[[214,69,69],[244,244,244],[242,201,76]][i%3])}

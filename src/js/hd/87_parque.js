@@ -116,6 +116,7 @@ function tplShade(p,h,X,Y,Z,px,py,lit,amb){const r=Math.hypot(X,Y),ph=Math.atan2
   return[pal,v+n]}
 // ---- pintar el templete en un búfer propio ----
 function hdTempleteBuf(){const t0=performance.now(),S=TPL,W=S.KW,H=S.KH,b=hdBuf(W,H),P=tplScene(),L=S.L,K=S.K,dl=Math.hypot(1,K),d=[0,-1/dl,-K/dl];
+  const DEP=new Int16Array(W*H).fill(-32768);   // profundidad de cada píxel: Y de la escena × 4 (más grande = más cerca de la cámara)
   const T=new Float32Array(W*H).fill(1e9),q=S.pit,SH=P.filter(p=>p.m!=='vidrio').sort((a,c)=>(c.m==='domo'||c.m==='corn'||c.m==='friso')-(a.m==='domo'||a.m==='corn'||a.m==='friso'));
   for(let py=0;py<H;py++)for(let px=0;px<W;px++){const x=px+.5-S.CX,s=py+.5-S.GY,o=[x,600,K*600-s];let best=null,bp=null;
     const sy=py+.5;for(const p of P){if(x<p.bx[0]-.5||x>p.bx[1]+.5||sy<p.sy0||sy>p.sy1)continue;const h=tplIsect(p,o,d);if(h&&(!best||h[0]<best[0])){best=h;bp=p}}
@@ -130,13 +131,14 @@ function hdTempleteBuf(){const t0=performance.now(),S=TPL,W=S.KW,H=S.KH,b=hdBuf(
     let lit=0;if(nd>0){let sh=false;const so=[X+best[1]*.05+L[0]*.05,Y+best[2]*.05+L[1]*.05,Z+best[3]*.05+L[2]*.05];
       for(const p of SH){if(!tplBox(so,L,p.bb))continue;if(tplIsect(p,so,L)){sh=true;break}}if(!sh)lit=nd*.66}
     const r=Math.hypot(X,Y);let amb=.34*(.8+.2*best[3]);if(r<88&&Z>24&&Z<96)amb*=.62;if(Z<0)amb*=.72+.28*Math.max(0,1+Z/40);
+    DEP[py*W+px]=Math.round(Y*4);
     const[pal,v]=tplShade(bp,best,X,Y,Z,px,py,lit,amb);const N=pal.length,k=Math.max(0,Math.min(N-1,Math.floor(v*1.08*(N-1)+.5+TPL_BAYER[(py&3)*4+(px&3)]*.9)));hdP(b,px,py,pal[k])}
   // contornos: el píxel lejano junto a uno cercano se oscurece (lectura clara de las piezas)
   const D=b.d,mul=(i,f)=>{D[i]*=f;D[i+1]*=f;D[i+2]*=f};
   for(let py=1;py<H-1;py++)for(let px=1;px<W-1;px++){const i=py*W+px,t=T[i];if(t>=1e9)continue;
     const nb=[T[i-1],T[i+1],T[i-W],T[i+W]];let far=false;for(const u of nb)if(u<t-7){far=true;break}if(far)mul(i<<2,.8);
     if(T[i+W]>=1e9&&D[((i+W)<<2)+3]<200)mul(i<<2,.78);if(T[i+1]>=1e9&&D[((i+1)<<2)+3]<200)mul(i<<2,.86)}
-  hdTempleteDetalles(b);TPL.ms=Math.round(performance.now()-t0);return b}
+  hdTempleteDetalles(b);b.dep=DEP;TPL.ms=Math.round(performance.now()-t0);return b}
 // proyección de un punto del templete a su búfer
 const tplPt=(x,y,z)=>[TPL.CX+x,TPL.GY+TPL.K*y-z];
 function hdTempleteDetalles(b){const M=TPL_PAL.metal,pt=tplPt;
@@ -155,15 +157,17 @@ function hdTempleteDetalles(b){const M=TPL_PAL.metal,pt=tplPt;
   for(const a of[1.25,1.9,2.45]){const[sx,sy]=pt(95*Math.cos(a),95*Math.sin(a),107);for(let k=0;k<3;k++){const X=Math.round(sx-3+hsh(a*9,k)*6);for(let j=0;j<2+((hsh(k,a*7)*4)|0);j++)hdP(b,X,Math.round(sy)+j,[226,224,214],.7-j*.12)}}
   // un grafiti viejo, medio borrado, en el podio (Chepe es Chepe)
   {const[sx,sy]=pt(97*Math.cos(2.5),97*Math.sin(2.5),13),C=[44,60,130];const pts=[[0,2],[2,0],[3,3],[5,0],[6,3],[8,1],[9,3],[11,0]];for(let i=1;i<pts.length;i++)hdLine(b,sx+pts[i-1][0],sy+pts[i-1][1],sx+pts[i][0],sy+pts[i][1],C,.45,1);hdLine(b,sx,sy+5,sx+11,sy+4,[150,40,40],.35,1)}}
-// el templete partido en dos capas: lo bajo (la gente de enfrente pasa por delante) y lo alto (tapa al que pasa por detrás)
-function hdTemplete(o){if(o._hd)return o._hd;const b=hdTempleteBuf(),S=TPL,split=S.MY+124,W=b.w;
-  const lo=hdBuf(W,b.h-split),hi=hdBuf(W,split);hi.d.set(b.d.subarray(0,split*W*4));lo.d.set(b.d.subarray(split*W*4));
-  const X=o.x*HT-S.MX,Y=o.y*HT-S.MY;o._hd={lo,hi,X,Y,split};return o._hd}
+// el templete se pinta entero en el suelo del mapa; lo que queda más cerca de la cámara que un personaje se le dibuja encima
+// en cada cuadro con el mapa de profundidad (ver prog/86_templete.js), así se puede subir y quedar tapado por el techo.
+function hdTemplete(o){if(o._hd)return o._hd;const b=hdTempleteBuf();o._hd={b,X:o.x*HT-TPL.MX,Y:o.y*HT-TPL.MY};return o._hd}
 // ---- luces y sombra del templete (las farolas de la escalinata se encienden de noche) ----
 function hdParqueExtras(m,EM){const o=m.objs.find(o=>o.type==='templete');if(!o)return;const S=TPL,X0=o.x*HT-S.MX,Y0=o.y*HT-S.MY;
   for(const sg of[-1,1]){const[sx,sy]=tplPt(46*sg,124,51);EM.push({k:'lamp',x:X0+sx-4,y:Y0+sy,w:8,h:10});
     if(!m._tplLuz){const[gx,gy]=tplPt(46*sg,124,0);m.lights.push({x:(X0+gx)/2,y:(Y0+gy)/2,r:46,pole:1})}}
   m._tplLuz=1}
+// la sombra no se pinta sobre la propia imagen del templete (a mediodía caería encima de la cúpula): se borra su silueta
+function tplSilueta(g,o){const k=hdTemplete(o);if(!k.sil){const b=k.b,c=mk(b.w,b.h),x=c.getContext('2d'),im=x.createImageData(b.w,b.h);for(let i=0;i<b.w*b.h;i++)if(b.d[i*4+3]>=200)im.data[i*4+3]=255;x.putImageData(im,0,0);k.sil=c}
+  g.imageSmoothingEnabled=false;g.drawImage(k.sil,0,0,k.b.w,k.b.h,k.X/2,k.Y/2,k.b.w/2,k.b.h/2)}
 // sombra del sol (la pinta hdShadows en unidades del mundo): podio, columnas, friso y cúpula
 function tplSombra(g,o,vx,vy){const S=TPL,X0=o.x*HT-S.MX,Y0=o.y*HT-S.MY,gx=(X0+S.CX)/2,gy=(Y0+S.GY)/2,E=(x,y,rx,ry)=>{g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill()};
   for(let h=0;h<=12.5;h+=3.1)E(gx+vx*h,gy+vy*h,48.5,24.2);

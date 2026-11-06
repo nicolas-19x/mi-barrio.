@@ -111,3 +111,14 @@ Dos reglas que salieron de medir:
 - El lienzo principal se dibuja con `Z=2`: un píxel del arte HD es un píxel del lienzo, y el navegador lo agranda sin suavizar
   (ver `resize` en `js/core/01_basics.js`). Lo que mida tamaños en pantalla tiene que usar `DPR` y `Z`, no números fijos.
 - Mientras el bus (`mode='trip'`) o el mirador (`mode='view'`) tapan la pantalla, el mundo no se dibuja (`js/core/35_loop.js`).
+
+## Alturas y techo del templete (`js/prog/86_templete.js`)
+
+- Cualquier personaje puede tener altura con `e.zl` (en píxeles del mundo): el pie y la sombra se dibujan `zl` píxeles más arriba
+  (`render` y `hdShadows`). Hoy solo la usa el jugador al subir al templete, pero sirve para tarimas, camiones, etc.
+- El jugador pisa la escalinata y la plataforma del templete: `moveEnt` se envuelve y una casilla sólida del templete se puede
+  pisar si el punto cae en `tplIn(sx,sy)`. Bloquean las columnas, las mejillas de la escalera, el hueco del sótano y el borde.
+  `tplElev` da el alto del suelo (cinco gradas y plataforma) y `tplTick` lo suaviza y hace sonar un clic por grada.
+- Para que el techo tape a quien está debajo, el templete guarda la profundidad de cada píxel (`b.dep`, la Y de la escena × 4).
+  Después de cada personaje que se cruza con el templete se le dibuja encima, recortado a su silueta, lo que queda más cerca
+  de la cámara que él (`tplOverlay`, enganchado a `progProxies`). Funciona igual con vecinos que pasan por detrás.
