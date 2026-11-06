@@ -26,8 +26,10 @@ hookFilter('mapLabel',function(r,m){return m&&m.id==='quesada'?'Ciudad Quesada �
 {const _dm=drawMini;drawMini=function(){const m=MAPS[P.map];if(!m||m.id!=='quesada')return _dm();const mc=$('#mini');if(!mc)return;const g=mc.getContext('2d'),src=m.base2||m.base;if(!src)return;
   const W=mc.width,H=mc.height,k=Math.max(W/(m.w*T),H/(m.h*T));g.fillStyle='#14101c';g.fillRect(0,0,W,H);g.imageSmoothingEnabled=true;const dw=m.w*T*k,dh=m.h*T*k,ox=Math.min(0,Math.max(W-dw,W/2-P.x*k)),oy=Math.min(0,Math.max(H-dh,H/2-P.y*k));
   g.drawImage(src,ox,oy,dw,dh);g.fillStyle='#fff';g.beginPath();g.arc(ox+P.x*k,oy+P.y*k,3.5,0,7);g.fill();g.fillStyle='#e8524a';g.beginPath();g.arc(ox+P.x*k,oy+P.y*k,2.2,0,7);g.fill()}}
-// acceso de prueba: Mi_Barrio.html#quesada
-function quesadaPrueba(){if(!/quesada/i.test(location.hash||''))return;ensureMap('quesada');P.map='quesada';P.x=20*T+8;P.y=23*T+12;P.dir=1;snapCam();toast('🌳 Parque de Ciudad Quesada (acceso de prueba)')}
-if(/quesada/i.test(location.hash||''))hookAfter('startGame',quesadaPrueba);   // solo con #quesada: en el juego normal no se engancha nada
+// acceso de prueba: botón en el menú (y también Mi_Barrio.html#quesada). Se quita cuando haya viaje de verdad.
+function quesadaIr(){ensureMap('quesada');P.map='quesada';P.x=20*T+8;P.y=23*T+12;P.dir=1;snapCam();toast('🌳 Parque de Ciudad Quesada (acceso de prueba)')}
+{const mb=document.querySelector('#menu .mbtns');if(mb){const b=document.createElement('button');b.id='bQues';b.className='alt';b.textContent='🌳 Ciudad Quesada (prueba)';mb.appendChild(b);
+  b.onclick=()=>{if(!(S&&S.started))startGame(!loadGame());else{$('#menu').classList.add('hidden');$('#hud').classList.remove('hidden');mode='play';showTouch()}quesadaIr()}}}
+if(/quesada/i.test(location.hash||''))hookAfter('startGame',quesadaIr);
 ACT_POINTS.push({map:'quesada',x:20,y:32,label:'Volver al barrio',run(){say(null,'Por ahora esta es una visita de prueba: el viaje a San Carlos llega en el próximo paso.',[
   {t:'Volver al barrio',f(){fadeDo(()=>{P.map='ext';P.x=24*T+8;P.y=23*T+12;P.dir=0;snapCam()})}},{t:'Quedarme un rato'}])}});

@@ -130,4 +130,4 @@ y sus calles. Al norte, cruzando la Calle Central, va la Catedral de Ciudad Ques
 - Las medidas y posiciones están en `QS` (píxeles HD, 32 por casilla): plazas, fuente, senderos, juegos, árboles, faroles, carros.
 - El kiosco usa el mismo motor de rayos del templete de Chepe (`tplIsect`, `tplRamp`, `TPL_BAYER`) con su propia escena (`qkScene`).
 - Sombra del sol: `qsCasters` se engancha en `hdCasters` (árboles, faroles, carros y el kiosco por `C.fx`).
-- Acceso de prueba mientras no hay viaje: abrir `Mi_Barrio.html#quesada`. Sin `#quesada` no se engancha nada al arranque.
+- Acceso de prueba mientras no hay viaje: botón «🌳 Ciudad Quesada (prueba)» en el menú (también sirve `Mi_Barrio.html#quesada`).
