@@ -39,15 +39,22 @@ function drawTripHD(){const tp=TRIP;if(!tp)return;const W=tp.W,H=tp.H,cv=$('#tca
   if(night<.7&&!rain)for(let k=0;k<7;k++){const cx=((hsh(k,21)*W*1.5-tp.t*(1.5+k%3))%(W*1.5)+W*1.5)%(W*1.5)-W*.25,cy=vy*.12+hsh(21,k)*vy*.45,cw=26+hsh(k,22)*36;
     g.fillStyle=vcss(vmix([255,255,255],sk2,.2),.7*(1-night));for(let i=0;i<6;i++)g.fillRect(cx+i*cw/7,cy-Math.sin(i/5*Math.PI)*5,cw/3,5);g.fillStyle=vcss(vmix([190,200,224],sk2,.4),.45*(1-night));g.fillRect(cx,cy+4,cw,1.5)}
   const hx=curve*-26;   // montañas: se corren con la curva
-  for(let x=0;x<W;x+=.5){const X=x+hx,y=vy-10-16*Math.max(0,Math.sin(X*.012+.6))-6*Math.sin(X*.04+1.3)-2*Math.sin(X*.15);g.fillStyle=fog(vmix([104,132,170],sk2,.4));g.fillRect(x,y,.5,vy-y+1)}
-  for(let x=0;x<W;x+=.5){const X=x+hx*1.6,y=vy-4-6*Math.sin(X*.03+2)-3*Math.sin(X*.09);g.fillStyle=fog(vmix([80,124,78],[110,116,108],clamp((q-.4)*2,0,1)));g.fillRect(x,y,.5,vy-y+1)}
+  // (el color de cada cordillera es el mismo en todas las columnas: se pone una sola vez)
+  g.fillStyle=fog(vmix([104,132,170],sk2,.4));for(let x=0;x<W;x+=.5){const X=x+hx,y=vy-10-16*Math.max(0,Math.sin(X*.012+.6))-6*Math.sin(X*.04+1.3)-2*Math.sin(X*.15);g.fillRect(x,y,.5,vy-y+1)}
+  g.fillStyle=fog(vmix([80,124,78],[110,116,108],clamp((q-.4)*2,0,1)));for(let x=0;x<W;x+=.5){const X=x+hx*1.6,y=vy-4-6*Math.sin(X*.03+2)-3*Math.sin(X*.09);g.fillRect(x,y,.5,vy-y+1)}
   // suelo y calle (filas de pantalla → distancia)
   const gq=clamp((q-.3)/.45,0,1),cq=clamp((q-.66)/.2,0,1);
-  for(let y=vy+.5;y<H+12;y+=.5){const Zg=(EYE-ROAD)*f/(y-vy);if(Zg>260)continue;const band=Math.floor((Zg+dist)/2.4)%2;
-    const grass=vmix(vmix(band?[96,156,70]:[84,144,64],band?[150,150,140]:[138,138,128],gq),[168,164,154],cq);g.fillStyle=fog(vmix(grass,sk2,Math.min(.5,Zg/260)));g.fillRect(0,y,W,.5);
-    const rc=roadX(Zg),x0=vx+(rc-3.7)*f/Zg,x1=vx+(rc+3.7)*f/Zg;g.fillStyle=fog(vmix([66,68,74],sk2,Math.min(.45,Zg/300)));g.fillRect(x0,y,x1-x0,.5);
-    g.fillStyle=fog([210,210,200]);const ew=Math.max(.5,.12*f/Zg);g.fillRect(x0,y,ew,.5);g.fillRect(x1-ew,y,ew,.5);
-    if(Math.floor((Zg+dist)/3)%2===0){g.fillStyle=fog([232,197,71]);g.fillRect(vx+rc*f/Zg-ew/2,y,ew,.5)}}
+  // Las filas no se tapan entre sí, así que se dibujan por capas (zacate, calle, orillas, línea del centro):
+  // queda igual que fila por fila, pero las filas seguidas del mismo color se juntan y el color cambia pocas veces.
+  {const G1=vmix(vmix([96,156,70],[150,150,140],gq),[168,164,154],cq),G0=vmix(vmix([84,144,64],[138,138,128],gq),[168,164,154],cq),rows=[];
+   let gc='',gy=0,gh=0;
+   for(let y=vy+.5;y<H+12;y+=.5){const Zg=(EYE-ROAD)*f/(y-vy);if(Zg>260)continue;const band=Math.floor((Zg+dist)/2.4)%2;
+     const c=fog(vmix(band?G1:G0,sk2,Math.min(.5,Zg/260)));if(c===gc&&y===gy+gh)gh+=.5;else{if(gh)g.fillRect(0,gy,W,gh);g.fillStyle=gc=c;gy=y;gh=.5}
+     const rc=roadX(Zg),x0=vx+(rc-3.7)*f/Zg,x1=vx+(rc+3.7)*f/Zg;rows.push(y,Zg,rc,x0,x1,Math.max(.5,.12*f/Zg))}
+   if(gh)g.fillRect(0,gy,W,gh);
+   let rcs='';for(let i=0;i<rows.length;i+=6){const c=fog(vmix([66,68,74],sk2,Math.min(.45,rows[i+1]/300)));if(c!==rcs)g.fillStyle=rcs=c;g.fillRect(rows[i+3],rows[i],rows[i+4]-rows[i+3],.5)}
+   g.fillStyle=fog([210,210,200]);for(let i=0;i<rows.length;i+=6){const y=rows[i],x0=rows[i+3],x1=rows[i+4],ew=rows[i+5];g.fillRect(x0,y,ew,.5);g.fillRect(x1-ew,y,ew,.5)}
+   g.fillStyle=fog([232,197,71]);for(let i=0;i<rows.length;i+=6){const Zg=rows[i+1];if(Math.floor((Zg+dist)/3)%2===0){const ew=rows[i+5];g.fillRect(vx+rows[i+2]*f/Zg-ew/2,rows[i],ew,.5)}}}
   // objetos a los lados del camino, de lejos a cerca
   const objs=[],SP=7,K0=Math.floor(dist/SP);
   for(let i=0;i<28;i++){const idx=K0+i,Zw=idx*SP-dist;if(Zw<4.5||Zw>150)continue;const v=hsh(idx,13),side=hsh(idx,7)<.5?-1:1,bq=q+(hsh(idx,11)-.5)*.2,lat=roadX(Zw)+side*(5.6+hsh(idx,5)*7);

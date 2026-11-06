@@ -1,4 +1,5 @@
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;try{if(!PRO){update(dt);render(dt)}}catch(err){console.error(err)}requestAnimationFrame(loop)}
+// El bus (modo trip) y el mirador (modo view) tapan la pantalla con su propia capa opaca: no hace falta dibujar el mundo detrás.
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;try{if(!PRO){update(dt);if(mode!=='trip'&&mode!=='view')render(dt)}}catch(err){console.error(err)}requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 window.__MB={get S(){return S},P,NPC,MAPS,interact,get mode(){return mode},TALK};
 /* ===== Pulpería: catálogo, precios dinámicos y tienda táctil ===== */

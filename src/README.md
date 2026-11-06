@@ -96,3 +96,18 @@ node src/tools/pruebas/textos.js viejo.js nuevo.js            # (el <script> ext
 la iglesia, todas las apps del celular, conversaciones, mirador, minijuego de copos, economía de 12 días, bus, guardar y
 continuar) con el reloj y el azar fijos y el audio apagado, y guarda una huella de cada pantalla y del estado del juego.
 Un par de píxeles (el minimapa y la escena del bus) varían entre corridas del mismo archivo: comparar contra dos corridas.
+
+## Rendimiento en celular (`tools/pruebas/rendimiento.js`)
+
+```
+node src/tools/pruebas/rendimiento.js /ruta/absoluta/Mi_Barrio.html 4 salida.json
+```
+
+Simula un celular (pantalla 390×844, escala 3, toque y el CPU 4 veces más lento) y mide, en el barrio, Chepe, el Mercado,
+El Hoyo, la playa y el bus, los cuadros por segundo y los milisegundos de trabajo por cuadro. Sirve para comparar antes y después.
+Las cifras absolutas no son las de un celular real (aquí el lienzo se pinta sin tarjeta gráfica), pero las comparaciones sí valen.
+
+Dos reglas que salieron de medir:
+- El lienzo principal se dibuja con `Z=2`: un píxel del arte HD es un píxel del lienzo, y el navegador lo agranda sin suavizar
+  (ver `resize` en `js/core/01_basics.js`). Lo que mida tamaños en pantalla tiene que usar `DPR` y `Z`, no números fijos.
+- Mientras el bus (`mode='trip'`) o el mirador (`mode='view'`) tapan la pantalla, el mundo no se dibuja (`js/core/35_loop.js`).

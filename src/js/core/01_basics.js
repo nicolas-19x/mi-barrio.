@@ -6,6 +6,10 @@ const lcv=document.createElement('canvas'),lctx=lcv.getContext('2d');
 let DPR=1,VW=0,VH=0,Z=4;
 function resize(){DPR=Math.min(window.devicePixelRatio||1,2);VW=Math.floor(innerWidth*DPR);VH=Math.floor(innerHeight*DPR);cv.width=VW;cv.height=VH;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
   Z=Math.max(2,Math.min(VW,VH)/(T*10.5));if(Math.max(VW,VH)/(T*Z)>24)Z=Math.max(VW,VH)/(T*24);Z=Math.max(2,Math.round(Z/2)*2);
+  // Resolución interna: con Z>2 cada píxel del arte HD ocupaba Z/2 × Z/2 píxeles del lienzo. Se dibuja con Z=2
+  // (un píxel del arte = un píxel del lienzo) y el navegador lo agranda sin suavizar (image-rendering:pixelated).
+  // Se ve igual y pinta 4 veces menos píxeles (9 veces menos con Z=6); DPR baja en la misma proporción para lo que mide en pantalla.
+  if(Z>2){const k=Z/2;DPR/=k;VW=Math.floor(innerWidth*DPR);VH=Math.floor(innerHeight*DPR);Z=2;cv.width=VW;cv.height=VH}
   lcv.width=Math.ceil(VW/4);lcv.height=Math.ceil(VH/4)}
 addEventListener('resize',resize);resize();
 function hsh(x,y){let h=(x*374761393+y*668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296}
