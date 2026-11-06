@@ -10,14 +10,15 @@
 //    columpios verdes, tobogán azul, mesas azules con sombrilla y un murito verde con piedras grandes.
 //  · Árboles grandes de copa redonda (sin palmeras). Alrededor: avenidas con carros estacionados a los dos lados y una calle al sur.
 // Escala: una casilla ≈ 1 m (la gente mide 1,7 casillas). Medidas en píxeles HD del mapa (32 por casilla).
-const QS={W:64,H:58,park:[160,320,1888,1696],
+const QS={W:64,H:78,oy:20,park:[160,320,1888,1696],   // oy: filas que la catedral agrega arriba (todo lo del parque va corrido oy casillas)
+ 
   fu:{x:1030,y:538,r:197},ki:{x:1030,y:952,r:231},lob:[[969,538,68],[1102,548,80]],
   paths:[[100,952,1960,952],[1030,952,1030,1750],[1030,952,120,296],[1030,952,1940,296],[1030,952,1940,1745],[568,952,568,1750]],pw:34,
   ondas:[224,1102,531,1605],estrellas:[609,1102,969,1605],
   trees:[[7,14,0,2.9],[6,20,1,2.6],[7,26,0,2.8],[17,12,1,2.7],[44,12,0,2.8],[54,15,1,3.1],[55,24,0,2.7],[56,35,1,3.0],[53,42,0,3.0],
          [42,48,1,3.0],[35,40,0,2.5],[24,19,1,2.3],[40,20,0,2.4]],
   lamps:[[13,27],[48,27],[22,17],[40,17],[34,40],[46,36],[15,32],[26,33],[25,25],[43,25]],
-  slamps:[[14,5],[30,5],[46,5],[20,53],[44,53]],
+  slamps:[[14,5],[24,5],[46,5],[20,53],[44,53]],
   benches:[[9,27],[18,27],[44,27],[52,27],[10,31],[52,31],[26,13],[37,13],[27,33],[37,33],[50,40],[6,40],[6,45]],
   bins:[[12,31],[47,31],[30,34],[36,24]],
   cars:[],kiosko:[28,28,9,4]};
@@ -144,7 +145,7 @@ function hdKioscoQ(){const S=QK,W=S.KW,H=S.KH,b=hdBuf(W,H),P=qkScene(),L=TPL.L,K
 function hdKioscoQSplit(){const b=hdKioscoQ(),s=QK.split,W=b.w,lo=hdBuf(W,b.h-s),hi=hdBuf(W,s);hi.d.set(b.d.subarray(0,s*W*4));lo.d.set(b.d.subarray(s*W*4));
   return{lo,hi,X:QS.ki.x-QK.CX,Y:QS.ki.y-QK.GY,b}}
 // sombra del sol del kiosco (en unidades del mundo: la mitad del HD)
-function qkSombra(g,vx,vy){const S=QK,gx=QS.ki.x/2,gy=QS.ki.y/2,E=(x,y,rx,ry)=>{g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill()},h=v=>v/2;
+function qkSombra(g,vx,vy){const S=QK,gx=QS.ki.x/2,gy=(QS.ki.y+QS.oy*HT)/2,E=(x,y,rx,ry)=>{g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill()},h=v=>v/2;
   for(let z=0;z<=h(S.zb);z+=3)E(gx+vx*z,gy+vy*z,S.R/2,S.R/4);
   g.lineWidth=10;for(let i=0;i<8;i++){const a=i*Math.PI/4+Math.PI/8,cx=gx+S.rc/2*Math.cos(a),cy=gy+S.rc/4*Math.sin(a);g.beginPath();g.moveTo(cx+vx*h(S.zb),cy+vy*h(S.zb));g.lineTo(cx+vx*h(S.zc),cy+vy*h(S.zc));g.stroke()}
   for(let z=h(S.zc);z<=h(S.zd);z+=2)E(gx+vx*z,gy+vy*z,(S.rc+16)/2,(S.rc+16)/4);
@@ -206,7 +207,7 @@ function qsEquip(){return[
   [qsBars(),850,1470,30,[850,1506,930,1526]],[qsDomeBars(),860,1270,30,[864,1300,926,1318]],[qsCarousel(),728,1310,30,[732,1326,794,1350]],
   [qsSeesaw(),690,1236,24,[694,1248,770,1264]],[qsPicnic(1),650,968,40,[654,1050,716,1060]],[qsPicnic(0),880,1036,36,[884,1050,950,1064]]]}
 // ---- ensamblado del mapa ----
-function hdQuesada(m){const W=m.w*HT,H=m.h*HT,b=hdBuf(W,H),EM=[];m.hdEmit=EM;
+function hdQuesadaParque(m,M0){const W=m.w*HT,H=m.h*HT,b=hdBuf(W,H),EM=[];
   hdGround(b,m);hdTileEdges(b,m);hdRoad(b,m);
   // calles: línea amarilla discontinua, pasos de cebra, alcantarillas, tapas y cordón amarillo en las esquinas
   const cl=[[7*32,0],[55*32,0]],cv=[[2*32,1],[61*32,1]];
@@ -220,10 +221,11 @@ function hdQuesada(m){const W=m.w*HT,H=m.h*HT,b=hdBuf(W,H),EM=[];m.hdEmit=EM;
   for(const[X,Y]of[[64,700],[1966,1250],[700,1760],[1300,224]]){hdEll(b,X,Y,12,7,[60,60,64]);hdEll(b,X,Y,10,5.6,[86,86,90]);for(let k=-8;k<=8;k+=4)hdR(b,X+k,Y-4,1,8,[60,60,64])}
   for(const[x0,y0,x1,y1]of[[128,312,256,318],[1792,312,1920,318],[128,1698,256,1704],[1792,1698,1920,1704]])hdR(b,x0,y0,x1-x0,y1-y0,[226,190,52]);
   // jardín y reja de la catedral (la catedral va en el próximo paso)
-  for(let i=0;i<70;i++){const x=12+i*29+hsh(i,3)*12,y=70+hsh(3,i)*50,C=[[150,30,40],[196,64,40],[120,28,48],[214,150,40]];for(let k=0;k<12;k++)hdEll(b,x+hsh(i,k)*20-10,y+hsh(k,i)*12-6,5,3.5,hdS(C[(i+k)%4],.85+hsh(k,i*2)*.3))}
-  hdR(b,0,146,W,14,[150,48,44]);hdR(b,0,146,W,2,[196,84,74]);hdR(b,0,156,W,4,[100,30,28]);
-  for(let x=2;x<W;x+=8){hdR(b,x,104,3,42,[26,26,30]);hdP(b,x+1,102,[70,70,76]);hdP(b,x+1,101,[26,26,30]);hdP(b,x,104,[60,60,66])}hdR(b,0,110,W,3,[30,30,34]);hdR(b,0,136,W,3,[30,30,34]);
-  for(const gx of[966,1088]){hdR(b,gx,90,10,70,[30,30,34]);hdR(b,gx,90,10,3,[80,80,88]);hdR(b,gx+8,90,2,70,[16,16,18])}
+  for(let i=0;i<70;i++){if(i*29>820&&i*29<1210)continue;const x=12+i*29+hsh(i,3)*12,y=70+hsh(3,i)*50,C=[[150,30,40],[196,64,40],[120,28,48],[214,150,40]];for(let k=0;k<12;k++)hdEll(b,x+hsh(i,k)*20-10,y+hsh(k,i)*12-6,5,3.5,hdS(C[(i+k)%4],.85+hsh(k,i*2)*.3))}
+  for(const[a,c]of[[0,856],[1204,W]]){hdR(b,a,146,c-a,14,[150,48,44]);hdR(b,a,146,c-a,2,[196,84,74]);hdR(b,a,156,c-a,4,[100,30,28]);hdR(b,a,110,c-a,3,[30,30,34]);hdR(b,a,136,c-a,3,[30,30,34])}
+  for(let x=2;x<W;x+=8){if(x>848&&x<1204)continue;hdR(b,x,104,3,42,[26,26,30]);hdP(b,x+1,102,[70,70,76]);hdP(b,x+1,101,[26,26,30]);hdP(b,x,104,[60,60,66])}
+  for(const gx of[846,1192]){hdR(b,gx,78,14,82,[30,30,34]);hdR(b,gx,78,14,3,[86,86,94]);hdR(b,gx+11,78,3,82,[16,16,18]);hdR(b,gx-2,74,18,5,[40,40,46])}
+  for(const sg of[-1,1]){const x0=sg<0?860:1192;for(let t=0;t<44;t++){const X=x0+sg*-(t*.9),Y=110+t*.55;hdR(b,X|0,Y|0,2,32,[28,28,32]);if(t%6===0)hdR(b,X|0,(Y|0)-2,1,2,[70,70,76])}}   // portón abierto
   const M=qsGround(b);
   // tierra y hojarasca bajo las copas de los árboles
   for(const[x,y,,s]of QS.trees){const cx=x*32+16,cy=y*32+24,rx=44*s,ry=20*s;for(let Y=(cy-ry)|0;Y<cy+ry;Y++)for(let X=(cx-rx)|0;X<cx+rx;X++){if(X<0||Y<0||X>=W||Y>=H||M[Y*W+X])continue;
@@ -251,14 +253,95 @@ function hdQuesada(m){const W=m.w*HT,H=m.h*HT,b=hdBuf(W,H),EM=[];m.hdEmit=EM;
   const alto=(X,Y)=>{const s=hdBuf(20,58);hdR(s,9,18,2,40,[110,114,120]);for(let j=0;j<18;j++){const ww=j<5?8+j*2:j>12?8+(17-j)*2:18;hdR(s,10-ww/2,j,ww,1,j%17===0?[240,240,240]:[196,32,36])}hdText(s,3,6,'ALTO',[250,250,250]);qsTall(b,tg,s,X,Y,24)};
   alto(126,250);alto(1894,250);alto(126,1636);alto(1894,1636);
   // kiosco
-  const kq=hdKioscoQSplit();m._qk=kq;hdBlit(b,kq.lo,kq.X,kq.Y+QK.split);tg.drawImage(hdToCanvas(kq.hi),kq.X,kq.Y);
+  const kq=hdKioscoQSplit();M0._qk=kq;hdBlit(b,kq.lo,kq.X,kq.Y+QK.split);tg.drawImage(hdToCanvas(kq.hi),kq.X,kq.Y);
   // árboles grandes de copa redonda: tronco en el suelo, copa arriba
-  m._qsTrees=[];for(const[x,y,kind,s]of QS.trees){const sp=hdTreeSprite(x*37+y*101,kind,s,false),ox=x*HT+16-sp.ax,oy=y*HT+30-sp.ay;hdBlit(b,sp.t,ox,oy);tg.drawImage(hdToCanvas(sp.c),ox,oy);m._qsTrees.push({x,y,sp})}
-  return{base:hdToCanvas(b),top}}
+  M0._qsTrees=[];for(const[x,y,kind,s]of QS.trees){const sp=hdTreeSprite(x*37+y*101,kind,s,false),ox=x*HT+16-sp.ax,oy=y*HT+30-sp.ay;hdBlit(b,sp.t,ox,oy);tg.drawImage(hdToCanvas(sp.c),ox,oy);M0._qsTrees.push({x,y,sp})}
+  return{b,top,EM}}
 // casters de sombra del sol para este mapa (ver hdCasters en hd/50_light.js)
-function qsCasters(m,C){for(const t of m._qsTrees||[])C.trees.push({x:t.x*T+8,y:t.y*T+15,hc:30*(t.sp.h/112),rx:t.sp.w/4.6,ry:t.sp.w/8});
-  for(const[x,y]of QS.lamps)C.poles.push({x:x*T+8,y:y*T+14,h:34});for(const[x,y]of QS.slamps)C.poles.push({x:x*T+8,y:y*T+14,h:56});
-  for(const[cx,cy,v]of QS.cars)C.boxes.push(v?{x:cx*T+1,y:cy*T+2,w:14,h:30,hg:9}:{x:cx*T+1,y:cy*T+1,w:30,h:14,hg:9});
-  for(const e of qsEquip()){const r=e[4];C.boxes.push({x:r[0]/2,y:r[1]/2,w:(r[2]-r[0])/2,h:(r[3]-r[1])/2,hg:e[0].h/2-6})}
+function qsCasters(m,C){const oy=QS.oy;for(const t of m._qsTrees||[])C.trees.push({x:t.x*T+8,y:(t.y+oy)*T+15,hc:30*(t.sp.h/112),rx:t.sp.w/4.6,ry:t.sp.w/8});
+  for(const[x,y]of QS.lamps)C.poles.push({x:x*T+8,y:(y+oy)*T+14,h:34});for(const[x,y]of QS.slamps)C.poles.push({x:x*T+8,y:(y+oy)*T+14,h:56});
+  for(const[cx,cy,v]of QS.cars)C.boxes.push(v?{x:cx*T+1,y:(cy+oy)*T+2,w:14,h:30,hg:9}:{x:cx*T+1,y:(cy+oy)*T+1,w:30,h:14,hg:9});
+  for(const e of qsEquip()){const r=e[4];C.boxes.push({x:r[0]/2,y:(r[1]+oy*HT)/2,w:(r[2]-r[0])/2,h:(r[3]-r[1])/2,hg:e[0].h/2-6})}
+  for(const[x,y]of QC.cars)C.boxes.push({x:x/2-7,y:y/2-15,w:14,h:30,hg:9});
+  C.boxes.push({x:QC.x0/2,y:QC.back/2,w:(QC.x1-QC.x0)/2,h:(QC.fy-QC.back)/2,hg:70},{x:(QC.cx-50)/2,y:(QC.fy-30)/2,w:50,h:14,hg:220});
+  for(const B of QC.west)C.boxes.push({x:B[0]/2,y:B[1]/2,w:(B[2]-B[0])/2,h:(B[3]-B[1])/2,hg:40});
   C.fx=C.fx||[];C.fx.push({draw:qkSombra,cut(g){const k=m._qk;if(!k)return;if(!k.sil){const b=k.b,c=mk(b.w,b.h),x=c.getContext('2d'),im=x.createImageData(b.w,b.h);for(let i=0;i<b.w*b.h;i++)if(b.d[i*4+3]>=200)im.data[i*4+3]=255;x.putImageData(im,0,0);k.sil=c}
     g.imageSmoothingEnabled=false;g.drawImage(k.sil,0,0,k.b.w,k.b.h,k.X/2,k.Y/2,k.b.w/2,k.b.h/2)}})}
+// ================= CATEDRAL DE CIUDAD QUESADA (al norte, cruzando la Calle Central, detrás de la reja) =================
+// Referencias (fotos): fachada blanca crema; torre central alta y angosta con aletas verticales y ranuras oscuras, reloj
+// arriba y cruz en la punta; frontón con ventanas altas que siguen la pendiente; franja roja de lado a lado; pórtico con
+// columnas rojas y puertas oscuras; alas laterales más bajas con ventanas; techo de lámina roja; escalinata ancha de gradas
+// grises con pasamanos negros; jardín con plantas de hojas rojas; parqueo al este. Medidas en píxeles HD del mapa completo.
+const QC={cx:1030,fy:520,band:398,apex:230,back:70,mx0:760,mx1:1300,x0:600,x1:1460,wingTop:330,
+  st:[872,1188,600,800],porch:[600,1460,528,600],park:[1500,1888,64,740],west:[[170,80,360,560],[380,120,580,560]],cars:[]};
+(()=>{const rows=[132,332,532],xs=[];for(let x=1530;x<1870;x+=42)xs.push(x);let k=0;for(const y of rows)for(const x of xs){k++;if(hsh(k,9)<.62)QC.cars.push([x,y,['#e8e8e4','#c0392b','#9aa3ab','#23242a','#2f5fa8','#7a1f2a','#d8d4c8'][k%7]])}})();
+function hdCatedral(b,EM){const S=QC,cr=hdC('#ece6d6'),red=hdC('#a8352c'),gEdge=x=>S.apex+Math.abs(x-S.cx)/((S.mx1-S.mx0)/2)*(S.band-S.apex-12),
+  P=(X,Y,c)=>hdP(b,X,Y,c),n=(X,Y)=>(hdr(X,Y)-.5)*.06+(hdVN(X,Y,18,4)-.5)*.06;
+  // vecinos al fondo (techos) y edificios del oeste
+  hdRoofZinc(b,160,0,700,64,'#8e9498',31,false);hdRoofZinc(b,1220,0,300,64,'#9a5a46',32,true);
+  for(const[i,B]of S.west.entries()){const[x0,y0,x1,y1]=B,col=i?'#2f8a86':'#a8433a';hdRoofZinc(b,x0,y0,x1-x0,y1-y0-96,col,40+i,true);hdR(b,x0,y1-96-6,x1-x0,6,[40,32,30]);
+    hdPlaster(b,x0,y1-96,x1-x0,96,i?'#e6dcc4':'#d8e2e6',50+i);hdCh_awning(b,x0+6,y1-92,x1-x0-12,12,i?'#2f8a86':'#c0473b','#f4f0e6',x0);
+    for(let x=x0+16;x<x1-40;x+=58){hdCh_win(b,x,y1-66,40,30,{frame:'#2a2a30',mull:true});EM.push({k:'shop',x,y:y1-66,w:40,h:30})}hdDoor(b,x1-44,y1-62,30,60,'#5c3d24');hdR(b,x0,y1-4,x1-x0,4,[110,104,96])}
+  // ---- techos de lámina roja: la nave (a dos aguas) y las alas ----
+  const R=hdC('#9e3a2e');
+  for(let y=S.back;y<S.band;y++)for(let x=S.mx0;x<S.mx1;x++){if(y>=gEdge(x))continue;const left=x<S.cx,u=Math.abs(x-S.cx)/(S.cx-S.mx0);
+    let f=left?1.12-.18*u:.7+.08*(1-u);if(y%6<1)f*=.88;else if(y%6<2)f*=1.05;if(Math.abs(x-S.cx)<3)f=1.25;if(y<S.back+4)f*=.7;if(x<S.mx0+3||x>S.mx1-4)f*=.75;
+    f+=(hdr(x,y)-.5)*.05-(hdVN(x,y,30,6)>.72?.06:0);P(x,y,hdS(R,f))}
+  for(const[w0,w1,sg]of[[S.x0,S.mx0,-1],[S.mx1,S.x1,1]])for(let y=S.back+50;y<S.wingTop;y++)for(let x=w0;x<w1;x++){const u=sg<0?(w1-x)/(w1-w0):(x-w0)/(w1-w0);let f=sg<0?1.06-.1*u:.74+.06*(1-u);if(y%6<1)f*=.88;if(y<S.back+54)f*=.7;P(x,y,hdS(R,f+(hdr(x,y)-.5)*.05))}
+  // ---- alas laterales: pared, ventanas altas, franja roja arriba ----
+  for(const[w0,w1]of[[S.x0,S.mx0],[S.mx1,S.x1]]){hdPlaster(b,w0,S.wingTop,w1-w0,S.fy-S.wingTop,'#ece6d6',w0);hdR(b,w0,S.wingTop,w1-w0,8,hdS(red,1.05));hdR(b,w0,S.wingTop,w1-w0,2,hdS(red,1.3));hdR(b,w0,S.wingTop+8,w1-w0,3,[0,0,0],.18);
+    for(let x=w0+26;x<w1-30;x+=58){for(const[y0,h]of[[S.wingTop+22,46],[S.band+26,78]]){const r=hdCh_win(b,x,y0,26,h,{frame:'#f6f2e8',mull:true});EM.push({k:'win',x:r.x,y:r.y,w:r.w,h:r.h})}}}
+  // ---- frontón principal con ventanas altas que siguen la pendiente ----
+  for(let y=S.apex;y<S.band;y++)for(let x=S.mx0;x<S.mx1;x++){if(y<gEdge(x))continue;const e=y-gEdge(x);let c=hdS(cr,.98+n(x,y)+(x>S.cx?-.04:.02));if(e<4)c=hdS(cr,e<1.5?.7:1.1);P(x,y,c)}
+  for(const sg of[-1,1])for(let i=0;i<5;i++){const xc=S.cx+sg*(84+i*44),top=gEdge(xc)+22,bot=S.band-12;if(bot-top<24)continue;const x=Math.round(xc-12);
+    hdR(b,x-3,top-3,30,bot-top+6,hdS(cr,1.1));for(let y=top;y<bot;y++)for(let k=0;k<24;k++){const t=(y-top)/(bot-top);let c=hdMix([110,138,166],[34,46,62],Math.min(1,t*1.3+.1));if((k+y*.5)%17<2)c=hdS(c,1.25);if(k===12)c=hdS(cr,.9);P(x+k,y,c)}
+    for(let y=top;y<bot;y++){const k=Math.round((y-top)/(bot-top)*10);hdR(b,sg<0?x+24-k:x,y,k,1,[0,0,0],.18)}hdR(b,x-3,bot+3,30,2,hdS(cr,.72));EM.push({k:'win',x,y:top,w:24,h:bot-top})}
+  // ---- franja roja de lado a lado y sombra del alero del pórtico ----
+  hdR(b,S.x0-10,S.band,S.x1-S.x0+20,16,red);hdR(b,S.x0-10,S.band,S.x1-S.x0+20,3,hdS(red,1.35));hdR(b,S.x0-10,S.band+13,S.x1-S.x0+20,3,hdS(red,.6));
+  // ---- pórtico: pared en sombra, puertas y columnas rojas ----
+  for(let y=S.band+16;y<S.fy;y++)for(let x=S.mx0;x<S.mx1;x++){const t=(y-S.band-16)/(S.fy-S.band-16);P(x,y,hdS(cr,.7+t*.12+n(x,y)))}
+  for(const[x0,w,h]of[[S.cx-44,88,82],[S.cx-190,58,70],[S.cx+132,58,70]]){const y0=S.fy-h;hdR(b,x0-4,y0-4,w+8,h+4,hdS(cr,.92));for(let y=y0;y<S.fy;y++)for(let x=x0;x<x0+w;x++){const u=(x-x0)%(w/2);let c=hdS([86,52,36],.8+(u<3?.25:0)+(hdr(x,y*.2)-.5)*.1);if(y-y0<4)c=hdS(c,.7);P(x,y,c)}
+    hdR(b,x0+w/2-1,y0,2,h,[40,24,18]);for(const yy of[y0+16,y0+h/2+6])for(const xx of[x0+6,x0+w/2+6])hdR(b,xx,yy,w/2-12,1,[60,36,26]);EM.push({k:'shop',x:x0,y:y0,w,h:12})}
+  for(const x of[S.mx0+22,S.mx0+150,S.cx-110,S.cx+86,S.mx1-176,S.mx1-46]){hdR(b,x+24,S.band+16,8,S.fy-S.band-16,[0,0,0],.16);for(let y=S.band+16;y<S.fy;y++)for(let k=0;k<24;k++){const f=k<4?1.3:k>19?.66:1-.18*(k/24);P(x+k,y,hdS(red,f+n(x+k,y)))}hdR(b,x-2,S.fy-6,28,6,hdS(red,.75))}
+  // ---- torre central: aletas verticales con ranuras, reloj y cruz ----
+  const tw=y=>y>S.band?104:Math.round(78+26*(y-110)/(S.band-110)),secs=[S.band,350,292,236,178,120];
+  for(let y=110;y<S.band;y++){const w=tw(y),x0=S.cx-w/2;hdR(b,x0+w,y,18,1,[0,0,0],.2)}                                   // sombra de la torre sobre la fachada
+  for(let y=110;y<S.fy;y++){const w=tw(y),x0=Math.round(S.cx-w/2);for(let k=0;k<w;k++){const X=x0+k,inner=k>7&&k<w-8,sec=secs.findIndex(v=>y>=v);
+      let c;const nearBand=secs.some(v=>Math.abs(y-v)<5);
+      if(y>S.band+16){if(k<14||k>w-15)c=hdS(cr,k<14?1.06-.08*(k/14):.82);else continue}                                    // patas de la torre a los lados de la puerta
+      else if(!inner||nearBand)c=hdS(cr,(k<7?1.12:k>w-8?.8:1.04)+(nearBand&&secs.some(v=>y>v-5&&y<v-2)?.1:0)+n(X,y)*.6);
+      else if(y>=236&&y<292){c=hdS(cr,1.02+n(X,y)*.6)}                                                                    // panel liso del reloj
+      else{const f=(k-8)%13;c=f<5?hdS(cr,f<1?1.15:f>3?.82:1):hdMix([60,64,76],[22,24,30],Math.min(1,(y%58)/40));if(f===5)c=hdS(c,.7)}
+      P(X,y,c)}}
+  {const cy=264,cx=S.cx;hdEll(b,cx,cy,17,17,[60,58,56]);hdEll(b,cx,cy,15,15,[248,246,238]);for(let a=0;a<12;a++){const A=a*Math.PI/6;hdP(b,cx+Math.cos(A)*12,cy+Math.sin(A)*12,[40,40,44])}
+    hdLine(b,cx,cy,cx-6,cy-7,[30,30,34],1,2);hdLine(b,cx,cy,cx+9,cy-2,[30,30,34],1,1);EM.push({k:'lamp',x:cx-14,y:cy-14,w:28,h:28})}
+  for(let y=84;y<112;y++){const w=Math.round(60-((112-y)/28)*30),x0=S.cx-w/2;for(let k=0;k<w;k++)P(x0+k,y,hdS(cr,(k<4?1.12:k>w-5?.8:1)+n(x0+k,y)*.6))}   // remate escalonado
+  hdR(b,S.cx-4,18,8,68,hdS(cr,1.08));hdR(b,S.cx+2,18,2,68,hdS(cr,.78));hdR(b,S.cx-17,34,34,8,hdS(cr,1.08));hdR(b,S.cx-17,40,34,2,hdS(cr,.78));   // cruz
+  hdR(b,S.cx-5,17,1,69,hdS(red,.9));hdR(b,S.cx-18,33,1,9,hdS(red,.9));
+  // ---- atrio (piso), escalinata, muros y pasamanos ----
+  const[px0,px1,py0,py1]=S.porch;hdR(b,S.x0-10,S.fy,S.x1-S.x0+20,8,[130,126,120]);hdR(b,S.x0-10,S.fy,S.x1-S.x0+20,2,[170,166,160]);
+  for(let y=py0;y<py1;y++)for(let x=px0;x<px1;x++){const u=x%20,v=y%20;P(x,y,(u===0||v===0)?[150,146,140]:hdS(((x/20|0)+(y/20|0))&1?[210,204,192]:[196,190,180],.95+(hdr(x,y)-.5)*.08))}
+  const[sx0,sx1,sy0,sy1]=S.st,NS=12,hs=(sy1-sy0)/NS;
+  for(let i=0;i<NS;i++){const y=Math.round(sy0+i*hs),y1=Math.round(sy0+(i+1)*hs);for(let Y=y;Y<y1;Y++)for(let X=sx0;X<sx1;X++){const riser=Y-y>=hs-6;let c=riser?hdS([124,120,114],.92+(hdr(X,Y)-.5)*.1):hdS([186,182,174],.96+(hdr(X,Y)-.5)*.08);
+      if(Y===y)c=hdS(c,1.18);if(!riser&&Math.abs(X-S.cx)<40)c=hdS(c,1.04);if(hdr(X*7,Y*3)>.994)c=[80,78,76];P(X,Y,c)}}
+  for(const[w0,w1]of[[sx0-16,sx0],[sx1,sx1+16]]){hdPlaster(b,w0,sy0-8,w1-w0,sy1-sy0+8,'#ece6d6',w0);hdR(b,w0,sy0-8,w1-w0,4,[170,166,160]);hdR(b,w1-3,sy0-8,3,sy1-sy0+8,[0,0,0],.15)}
+  for(const x of[sx0-8,S.cx,sx1+8]){hdR(b,x-1,sy0-18,3,sy1-sy0+10,[26,26,30]);hdR(b,x-1,sy0-18,1,sy1-sy0+10,[80,80,88]);for(let y=sy0-4;y<sy1;y+=34)hdR(b,x-1,y,3,16,[20,20,24])}
+  // ---- jardín: plantas de hojas rojas a los lados de la escalinata y al pie de la fachada ----
+  const C=[[150,30,40],[196,64,40],[120,28,48],[214,150,40],[90,130,60]];
+  for(let i=0;i<90;i++){const left=i%2===0,x=left?S.x0+hsh(i,3)*(sx0-40-S.x0):sx1+40+hsh(i,3)*(S.x1-sx1-60),y=py1+14+hsh(3,i)*120;if(Math.abs(y-(py1+70))<10&&hsh(i,8)<.6)continue;
+    for(let k=0;k<10;k++)hdEll(b,x+hsh(i,k)*18-9,y+hsh(k,i)*10-5,5,3.6,hdS(C[(i+k)%5],.85+hsh(k,i*2)*.3))}
+  for(let x=S.x0;x<S.x1;x+=14){if(x>sx0-20&&x<sx1+20)continue;for(let k=0;k<4;k++)hdEll(b,x+hsh(x,k)*12,py0-6+hsh(k,x)*6,4,3,hdS(C[(x/14+k)%4|0],.9))}
+  // ---- parqueo al este: líneas blancas y carros ----
+  const[qx0,qx1,qy0,qy1]=S.park;for(const yr of[132,332,532]){for(let x=1510;x<1880;x+=42)hdR(b,x,yr-34,2,68,[220,218,210]);hdR(b,1510,yr+34,370,2,[220,218,210])}
+  for(const[x,y,col]of S.cars)qsCar(b,x+21,y,1,col);
+  hdR(b,qx0-8,qy0,8,qy1-qy0,[150,48,44]);hdR(b,qx0-8,qy0,2,qy1-qy0,[196,84,74]);
+  // luces de la fachada de noche
+  EM.push({k:'lamp',x:S.cx-50,y:S.fy+2,w:4,h:4},{k:'lamp',x:S.cx+46,y:S.fy+2,w:4,h:4})}
+// el mapa completo: catedral arriba y el parque corrido oy casillas
+function hdQuesada(m){const OY=QS.oy*HT,W=m.w*HT,H=m.h*HT,b=hdBuf(W,H),EM=[];m.hdEmit=EM;
+  hdGround(b,m);hdTileEdges(b,m);
+  const mm={w:m.w,h:m.h-QS.oy,t:m.t.subarray(QS.oy*m.w),s:m.s.subarray(QS.oy*m.w),interior:false,id:'quesada_p',objs:[],lights:[]};
+  const pq=hdQuesadaParque(mm,m);b.d.set(pq.b.d,OY*W*4);for(const e of pq.EM){e.y+=OY;EM.push(e)}if(m._qk)m._qk.Y+=OY;
+  hdCatedral(b,EM);
+  const top=mk(W,H),tg=top.getContext('2d');tg.imageSmoothingEnabled=false;tg.drawImage(pq.top,0,OY);
+  return{base:hdToCanvas(b),top}}
