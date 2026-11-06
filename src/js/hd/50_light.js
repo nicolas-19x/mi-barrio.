@@ -20,6 +20,7 @@ function hdCasters(m){if(m.hdCast)return m.hdCast;const C={boxes:[],trees:[],pol
     for(const t of HD_TREES){const bx=t.tx*T+8,by=t.ty*T+15;if(t.palm)C.trees.push({x:bx,y:by,palm:1,hc:50,rx:15,ry:8});else C.trees.push({x:bx,y:by,hc:30*(t.sp.h/112),rx:t.sp.w/4.6,ry:t.sp.w/8})}
     for(const[x,y]of POLES)C.poles.push({x:x*T+8,y:y*T+14,h:52});
     for(const o of m.objs){if(o.type==='kiosco')C.boxes.push({x:o.x*T,y:o.y*T+8,w:o.w*T,h:o.h*T-10,hg:16});if(o.type==='busstop')C.boxes.push({x:o.x*T,y:o.y*T,w:o.w*T,h:T,hg:14})}}
+  if(m.id==='quesada'&&typeof qsCasters==='function')qsCasters(m,C);
   m.hdCast=C;return C}
 function hdEntDraw(e){if(e.kind==='carv')return null;if(e===P&&typeof progRideImg==='function'){const r=progRideImg();if(r)return r}if(e===P)return{img:heroSprite(e.dir,heroFrame(e),CH.player.shirt),x:-9,y:-27,w:18,h:29};
   if(e.kind==='animal'){if(typeof aniDraw==='function')return aniDraw(e);const s=animSpr(e.type,e.col,e.fr,e.dir===2);return{img:s,x:-(s.width>>1),y:-s.height+1,w:s.width,h:s.height}}
@@ -36,10 +37,11 @@ function hdShadows(m,list,cx,cy){const sun=m.interior?null:hdSun();if(!sun||sun.
     if(t.palm){for(let i=0;i<8;i++){const a=i/8*Math.PI*2;g.moveTo(ex,ey);g.lineTo(ex+Math.cos(a)*t.rx,ey+Math.sin(a)*t.ry)}g.lineWidth=3;g.stroke()}
     else{g.ellipse(ex,ey,t.rx*(1+Math.abs(vx)*.12),t.ry,0,0,Math.PI*2);g.fill()}}
   for(const o of C.domes){const gx=o.x*T+56;if(gx<x0-140||gx>x1+140||o.y*T>y1||o.y*T+100<y0)continue;if(typeof tplSombra==='function')tplSombra(g,o,vx,vy)}
+  for(const f of C.fx||[])f.draw(g,vx,vy);
   g.lineWidth=1.5;for(const p of C.poles){if(p.x<x0-120||p.x>x1+120||p.y<y0||p.y>y1)continue;g.beginPath();g.moveTo(p.x,p.y);const ex=p.x+vx*p.h,ey=p.y+vy*p.h;g.lineTo(ex,ey);g.stroke();g.beginPath();g.moveTo(ex-10,ey);g.lineTo(ex+10,ey);g.stroke()}
   for(const e of list){if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue;if(e===P&&(e.zl||0)>1)continue;const d=hdEntDraw(e);if(!d||!d.img)continue;const X=Math.round(e.x),Y=Math.round(e.y);
     g.save();g.transform(1,0,-vx,-vy,vx*Y,(1+vy)*Y);g.drawImage(hdSil(d.img),X+d.x,Y+d.y,d.w,d.h);g.restore()}
-  g.globalCompositeOperation='destination-out';for(const f of C.foot)g.fillRect(f[0],f[1],f[2],f[3]);for(const o of C.domes)if(typeof tplSilueta==='function')tplSilueta(g,o);g.globalCompositeOperation='source-over';
+  g.globalCompositeOperation='destination-out';for(const f of C.foot)g.fillRect(f[0],f[1],f[2],f[3]);for(const o of C.domes)if(typeof tplSilueta==='function')tplSilueta(g,o);for(const f of C.fx||[])if(f.cut)f.cut(g);g.globalCompositeOperation='source-over';
   ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=sun.a;ctx.imageSmoothingEnabled=false;
   // sombra azulada (tinte frío) en vez de negra
   ctx.globalCompositeOperation='multiply';ctx.drawImage(HDSH.c,0,0,VW,VH);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=sun.a*.35;ctx.drawImage(HDSH.c,0,0,VW,VH);

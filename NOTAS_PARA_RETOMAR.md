@@ -31,6 +31,8 @@ Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** d
 5. **Multijugador LAN**: `server/server.js` (puerto **8080**, salas de 4 letras, máximo **6** por sala). `NET_DELAY=130`. Ahora cada jugador manda su vehículo (`rv` en el mensaje `pos`) y los demás lo ven manejando.
 6. **Ariana**: modelo propio (`npcAri()` / `ariSprite()`), tez `#e3b597`, pelo negro lacio, blusa celeste.
 
+7. **Ciudad Quesada (paso 1)**: el parque en estilo B, a partir de fotos reales (`prog/55_quesada.js`, `hd/94_quesada.js`). Se entra con `Mi_Barrio.html#quesada`. Falta: la Catedral de Ciudad Quesada, el viaje desde San José y los vecinos.
+
 ## Pendientes
 - Probar el multijugador en celulares reales.
 - Ariana: la cara de perfil.

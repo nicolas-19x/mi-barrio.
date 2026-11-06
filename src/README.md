@@ -122,3 +122,12 @@ Dos reglas que salieron de medir:
 - Para que el techo tape a quien está debajo, el templete guarda la profundidad de cada píxel (`b.dep`, la Y de la escena × 4).
   Después de cada personaje que se cruza con el templete se le dibuja encima, recortado a su silueta, lo que queda más cerca
   de la cámara que él (`tplOverlay`, enganchado a `progProxies`). Funciona igual con vecinos que pasan por detrás.
+
+## Ciudad Quesada (`js/prog/55_quesada.js` y `js/hd/94_quesada.js`)
+
+Mapa `quesada` (40×36 casillas), hecho a partir de fotos reales del parque de Ciudad Quesada, San Carlos. Paso 1: solo el parque
+y sus calles. Al norte, cruzando la Calle Central, va la Catedral de Ciudad Quesada (por ahora solo su jardín y su reja).
+- Las medidas y posiciones están en `QS` (píxeles HD, 32 por casilla): plazas, fuente, senderos, juegos, árboles, faroles, carros.
+- El kiosco usa el mismo motor de rayos del templete de Chepe (`tplIsect`, `tplRamp`, `TPL_BAYER`) con su propia escena (`qkScene`).
+- Sombra del sol: `qsCasters` se engancha en `hdCasters` (árboles, faroles, carros y el kiosco por `C.fx`).
+- Acceso de prueba mientras no hay viaje: abrir `Mi_Barrio.html#quesada`. Sin `#quesada` no se engancha nada al arranque.
