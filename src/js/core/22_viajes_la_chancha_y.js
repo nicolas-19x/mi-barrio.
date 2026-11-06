@@ -44,7 +44,7 @@ function genChepe(){
  for(let y=13;y<=27;y++){setT(m,0,y,5,1);setT(m,W-1,y,5,1)}
  for(const[x,y]of CH_TREES)setT(m,x,y,ti(m,x,y),1);
  const O=(type,x,y,w=1,h=1,o,solid=true)=>{m.objs.push(Object.assign({type,x,y,w,h},o||{}));if(solid)for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)m.s[j*W+i]=1};
- O('busstop',2,13,4,1);O('templete',8,17,7,5);O('marimba',8,22,2,1);
+ O('busstop',2,13,4,1);O('templete',8,17,7,5);O('marimba',8,22,2,1);O('sjo',17,16,4,1);
  for(const[x,y]of[[7,23],[15,23],[3,18],[19,18],[3,24],[19,24],[61,21]])O('bench',x,y);
  for(const[x,y]of[[6,16],[16,16],[6,23],[16,23]]){O('farol',x,y);m.lights.push({x:x*T+8,y:y*T-14,r:66,pole:1})}
  O('kioscoP',59,16,2,2);O('taxis',61,13);
@@ -526,8 +526,8 @@ function zmm(s){if(ZMM[s])return ZMM[s];const m=MAPS.chepe;if(!m)return null;con
   for(let i=0;i<sh.w-.4;i+=.5)q((i*2)%2?'#f4f4f4':sh.c,sh.x+.2+i,33.75,.5,.6);q(shade(sh.c,-.3),sh.x+.2,34.35,sh.w-.4,.15);q('#1f2328',sh.x+sh.w-1.6,36,1,.8)}
  // objetos
  for(const o of m.objs){const X=o.x,Y=o.y;switch(o.type){
-  case'templete':q('rgba(0,0,0,.2)',X+.3,Y+o.h-.4,o.w,.5);q('#d9d2c2',X,Y,o.w,o.h);q('#c9c2b2',X,Y+o.h-.6,o.w,.6);for(let i=0;i<4;i++){const w=o.w-1.2-i*1.2;q(i%2?'#5d8f86':'#6a9d93',X+(o.w-w)/2,Y+.6+i*.55,w,o.h-1.8-i*1.1)}
-   q('#79aba1',X+o.w/2-1,Y+1,1,.3);disc(g,'#d8b45a',Math.round((X+o.w/2)*s),Math.round((Y+o.h/2-.2)*s),Math.max(1,s>>2));break;
+  case'templete':{const cx=Math.round((X+o.w/2)*s),cy=Math.round((Y+o.h/2)*s);q('rgba(0,0,0,.2)',X+.5,Y+o.h-.5,o.w-1,.5);disc(g,'#5d3e2d',cx,cy+Math.round(s*.6),Math.round(s*3));disc(g,'#9fa0a0',cx,cy,Math.round(s*2.8));disc(g,'#66a3c6',cx,cy-Math.round(s*.4),Math.round(s*2.2));disc(g,'#9fd0e2',cx-Math.round(s*.6),cy-Math.round(s*1),Math.max(1,Math.round(s*.8)));break}
+  case'sjo':q('#9fa0a0',X+.2,Y+.6,o.w-.4,.3);q('#e0407c',X+.6,Y,.8,.6);q('#f4b331',X+1.5,Y,.8,.6);q('#1fa39b',X+2.4,Y,.9,.6);break;
   case'busstop':q('rgba(0,0,0,.2)',X,Y+.75,o.w,.25);q('#2a6fb0',X,Y+.1,o.w,.5);q('#f4f4f4',X,Y+.1,o.w,.1);q('#dcdcdc',X+.2,Y+.6,.1,.3);q('#dcdcdc',X+o.w-.3,Y+.6,.1,.3);break;
   case'kioscoP':q('rgba(0,0,0,.2)',X+.2,Y+o.h-.2,o.w,.3);q('#2f7a52',X,Y,o.w,o.h);q('#246343',X,Y,o.w,.4);q('#f2c94c',X+.2,Y+.15,o.w-.4,.15);for(let i=0;i<4;i++)q(['#f4f4f4','#d64545','#7fc3e8','#f2c94c'][i],X+.2+i*.42,Y+1.2,.3,.5);break;
   case'bench':q('#8a6a45',X+.1,Y+.35,.8,.35);q('#6b4f30',X+.1,Y+.7,.8,.1);break;

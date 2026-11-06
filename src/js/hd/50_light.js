@@ -9,12 +9,13 @@ function hdSil(img){let s=HD_SIL.get(img);if(s)return s;s=mk(img.width,img.heigh
 function hdHull(pts){pts=pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];
   for(const p of pts){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}for(let i=pts.length-1;i>=0;i--){const p=pts[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}
   up.pop();lo.pop();return lo.concat(up)}
-function hdCasters(m){if(m.hdCast)return m.hdCast;const C={boxes:[],trees:[],poles:[],foot:[]};
+function hdCasters(m){if(m.hdCast)return m.hdCast;const C={boxes:[],trees:[],poles:[],foot:[],domes:[]};
   if(m.id==='hoyo'){for(const o of m.objs)if(o.type==='rancho'||o.type==='pulpaReja'||o.type==='cantina')C.boxes.push({x:o.x*T,y:o.y*T+T,w:o.w*T,h:o.h*T-T,hg:18})}
   if(m.id==='chepe'){for(const bd of CHB)C.boxes.push({x:bd.x*T,y:bd.y*T+T*1.5,w:bd.w*T,h:bd.h*T-T*1.5,hg:bd.id==='teatro'?46:40});
     C.boxes.push({x:MERC.x*T,y:MERC.y*T+T,w:MERC.w*T,h:MERC.h*T-T,hg:30});for(const s of CHS)C.boxes.push({x:s.x*T,y:34*T+4,w:s.w*T,h:6*T-4,hg:22});
     for(const t of HDCH_TREES){C.trees.push({x:t.tx*T+8,y:t.ty*T+15,hc:30*(t.sp.h/112),rx:t.sp.w/4.6,ry:t.sp.w/8})}
-    for(const o of m.objs){if(o.type==='farol')C.poles.push({x:o.x*T+8,y:o.y*T+14,h:30});else if(o.type==='farolS')C.poles.push({x:o.x*T+8,y:o.y*T+14,h:46})}}
+    for(const o of m.objs){if(o.type==='farol')C.poles.push({x:o.x*T+8,y:o.y*T+14,h:30});else if(o.type==='farolS')C.poles.push({x:o.x*T+8,y:o.y*T+14,h:46});
+      else if(o.type==='templete')C.domes.push(o);else if(o.type==='sjo')C.boxes.push({x:o.x*T+6,y:o.y*T+9,w:o.w*T-12,h:4,hg:30})}}
   if(m.id==='ext'){for(const b of BUILD){const two=b.id==='casa_ariana'||b.id==='casa_papas'||b.id==='casa_extra3'||b.id==='casa_sur2';C.boxes.push({x:b.x*T,y:b.y*T+T*1.5,w:b.w*T,h:b.h*T-T*1.5,hg:two?32:24});C.foot.push([b.x*T-2,b.y*T,b.w*T+4,b.h*T])}
     for(const t of HD_TREES){const bx=t.tx*T+8,by=t.ty*T+15;if(t.palm)C.trees.push({x:bx,y:by,palm:1,hc:50,rx:15,ry:8});else C.trees.push({x:bx,y:by,hc:30*(t.sp.h/112),rx:t.sp.w/4.6,ry:t.sp.w/8})}
     for(const[x,y]of POLES)C.poles.push({x:x*T+8,y:y*T+14,h:52});
@@ -34,6 +35,7 @@ function hdShadows(m,list,cx,cy){const sun=m.interior?null:hdSun();if(!sun||sun.
     g.lineWidth=t.palm?2:4;g.beginPath();g.moveTo(t.x,t.y);g.lineTo(ex,ey);g.stroke();g.beginPath();
     if(t.palm){for(let i=0;i<8;i++){const a=i/8*Math.PI*2;g.moveTo(ex,ey);g.lineTo(ex+Math.cos(a)*t.rx,ey+Math.sin(a)*t.ry)}g.lineWidth=3;g.stroke()}
     else{g.ellipse(ex,ey,t.rx*(1+Math.abs(vx)*.12),t.ry,0,0,Math.PI*2);g.fill()}}
+  for(const o of C.domes){const gx=o.x*T+56;if(gx<x0-140||gx>x1+140||o.y*T>y1||o.y*T+100<y0)continue;if(typeof tplSombra==='function')tplSombra(g,o,vx,vy)}
   g.lineWidth=1.5;for(const p of C.poles){if(p.x<x0-120||p.x>x1+120||p.y<y0||p.y>y1)continue;g.beginPath();g.moveTo(p.x,p.y);const ex=p.x+vx*p.h,ey=p.y+vy*p.h;g.lineTo(ex,ey);g.stroke();g.beginPath();g.moveTo(ex-10,ey);g.lineTo(ex+10,ey);g.stroke()}
   for(const e of list){if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue;const d=hdEntDraw(e);if(!d||!d.img)continue;const X=Math.round(e.x),Y=Math.round(e.y);
     g.save();g.transform(1,0,-vx,-vy,vx*Y,(1+vy)*Y);g.drawImage(hdSil(d.img),X+d.x,Y+d.y,d.w,d.h);g.restore()}
@@ -70,4 +72,4 @@ function hdLight(m,cx,cy){const h=S.t/60;let amb=hdAmbient(h);
     for(let i=0;i<150;i++){const x=hsh(i,f)*VW*1.1,y=hsh(f,i)*VH,L=Z*(3+hsh(i,i)*3);ctx.moveTo(x,y);ctx.lineTo(x-L*.35,y+L)}ctx.stroke();
     ctx.fillStyle='rgba(220,232,250,.45)';for(let i=0;i<70;i++){const x=hsh(i*3,f)*VW,y=hsh(f,i*3)*VH,s=Math.max(1,Z/2);ctx.fillRect(x-s,y,s,s);ctx.fillRect(x+s,y,s,s);ctx.fillRect(x,y-s,s,s)}
     ctx.restore()}}
-function hdWinOn(e){const h=S.t/60;if(e.k==='shop')return h>=6&&h<21.5;const seed=hsh((e.x|0)+S.day*7,(e.y|0));if(h>=23||h<5)return seed<.12;if(h>=21.5)return seed<.4;return seed<.75}
+function hdWinOn(e){const h=S.t/60;if(e.k==='lamp')return true;if(e.k==='shop')return h>=6&&h<21.5;const seed=hsh((e.x|0)+S.day*7,(e.y|0));if(h>=23||h<5)return seed<.12;if(h>=21.5)return seed<.4;return seed<.75}
