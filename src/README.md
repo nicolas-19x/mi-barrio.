@@ -125,7 +125,7 @@ Dos reglas que salieron de medir:
 
 ## Ciudad Quesada (`js/prog/55_quesada.js` y `js/hd/94_quesada.js`)
 
-Mapa `quesada` (40×36 casillas), hecho a partir de fotos reales del parque de Ciudad Quesada, San Carlos. Paso 1: solo el parque
+Mapa `quesada` (64×58 casillas, una casilla ≈ 1 m), hecho a partir de fotos reales del parque de Ciudad Quesada, San Carlos. Paso 1: solo el parque
 y sus calles. Al norte, cruzando la Calle Central, va la Catedral de Ciudad Quesada (por ahora solo su jardín y su reja).
 - Las medidas y posiciones están en `QS` (píxeles HD, 32 por casilla): plazas, fuente, senderos, juegos, árboles, faroles, carros.
 - El kiosco usa el mismo motor de rayos del templete de Chepe (`tplIsect`, `tplRamp`, `TPL_BAYER`) con su propia escena (`qkScene`).
