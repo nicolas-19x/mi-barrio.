@@ -31,7 +31,7 @@ Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** d
 5. **Multijugador LAN**: `server/server.js` (puerto **8080**, salas de 4 letras, máximo **6** por sala). `NET_DELAY=130`. Ahora cada jugador manda su vehículo (`rv` en el mensaje `pos`) y los demás lo ven manejando.
 6. **Ariana**: modelo propio (`npcAri()` / `ariSprite()`), tez `#e3b597`, pelo negro lacio, blusa celeste.
 
-7. **Ciudad Quesada**: el parque y la Catedral de Ciudad Quesada en estilo B, a partir de fotos reales (`prog/55_quesada.js`, `hd/94_quesada.js`). Se entra con el botón «Ciudad Quesada (prueba)» del menú. Falta: el interior de la catedral, el viaje desde San José y los vecinos. Generar el mapa tarda ~7 s en celular simulado (se puede guardar el dibujo si molesta).
+7. **Ciudad Quesada**: parque y catedral en estilo B, **sacado del juego por ahora** y guardado en `src/guardado/quesada/` (ver su LEEME).
 
 8. **Varias partidas**: 6 ranuras, botón «Guardar partida» en pausa y panel «Partidas» en el menú (`prog/05_partidas.js`).
 

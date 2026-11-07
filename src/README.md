@@ -123,15 +123,10 @@ Dos reglas que salieron de medir:
   Después de cada personaje que se cruza con el templete se le dibuja encima, recortado a su silueta, lo que queda más cerca
   de la cámara que él (`tplOverlay`, enganchado a `progProxies`). Funciona igual con vecinos que pasan por detrás.
 
-## Ciudad Quesada (`js/prog/55_quesada.js` y `js/hd/94_quesada.js`)
+## Ciudad Quesada (guardado aparte)
 
-Mapa `quesada` (64×78 casillas, una casilla ≈ 1 m), hecho a partir de fotos reales del centro de Ciudad Quesada, San Carlos: arriba la Catedral
-de Ciudad Quesada (`hdCatedral`, medidas en `QC`) con su escalinata, jardín, reja y parqueo; abajo el parque, corrido `QS.oy` casillas
-(sus medidas en `QS` siguen contadas desde donde empieza el parque y se dibuja en `hdQuesadaParque`).
-- Las medidas y posiciones están en `QS` (píxeles HD, 32 por casilla): plazas, fuente, senderos, juegos, árboles, faroles, carros.
-- El kiosco usa el mismo motor de rayos del templete de Chepe (`tplIsect`, `tplRamp`, `TPL_BAYER`) con su propia escena (`qkScene`).
-- Sombra del sol: `qsCasters` se engancha en `hdCasters` (árboles, faroles, carros y el kiosco por `C.fx`).
-- Acceso de prueba mientras no hay viaje: botón «🌳 Ciudad Quesada (prueba)» en el menú (también sirve `Mi_Barrio.html#quesada`).
+El mapa de Ciudad Quesada (parque y catedral) se sacó del juego por ahora. Está completo en `src/guardado/quesada/`
+(fuera del armado), con instrucciones para volver a ponerlo.
 
 ## Varias partidas (`js/prog/05_partidas.js`)
 
