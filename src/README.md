@@ -132,3 +132,11 @@ de Ciudad Quesada (`hdCatedral`, medidas en `QC`) con su escalinata, jardín, re
 - El kiosco usa el mismo motor de rayos del templete de Chepe (`tplIsect`, `tplRamp`, `TPL_BAYER`) con su propia escena (`qkScene`).
 - Sombra del sol: `qsCasters` se engancha en `hdCasters` (árboles, faroles, carros y el kiosco por `C.fx`).
 - Acceso de prueba mientras no hay viaje: botón «🌳 Ciudad Quesada (prueba)» en el menú (también sirve `Mi_Barrio.html#quesada`).
+
+## Varias partidas (`js/prog/05_partidas.js`)
+
+Seis ranuras en `localStorage` (`mibarrio_slot_1` … `mibarrio_slot_6`), cada una con `{nombre, s, c, meta, t}`: la partida (S), sus
+personajes (KC), un resumen para el panel y la fecha. La ranura activa está en `mibarrio_slot_act`.
+- La partida activa sigue viviendo en `KS` como siempre; después de cada `saveGame` se copia a su ranura (`hookAfter('saveGame')`).
+- Cargar o empezar otra vida recarga la página (marca en `sessionStorage`, `mibarrio_boot`) para que no quede nada de la anterior.
+- La partida de antes de las ranuras pasa sola a la ranura 1 la primera vez.

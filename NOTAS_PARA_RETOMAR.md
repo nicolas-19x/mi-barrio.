@@ -33,6 +33,8 @@ Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** d
 
 7. **Ciudad Quesada**: el parque y la Catedral de Ciudad Quesada en estilo B, a partir de fotos reales (`prog/55_quesada.js`, `hd/94_quesada.js`). Se entra con el botón «Ciudad Quesada (prueba)» del menú. Falta: el interior de la catedral, el viaje desde San José y los vecinos. Generar el mapa tarda ~7 s en celular simulado (se puede guardar el dibujo si molesta).
 
+8. **Varias partidas**: 6 ranuras, botón «Guardar partida» en pausa y panel «Partidas» en el menú (`prog/05_partidas.js`).
+
 ## Pendientes
 - Probar el multijugador en celulares reales.
 - Ariana: la cara de perfil.
