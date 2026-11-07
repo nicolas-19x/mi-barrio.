@@ -3203,7 +3203,7 @@ function drawMini(){const full=curZone()==='barrio'?MM.full:zmm(MM.s);if(!full)r
  const dk=darkness();if(dk>0){g.fillStyle='rgba(12,12,44,'+(dk*.5).toFixed(2)+')';g.fillRect(0,0,W,H)}
  const tg=mmTargets();
  for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;const X=p[0]-sx,Y=p[1]-sy;
-  if(X>=3&&X<=W-3&&Y>=3&&Y<=H-3)mmDot(g,X,Y,t.c,t.r);
+  if(X>=3&&X<=W-3&&Y>=3&&Y<=H-3){if(t.ic)mmVeh(g,X,Y,t,1);else mmDot(g,X,Y,t.c,t.r)}
   else if(t.edge){const ax=W/2,ay=H/2,dx=X-ax,dy=Y-ay,k=Math.min((W/2-8)/Math.abs(dx||1e-6),(H/2-8)/Math.abs(dy||1e-6));mmArrow(g,ax+dx*k,ay+dy*k,Math.atan2(dy,dx),t.c)}}
  const pp=mmTo(P.map,P.x,P.y,s);if(pp)mmPlayer(g,pp[0]-sx,pp[1]-sy);
  // rosa de los vientos
@@ -3218,7 +3218,7 @@ function drawBigMap(){const cvs=$('#bigmap');if(!cvs)return;if(curZone()!=='barr
  for(const b of BUILD){const nm=BM_NAMES[b.id]||(BM_OWN[b.id]?N(BM_OWN[b.id]).replace(/^(Don|Doña) /,''):null);if(!nm)continue;txt(nm,(b.x+b.w/2)*s,b.y*s-5,9,b.id==='casa_jugador'?'#f2c94c':b.id==='pulperia'?'#f7e04b':'#f4ead2')}
  txt('Parque',45.5*s,25.2*s,9,'#d8f0c8');txt('Cancha',51.5*s,32.4*s,8,'#d8f0c8');txt('Parada',21*s,24.8*s,8,'#bfe0ff');txt('Kiosco',39.5*s,31.6*s,8,'#ffd0c8');txt('Huerta',6*s,6.6*s,8,'#cfe6a8');
  txt('Calle Principal',9*s,21.6*s,8,'#e8c547');txt('Calle del Sur',9*s,37.6*s,8,'#e8c547');txt('Trillo',29.5*s,6*s,8,'#e0c8a0');txt('Parada Este',74*s,24.8*s,8,'#bfe0ff');txt('La entrada',34.5*s,45*s,8,'#f2994a');
- const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;mmDot(g,p[0],p[1],t.c,t.r+1.6)}
+ const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;if(t.ic)mmVeh(g,p[0],p[1],t,1.6);else mmDot(g,p[0],p[1],t.c,t.r+1.6)}
  for(const id of['ariana','nicolas','matias','papa','mama','rosa']){const n=NPC[id],p=n&&mmTo(n.map,n.x,n.y,s);if(p)txt(N(id).replace(/^(Don|Doña) /,''),p[0],p[1]-9,8,'#fff')}
  const pp=mmTo(P.map,P.x,P.y,s);if(pp){g.save();g.translate(pp[0],pp[1]);g.scale(1.5,1.5);g.translate(-pp[0],-pp[1]);mmPlayer(g,pp[0],pp[1]);g.restore();txt('Vos',pp[0],pp[1]-14,9,'#fff')}}
 addEventListener('keydown',e=>{if(e.key&&e.key.toLowerCase()==='m'&&!e.repeat&&mode==='play'&&S&&S.started)openMap()});
@@ -5684,7 +5684,7 @@ function drawBigZone(cvs){const s=MM.bs,g=cvs.getContext('2d');g.imageSmoothingE
  txt('Teatro Nacional',11,4,9,'#f2c94c');txt('Hotel',24,4,8);txt('Soda',33,4,8);txt('Banco',42.5,4,8);txt('Monge',56,4,8);txt('Avenida Segunda',36,10.5,8,'#e8c547');
  txt('Parque Central',13,15.4,9,'#d8f0c8');txt('Templete',11.5,19.5,8,'#ffd0c8');txt('Mercado Central',42,19,10,'#f2c94c');txt('Calle peatonal',24,23,7,'#f4ead2');txt('Parada',4,14.6,8,'#bfe0ff');txt('Taxis',60.5,11.4,8,'#f2c94c');
  txt('Avenida Central (bulevar)',32,30.8,9,'#ffd9c2');txt('Farmacia',5.5,36.5,8);txt('Cine',26,36.5,8);txt('Panadería',37,36.5,8);txt('Librería',47,36.5,8);
- const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(p)mmDot(g,p[0],p[1],t.c,t.r+1.6)}
+ const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;if(t.ic)mmVeh(g,p[0],p[1],t,1.6);else mmDot(g,p[0],p[1],t.c,t.r+1.6)}
  const pp=mmTo(P.map,P.x,P.y,s);if(pp){g.save();g.translate(pp[0],pp[1]);g.scale(1.5,1.5);g.translate(-pp[0],-pp[1]);mmPlayer(g,pp[0],pp[1]);g.restore();txt('Vos',pp[0]/s,pp[1]/s-2.3,9,'#fff')}}
 
 // ---------- rutas y mapa de Costa Rica ----------
@@ -7577,6 +7577,27 @@ function progJobProxies(list,map){const j=S.f.pg.job;if(!j)return;const tg=j.st=
 {const c=document.createElement('div');c.id='pgJob';c.className='chip hidden';c.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 8px);z-index:19;pointer-events:none;font-size:13px';document.body.appendChild(c)}
 // ---------------------------------------------------------------- en cada cuadro
 hookAfter('update',function(dt){if(!S||!S.started)return;try{progVehTick(dt);progJobTick(dt)}catch(e){console.error(e)}});
+
+// ---------- Tus vehículos en el mapa: icono y lugar donde los dejaste ----------
+// Se suman como «objetivos» del minimapa y de los mapas grandes (mmTargets); los dibujan mmVeh (abajo) desde 06_minimapa_detallado.js
+// y drawBigZone. El vehículo que estás manejando no sale (sos vos); los de otras zonas tampoco.
+hookFilter('mmTargets',function(out){
+  const p=S&&S.f&&S.f.pg;if(!p||!p.veh)return out;const z=curZone();
+  for(const v of p.veh){if(v.gone||v.id===p.ride||!VM[v.m])continue;
+    if(!((v.map==='ext'&&z==='barrio')||(v.map==='chepe'&&z==='chepe')))continue;
+    out.push({mp:v.map,x:v.x,y:v.y,c:v.col,r:3,edge:false,ic:VM[v.m].k,col:v.col})}
+  return out});
+// icono de píxeles según el tipo (bici, moto, carro, pickup), con el color del vehículo y borde oscuro; k es el tamaño
+function mmVeh(g,X,Y,t,k){const c=t.col||'#d6453c',D='#14101c',W='#f4ead2',G='#7fc3e8';X=Math.round(X);Y=Math.round(Y);
+  const R=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(Math.round(X+x*k),Math.round(Y+y*k),Math.max(1,Math.round(w*k)),Math.max(1,Math.round(h*k)))};
+  const wheel=(x,y)=>{R(x-2,y-2,4,4,D);R(x-1,y-1,2,2,'#8f8a80')};
+  const ik=t.ic;
+  if(ik==='bici'){R(-6,-1,12,3,'rgba(0,0,0,0)');wheel(-4,3);wheel(4,3);R(-5,2,10,1,D);R(-4,-2,8,1,D);R(-1,-4,2,1,D);R(-3,-2,1,5,D);R(2,-3,1,6,D);R(-4,-1,8,1,c);R(-3,-2,1,3,c);R(2,-2,1,4,c);R(2,-4,3,1,D)}
+  else if(ik==='moto'){wheel(-5,3);wheel(5,3);R(-6,-2,12,5,D);R(-5,-1,10,3,c);R(-2,-3,5,2,D);R(-1,-2,3,1,W);R(4,-3,3,1,D);R(5,-4,1,1,W)}
+  else if(ik==='pickup'){wheel(-6,3);wheel(6,3);R(-9,-3,19,7,D);R(-8,-2,10,5,c);R(2,-2,7,3,G);R(2,1,7,2,c);R(-8,-2,10,1,W);R(-8,1,10,1,'rgba(0,0,0,.25)')}
+  else{wheel(-6,3);wheel(6,3);R(-9,-3,19,7,D);R(-8,-2,17,5,c);R(-5,-4,9,3,D);R(-4,-3,3,2,G);R(0,-3,3,2,G);R(-8,-2,17,1,W);R(-8,2,17,1,'rgba(0,0,0,.25)')}
+  // un puntito que parpadea arriba, para que se note en el mapa
+  if(Math.floor(qBlink*2)%2){g.fillStyle=W;g.fillRect(Math.round(X-1),Math.round(Y-7*k),2,2)}}
 
 // ================= PROGRESO · LA CASA CRECE =================
 // Ampliaciones que se ven desde la calle (cochera, segundo piso, terraza, tallercito) y decoración por dentro

@@ -82,7 +82,7 @@ function drawMini(){const full=curZone()==='barrio'?MM.full:zmm(MM.s);if(!full)r
  const dk=darkness();if(dk>0){g.fillStyle='rgba(12,12,44,'+(dk*.5).toFixed(2)+')';g.fillRect(0,0,W,H)}
  const tg=mmTargets();
  for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;const X=p[0]-sx,Y=p[1]-sy;
-  if(X>=3&&X<=W-3&&Y>=3&&Y<=H-3)mmDot(g,X,Y,t.c,t.r);
+  if(X>=3&&X<=W-3&&Y>=3&&Y<=H-3){if(t.ic)mmVeh(g,X,Y,t,1);else mmDot(g,X,Y,t.c,t.r)}
   else if(t.edge){const ax=W/2,ay=H/2,dx=X-ax,dy=Y-ay,k=Math.min((W/2-8)/Math.abs(dx||1e-6),(H/2-8)/Math.abs(dy||1e-6));mmArrow(g,ax+dx*k,ay+dy*k,Math.atan2(dy,dx),t.c)}}
  const pp=mmTo(P.map,P.x,P.y,s);if(pp)mmPlayer(g,pp[0]-sx,pp[1]-sy);
  // rosa de los vientos
@@ -97,7 +97,7 @@ function drawBigMap(){const cvs=$('#bigmap');if(!cvs)return;if(curZone()!=='barr
  for(const b of BUILD){const nm=BM_NAMES[b.id]||(BM_OWN[b.id]?N(BM_OWN[b.id]).replace(/^(Don|Doña) /,''):null);if(!nm)continue;txt(nm,(b.x+b.w/2)*s,b.y*s-5,9,b.id==='casa_jugador'?'#f2c94c':b.id==='pulperia'?'#f7e04b':'#f4ead2')}
  txt('Parque',45.5*s,25.2*s,9,'#d8f0c8');txt('Cancha',51.5*s,32.4*s,8,'#d8f0c8');txt('Parada',21*s,24.8*s,8,'#bfe0ff');txt('Kiosco',39.5*s,31.6*s,8,'#ffd0c8');txt('Huerta',6*s,6.6*s,8,'#cfe6a8');
  txt('Calle Principal',9*s,21.6*s,8,'#e8c547');txt('Calle del Sur',9*s,37.6*s,8,'#e8c547');txt('Trillo',29.5*s,6*s,8,'#e0c8a0');txt('Parada Este',74*s,24.8*s,8,'#bfe0ff');txt('La entrada',34.5*s,45*s,8,'#f2994a');
- const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;mmDot(g,p[0],p[1],t.c,t.r+1.6)}
+ const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;if(t.ic)mmVeh(g,p[0],p[1],t,1.6);else mmDot(g,p[0],p[1],t.c,t.r+1.6)}
  for(const id of['ariana','nicolas','matias','papa','mama','rosa']){const n=NPC[id],p=n&&mmTo(n.map,n.x,n.y,s);if(p)txt(N(id).replace(/^(Don|Doña) /,''),p[0],p[1]-9,8,'#fff')}
  const pp=mmTo(P.map,P.x,P.y,s);if(pp){g.save();g.translate(pp[0],pp[1]);g.scale(1.5,1.5);g.translate(-pp[0],-pp[1]);mmPlayer(g,pp[0],pp[1]);g.restore();txt('Vos',pp[0],pp[1]-14,9,'#fff')}}
 addEventListener('keydown',e=>{if(e.key&&e.key.toLowerCase()==='m'&&!e.repeat&&mode==='play'&&S&&S.started)openMap()});

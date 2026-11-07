@@ -547,7 +547,7 @@ function drawBigZone(cvs){const s=MM.bs,g=cvs.getContext('2d');g.imageSmoothingE
  txt('Teatro Nacional',11,4,9,'#f2c94c');txt('Hotel',24,4,8);txt('Soda',33,4,8);txt('Banco',42.5,4,8);txt('Monge',56,4,8);txt('Avenida Segunda',36,10.5,8,'#e8c547');
  txt('Parque Central',13,15.4,9,'#d8f0c8');txt('Templete',11.5,19.5,8,'#ffd0c8');txt('Mercado Central',42,19,10,'#f2c94c');txt('Calle peatonal',24,23,7,'#f4ead2');txt('Parada',4,14.6,8,'#bfe0ff');txt('Taxis',60.5,11.4,8,'#f2c94c');
  txt('Avenida Central (bulevar)',32,30.8,9,'#ffd9c2');txt('Farmacia',5.5,36.5,8);txt('Cine',26,36.5,8);txt('Panadería',37,36.5,8);txt('Librería',47,36.5,8);
- const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(p)mmDot(g,p[0],p[1],t.c,t.r+1.6)}
+ const tg=mmTargets();for(const t of tg){const p=mmTo(t.mp,t.x,t.y,s);if(!p)continue;if(t.ic)mmVeh(g,p[0],p[1],t,1.6);else mmDot(g,p[0],p[1],t.c,t.r+1.6)}
  const pp=mmTo(P.map,P.x,P.y,s);if(pp){g.save();g.translate(pp[0],pp[1]);g.scale(1.5,1.5);g.translate(-pp[0],-pp[1]);mmPlayer(g,pp[0],pp[1]);g.restore();txt('Vos',pp[0]/s,pp[1]/s-2.3,9,'#fff')}}
 
 // ---------- rutas y mapa de Costa Rica ----------
