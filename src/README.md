@@ -135,3 +135,16 @@ personajes (KC), un resumen para el panel y la fecha. La ranura activa está en 
 - La partida activa sigue viviendo en `KS` como siempre; después de cada `saveGame` se copia a su ranura (`hookAfter('saveGame')`).
 - Cargar o empezar otra vida recarga la página (marca en `sessionStorage`, `mibarrio_boot`) para que no quede nada de la anterior.
 - La partida de antes de las ranuras pasa sola a la ranura 1 la primera vez.
+
+## Puntarenas (`js/prog/52_puntarenas.js` … `55_fiesta_playa.js`)
+
+- `52_puntarenas.js`: el mapa (`genPlaya`, 128×50, clases de casilla en `PZ.k`), el arte (`hdPlaya`, con funciones de píxel escalares y ruido por fila para que pinte rápido),
+  caminar y nadar (`feetBlocked`/`moveEnt` envueltos solo para el jugador en la playa; `P.deck` y `P.swim`), el tránsito del Paseo, el mar animado (`pzSea`),
+  las lanchas, los lugares escondidos y la capa de pantalla completa `pzOvOpen` (sirve para escenas con lienzo propio: tronco, lancha, banana).
+- `53_playa_gente.js`: la gente (`pzPeople`, se llama dentro de `genPlaya`), los vendedores (`PZ_VEND`), el humo, los perros y la mejenga (`PZP`).
+- `54_mar.js`: nadar (cansancio, rescate, sol), el paseo en lancha y la banana.
+- `55_fiesta_playa.js`: borrachera, retenes, goma, Ariana en los troncos y los logros.
+- Para agregar a alguien a la playa: un `zPed('playa', x, y, {...}, {...})` dentro de `pzPeople` (o `hookAfter('pzPeople', …)`). Con `swim:1, swimmer:1, hx0, hy0`
+  flota en el agua; con `smoke:'cig'|'puro'` fuma; con `carry:'copos'|'mango'|'cev'|'lot'|'gorras'` carga lo que vende.
+- Prueba de equivalencia: el paso «playa» cambia a propósito y gasta números al azar distintos, así que el estado de los pasos que siguen también cambia.
+  Para comprobar que el resto del juego no cambió, se corre sin ese paso: el estado (S) sale idéntico en todos los pasos.

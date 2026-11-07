@@ -1,54 +1,11 @@
 // ================= PROGRESO · DESBLOQUEOS: PUNTARENAS, FIESTA EN LA TERRAZA, ASOCIACIÓN DE VECINOS =================
 // ---------------------------------------------------------------- Puntarenas
 var PLAYA=null;   // estado del paseo actual (se arma al llegar)
-function genPlaya(){const W=48,H=26,m=newMap('playa',W,H,'Puntarenas');const S_=(x,y,t,s)=>setT(m,x,y,t,s?1:0);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++)S_(x,y,y<1?37:y<4?1:y<7?2:y<16?6:37,y<1||y>=16);
-  for(let y=0;y<H;y++){S_(0,y,37,1);S_(W-1,y,37,1)}
-  for(let y=6;y<25;y++)for(const x of[40,41,42])S_(x,y,y<16?6:2,0);   // el muelle
-  const O=(type,x,y,w,h,extra)=>{m.objs.push(Object.assign({type,x,y,w,h},extra||{}));for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)setT(m,i,j,ti(m,i,j),1)};
-  O('kioskoP',8,4,3,2,{txt:'CHURCHILLS',col:'#ef6f8a'});O('kioskoP',26,4,3,2,{txt:'PIPAS FRÍAS',col:'#4fb37a'});O('letrasP',14,9,9,1);
-  m.objs.push({type:'sombrilla',x:6,y:11,w:1,h:1,c:'#e8524a'},{type:'sombrilla',x:29,y:12,w:1,h:1,c:'#2a6fb0'},{type:'sombrilla',x:35,y:10,w:1,h:1,c:'#f2c94c'},{type:'lancha',x:22,y:20,w:4,h:2});
-  m.palms=[[4,8],[24,8],[33,9],[45,11],[2,13]];m.almendros=[[4,6],[16,6],[22,6],[34,6],[44,6]];for(const[x,y]of m.palms.concat(m.almendros))S_(x,y,ti(m,x,y),1);
-  m.lights.push({x:9*T,y:6*T,r:60},{x:27*T,y:6*T,r:60},{x:41.5*T,y:20*T,r:50},{x:18*T,y:4*T,r:70,pole:1},{x:38*T,y:4*T,r:70,pole:1});
-  m.walk=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(!solidT(m,x,y)&&ti(m,x,y)===6)m.walk.push([x,y]);
-  const Z=(id,name,x,y,look,o)=>zPed('playa',x,y,Object.assign({id,name},look),Object.assign({stat:1,reach:26,d0:0},o||{}));
-  Z('z_olga','Doña Olga',9,6,{hair:'moño',hairColor:'#2b1a10',skin:'#8d5524',shirt:'#ef6f8a',pants:'#2d3346',acc:'aretes',accColor:'#f2c94c'},{talk:olgaTalk});
-  Z('z_pipero','Pipero',27,6,{hair:'corto',hairColor:'#1c1c1c',skin:'#8d5524',shirt:'#f4f4f4',pants:'#3a3a42',acc:'sombrero',accColor:'#e9dcb5'},{talk:piperoTalk});
-  Z('z_chalo','Don Chalo',42,23,{hair:'calvo',hairColor:'#cfcfcf',skin:'#8d5524',shirt:'#2a6fb0',pants:'#e9dcb5',acc:'sombrero',accColor:'#c9a860'},{talk:chaloTalk,d0:2});
-  Z('z_turista','Turista gringo',13,12,{hair:'corto',hairColor:'#e8c070',skin:'#f6d0b8',shirt:'#f2c94c',pants:'#2a6fb0',acc:'lentes',accColor:'#2a2a30'},{talk:e=>say(e.c,pick(['Hello! Eh… ¿pura vida? I love this place!','¿Dónde está el… churchill? Everybody says churchill.','Me quemé mucho. Very red. Like a… camarón?']))});
-  Z('z_chiquita','Chiquita del puerto',36,12,{hair:'cola',hairColor:'#1c1c1c',skin:'#c68642',shirt:'#e85d75',pants:'#2a8f6a'},{talk:e=>say(e.c,pick(['¿Usted es de Chepe? Se nota, va todo blanquito.','Mi papá es pescador. Dice que el mar está bravo hoy.','¡Vamos a hacer un castillo de arena!']))});
-  renderMap(m);return m}
+// genPlaya y el arte del mapa están en 52_puntarenas.js
 {const _e=ensureMapP;ensureMapP=function(id){if(id==='playa'&&!MAPS.playa)genPlaya();return _e(id)}}
 {const _r=renderMapHD;renderMapHD=function(m){if(m&&m.id==='playa'){if(!HD_ON)return;const r=hdPlaya(m);m.base2=r.base;m.top2=r.top;return}return _r(m)}}
 RIDE_MAPS.add('playa');
-// pintor HD de Puntarenas
-function hdPlaya(m){const W=m.w*HT,H=m.h*HT,b=hdBuf(W,H);m.hdEmit=[];const SH=16*HT;
-  for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++){const ty=Y>>5;let c;
-    if(ty<1)c=hdS([70,110,60],.9+hdr(X,Y)*.2);
-    else if(ty<4)c=hdAsphPx(X,Y);
-    else if(ty<7)c=hdSidePx(X,Y);
-    else{const shore=SH+Math.sin(X/46)*7+Math.sin(X/17+1)*3;
-      if(Y<shore){const wet=Math.max(0,1-(shore-Y)/52),n=hdr(X,Y);c=[226-wet*38+n*10,206-wet*40+n*10,160-wet*34+n*8];if(n>.985)c=[250,246,236]}
-      else{const d=Math.min(1,(Y-shore)/(H-shore)),n=hdr(X,Y);c=[64-d*40+n*6,178-d*80+n*6,192-d*40+n*6];
-        const wv=Math.sin(X/22+Y/9)+Math.sin(X/53-Y/5);if(wv>1.6)c=hdS(c,1.18);if(Y-shore<5)c=[236,246,246];else if(Y-shore<9&&hdr(X,Y)>.4)c=[200,236,236]}}
-    hdP(b,X,Y,c)}
-  for(let x=0;x<W;x+=40)hdR(b,x+8,2*HT+14,20,3,[230,200,80]);hdR(b,0,4*HT-3,W,3,[160,154,146]);hdR(b,0,7*HT-4,W,4,[200,196,186]);
-  for(let k=0;k<4;k++){const y=SH+40+k*26;for(let x=0;x<W;x++){const yy=y+Math.sin(x/30+k*2)*4;if(Math.sin(x/9+k)>.2)hdP(b,x,yy,[220,244,244])}}
-  // muelle
-  const PX=40*HT,PW=3*HT;hdR(b,PX-6,6*HT,PW+12,19*HT,[0,0,0],.18);for(let y=6*HT;y<25*HT;y+=8){hdR(b,PX,y,PW,7,hdS([150,108,70],.9+hdr(PX,y)*.2));hdR(b,PX,y+7,PW,1,[96,66,40])}
-  for(let y=16*HT;y<25*HT;y+=48)for(const x of[PX-4,PX+PW]){hdR(b,x,y,4,10,[80,56,36]);hdEll(b,x+2,y+12,4,2,[220,240,240],.6)}hdR(b,PX,24*HT+20,PW,4,[110,80,50]);
-  for(const o of m.objs){const X=o.x*HT,Y=o.y*HT,w=o.w*HT,h=o.h*HT;
-    if(o.type==='kioskoP'){hdEll(b,X+w/2,Y+h+4,w/2+4,6,[0,0,0],.25);hdR(b,X+4,Y+20,w-8,h-22,[244,240,230]);for(let i=0;i<w;i+=12)hdR(b,X+i,Y+4,6,18,hdC(o.col));hdR(b,X,Y+2,w,4,hdS(hdC(o.col),.7));
-      hdR(b,X+8,Y+30,w-16,14,[60,44,36]);for(let i=0;i<4;i++)hdEll(b,X+16+i*16,Y+34,5,5,[[240,120,150],[250,240,200],[120,200,120],[240,200,80]][i]);hdSurSign(b,X+6,Y+h-18,w-12,12,'#1e1a24',o.txt,'#f2c94c');m.hdEmit.push({k:'shop',x:X+8,y:Y+28,w:w-16,h:16})}
-    else if(o.type==='letrasP'){const L='PUNTARENAS',cs=[[214,69,60],[242,201,76],[42,111,176],[79,179,122],[239,111,138]];for(let i=0;i<L.length;i++){const lx=X+i*28+4;hdEll(b,lx+12,Y+30,13,4,[0,0,0],.22);hdR(b,lx,Y,24,28,hdS(cs[i%5],.8));hdR(b,lx+2,Y+2,20,24,cs[i%5]);hdTextS(b,lx+6,Y+7,L[i],[255,255,255],2)}}
-    else if(o.type==='sombrilla'){const cx=X+16,cy=Y+10;hdEll(b,cx+10,cy+26,22,8,[0,0,0],.18);hdR(b,cx-14,cy+18,26,12,[240,240,236]);hdR(b,cx-14,cy+20,26,2,hdC(o.c));hdR(b,cx,cy,2,26,[120,120,126]);
-      for(let a=0;a<12;a++){const r0=0,r1=22;for(let r=r0;r<r1;r++){const an=a/12*Math.PI*2,an2=an+Math.PI/6;for(let s=0;s<6;s++){const t=an+(an2-an)*s/6;hdP(b,cx+Math.cos(t)*r,cy+Math.sin(t)*r*.6,a%2?[250,248,240]:hdC(o.c))}}}}
-    else if(o.type==='lancha'){hdEll(b,X+w/2,Y+h/2+6,w/2+8,10,[20,60,80],.35);for(let j=0;j<h-14;j++){const k=1-Math.abs(j-(h-14)/2)/((h-14)/2);hdR(b,X+8+(1-k)*20,Y+8+j,w-16-(1-k)*30,1,j<4?[240,240,240]:[230,236,240])}hdR(b,X+20,Y+12,w-60,16,[214,69,60]);hdR(b,X+24,Y+14,16,8,[160,210,230]);hdText(b,X+30,Y+30,'LA PERLA',[42,82,160])}}
-  const base=hdToCanvas(b),top=mk(W,H),tg=top.getContext('2d');tg.imageSmoothingEnabled=false;
-  for(const[x,y]of m.palms){const sp=hdPalmSprite(x*13+y);tg.drawImage(hdToCanvas(sp.c),x*HT+16-sp.ax,y*HT+30-sp.ay)}
-  for(const[x,y]of m.almendros){const sp=hdTreeSprite(x*7+y*3,0,.62,false);tg.drawImage(hdToCanvas(sp.c),x*HT+16-sp.ax,y*HT+30-sp.ay)}
-  for(const x of[18,38]){const pb=hdBuf(24,90);hdR(pb,10,10,4,80,[150,150,156]);hdR(pb,4,6,16,6,[90,90,96]);hdEll(pb,12,12,5,3,[255,236,170]);tg.drawImage(hdToCanvas(pb),x*HT,3*HT-50)}
-  return{base,top}}
+// el pintor HD (hdPlaya) está en 52_puntarenas.js
 // los de la playa
 function olgaTalk(e){say(e.c,'¡Churchills, churchills! El original de Puntarenas, mi amor: hielo, sirope de kola, leche en polvo, leche condensada, helado y fruta. Con todo, como Dios manda.',[
   {t:'Un churchill con todo (₡2 500)',f(){if(S.money<2500)return say(e.c,'No le alcanza, mi amor.');spend(2500,'Antojos');enAdd(18);say(null,'Te sirven un vaso gigante con una montaña de hielo, helado de vainilla, fruta, galleta y leche por todo lado. Te comés hasta la cuchara. +18⚡');PLAYA&&(PLAYA.ch=1);if(PLAYA&&PLAYA.ari){say('ariana','¡Esto es lo mejor del mundo! Mirá, tengo leche condensada hasta en la nariz.');relAdd('ar',1)}}},
@@ -61,16 +18,12 @@ function chaloTalk(e){const h=S.t/60;say(e.c,'Cuarenta años pescando en este mu
     afterD(()=>fadeDo(()=>{passTime(60);enAdd(-6)},()=>{const r=Math.random(),c=r<.16?['un pargo rojo enorme',6000]:r<.42?['una corvina',3000]:r<.72?['tres sardinas',600]:r<.86?['una chancleta vieja',0]:['nada… pero nada',0];
       say(null,'Después de una hora de paciencia sacás '+c[0]+'.');if(c[1]){say(e.c,'¡Mire eso! Se lo compro en '+fmtC(c[1])+' para la marisquería de mi cuñado.',[{t:'Vendérselo',f(){earn(c[1],'Paseo');toast('🐟 +'+fmtC(c[1]))}},{t:'Mejor me lo llevo para la casa',f(){enAdd(10);say(null,'Mamá lo va a freír con ajo y limón. +10⚡ (en la cena).');if(typeof relAdd==='function')relAdd('lu',.5)}}])}else say(e.c,pick(['Así es la pesca. Hoy el mar se comió la carnada.','Ja, ja. Esa chancleta la boté yo en el 98.']));if(typeof progStat==='function')progStat('pesca');runDialog()}))}},
   ...(h>=16.5&&h<18.6?[{t:'Ver el atardecer desde el muelle',f(){afterD(()=>sunsetScene())}}]:[]),{t:'Solo pasaba a saludar'}])}
-function sunsetScene(){fadeDo(()=>{P.x=41.5*T;P.y=22*T;P.dir=0;if(S.t<17.4*60)S.t=17.4*60},()=>{say(null,'El sol se va hundiendo detrás del golfo de Nicoya. El cielo se pone naranja, después rosado, después morado. Las lanchas de los pescadores vuelven al puerto.');
+function sunsetScene(){fadeDo(()=>{P.x=90.5*T;P.y=45.6*T;P.dir=0;P.deck=true;if(S.t<17.4*60)S.t=17.4*60},()=>{say(null,'El sol se va hundiendo detrás del golfo de Nicoya. El cielo se pone naranja, después rosado, después morado. Las lanchas de los pescadores vuelven al puerto.');
   if(PLAYA&&PLAYA.ari){say('ariana','…Gracias por traerme. En serio. Hace años no veía el mar.');say('ariana','Prometeme que vamos a volver. Aunque sea en bus, aunque sea en cinco años.',[{t:'Te lo prometo',f(){relAdd('ar',3);say('ariana','Te voy a cobrar esa promesa, ¿eh?')}},{t:'Tomarle la mano sin decir nada',f(){relAdd('ar',4);say(null,'Ella no la suelta. Se quedan así hasta que sale la primera estrella.')}}])}
   else say(null,'Pensás en el barrio, en tu casa, en todo lo que has construido. No está nada mal para un mae que empezó sin un cinco.');
   PGS().stats.atardecer=(PGS().stats.atardecer||0)+1;if(typeof progRep==='function')progRep(2);runDialog()})}
-// el mar
-ACT_POINTS.push({map:'playa',x:20,y:15,label:'Meterse al mar',cond:()=>true,run(){const h=S.t/60;if(h>=19||h<5)return say(null,'De noche el mar da miedo. Mejor mañana.');
-  say(null,'El agua está tibiecita y las olas revientan suave en la orilla.',[{t:'Meterse un rato (1 h)',f(){afterD(()=>fadeDo(()=>{passTime(60);enAdd(14)},()=>{const sol=h>=10&&h<15&&!(PLAYA&&PLAYA.bloq);say(null,'Te tirás de cabeza a la primera ola y salís con arena hasta en las orejas. Te sentís nuevo. +14⚡');
-    if(sol&&Math.random()<.6){say(null,'…pero te quemaste horrible. Quedaste rojo como camarón de ceviche. Mañana vas a andar caminando como robot.');S.f.cojo=Math.max(S.f.cojo||0,4)}
-    if(PLAYA&&PLAYA.ari){say('ariana',pick(['¡Te reto a llegar a esa boya!','¡No me salpiqués! …Bueno, ahora sí, guerra.','¡Una medusa! …No, era una bolsa. Qué susto.']));relAdd('ar',1)}runDialog()}))}},{t:'Mejor no'}])}});
-ACT_POINTS.push({map:'playa',x:3,y:3,label:'Volver al barrio',cond:()=>!!riding()||!!(PLAYA&&PLAYA.v),run(){say(null,'¿Ya nos vamos? Son como dos horas y pico de vuelta por la Ruta 27.',[{t:'Sí, de vuelta al barrio',f(){afterD(()=>playaTrip('ext'))}},{t:'Un rato más'}])}});
+// el mar ahora se nada de verdad (52_puntarenas.js)
+ACT_POINTS.push({map:'playa',x:4,y:5,label:'Volver al barrio',cond:()=>!!riding()||!!(PLAYA&&PLAYA.v),run(){say(null,'¿Ya nos vamos? Son como dos horas y pico de vuelta por la Ruta 27.',[{t:'Sí, de vuelta al barrio',f(){afterD(()=>playaTrip('ext'))}},{t:'Un rato más'}])}});
 // el viaje
 function playaTrip(to){let v=riding();if(!v&&PLAYA&&PLAYA.v){v=PLAYA.v;if(!v.gone)progMount(v)}v=riding();if(!v)return say(null,'Necesitás tu vehículo.');const c=VM[v.m];
   if(!c.motor)return say(null,'¿A Puntarenas en bici? Son más de cien kilómetros, mae. Ni Andrey Amador.');
@@ -78,13 +31,13 @@ function playaTrip(to){let v=riding();if(!v&&PLAYA&&PLAYA.v){v=PLAYA.v;if(!v.gon
   else if(v.gas<.3){say(null,'El tanque está casi vacío. En la bomba del Puerto te llenan.',[{t:'Echar gasolina (₡'+Math.round((1-v.gas)*VM[v.m].tank*GAS_L).toLocaleString('es-CR')+')',f(){const cost=Math.round((1-v.gas)*VM[v.m].tank*GAS_L);if(S.money<cost)return say(null,'No te alcanza. Llamá a alguien… o rezá.');spend(cost,'Gasolina');v.gas=1;afterD(()=>playaTrip('ext'))}},{t:'Arriesgarse'}]);if(v.gas<.12)return;return runDialog()}
   const ari=to==='playa'&&PLAYA_INV;PLAYA_INV=0;
   fadeDo(()=>{passTime(Math.round(rnd(125,160)));v.gas=Math.max(0,v.gas-(c.k==='moto'?.34:.3));v.cond=Math.max(0,v.cond-5);v.km+=110000;spend(Math.min(S.money,1500),'Peajes');CARS=[];CBUS=null;
-    if(to==='playa'){ensureMap('playa');P.map='playa';P.x=3*T+8;P.y=2*T+12;P.dir=3;PLAYA={v,ari,day:S.day};if(ari)playaAri()}
+    if(to==='playa'){ensureMap('playa');P.map='playa';P.x=PZ_ARRIVE[0]*T+8;P.y=PZ_ARRIVE[1]*T+12;P.dir=3;P.deck=true;P.swim=false;pzCarsInit();PLAYA={v,ari,day:S.day};if(ari)playaAri()}
     else{P.map='ext';P.x=2*T+8;P.y=21*T+8;P.dir=3;playaEnd()}v.map=P.map;v.x=P.x;v.y=P.y},
    ()=>{if(to==='playa'){say(null,pick(['Ruta 27: tres peajes, un mirador y una presa en el puente de La Garita. Pero aquí estás.','Paraste en Orotina a comprar una bolsa de mangas con sal y limón. Llegás con la boca arrugada.','Bajando de Atenas se te tapan los oídos. Abrís la ventana y ya huele a mar.']));
       say(null,'🌴 Puntarenas. El Paseo de los Turistas, los almendros, el olor a sal y a churchill. Al fondo, el muelle y el golfo de Nicoya.');if(ari)say('ariana','¡EL MAR! ¡Mirá el mar! Ay, perdón, es que… hace años que no venía.');PGS().stats.playa=(PGS().stats.playa||0)+1;if(typeof progRep==='function')progRep(2)}
      else say(null,pick(['De vuelta en el barrio, con arena en los tenis y el corazón contento.','Llegás a la casa quemado del sol y feliz. Mamá pregunta si le trajiste churchill. No le trajiste.']));runDialog();saveGame()})}
 let PLAYA_INV=0;
-function playaAri(){const c=CH.ariana;if(!c)return;const e=zPed('playa',5,4,Object.assign({},c),{stat:1,tmp:'playa',talk:()=>say('ariana',pick(['¿Vamos al muelle a ver el atardecer? Dicen que es lo más lindo de aquí.','¿Me comprás un churchill? …Bueno, yo te compro uno a vos.','Esto parece un sueño. Gracias por invitarme.']))});e.follow=1}
+function playaAri(){const c=CH.ariana;if(!c)return;const e=zPed('playa',6,5,Object.assign({},c),{stat:1,tmp:'playa',talk:()=>say('ariana',pick(['¿Vamos al muelle a ver el atardecer? Dicen que es lo más lindo de aquí.','¿Me comprás un churchill? …Bueno, yo te compro uno a vos.','Esto parece un sueño. Gracias por invitarme.']))});e.follow=1}
 function playaEnd(){for(let i=ENTS.length-1;i>=0;i--)if(ENTS[i].tmp==='playa')ENTS.splice(i,1);if(PLAYA&&PLAYA.ari){relAdd('ar',2);if(typeof phQueue==='function')phQueue('ariana','Ya llegué a la casa. Todavía tengo arena en el pelo 😂 Gracias por hoy. Fue el mejor día en mucho tiempo 💛')}PLAYA=null}
 // Ariana sigue al jugador en la playa
 hookAfter('update',function(dt){if(P.map!=='playa'||!PLAYA||!PLAYA.ari)return;const a=ENTS.find(e=>e.tmp==='playa');if(!a)return;const dx=P.x-a.x,dy=P.y-a.y,d=Math.hypot(dx,dy);
