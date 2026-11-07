@@ -8348,6 +8348,9 @@ function pzSit(k){const q=PZ_SECRETS[k];if(PLAYA&&PLAYA.ari){const a=ENTS.find(e
   say(null,q.d);say(null,pick(solo));if(typeof pzSitTalk==='function')pzSitTalk(k);runDialog()}
 function pzSitEnd(){if(mode==='dialog')return;pzOvClose();saveGame()}
 function pzHoraTxt(){const hh=hour(),mm=Math.floor(S.t%60);return(hh%12||12)+':'+String(mm).padStart(2,'0')+(hh<12?' a. m.':' p. m.')}
+// ---------------------------------------------------------------- salir manejando por cualquiera de los dos extremos de la calle
+{const vb=ACT_POINTS.find(a=>a.map==='playa'&&a.label==='Volver al barrio');
+  if(vb)for(const x of[1,PZW-2])for(let y=6;y<=10;y++)ACT_POINTS.push({map:'playa',x,y,label:'Volver al barrio',cond:()=>!!riding(),run(){vb.run()}})}
 
 // ================= PUNTARENAS · LA GENTE: VECINOS PLAYEROS, VENDEDORES AMBULANTES, HUMO, PERROS Y LA MEJENGA =================
 // Todos se crean dentro de genPlaya (pzPeople). Los que caminan usan el «wander» de los peatones de Chepe por el área que les toca;
