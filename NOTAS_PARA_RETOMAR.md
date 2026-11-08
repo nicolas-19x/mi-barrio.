@@ -46,7 +46,8 @@ Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** d
    - 7 logros nuevos (`pzSecretos`, `pzGol`, `pzBanana`, `pzDelfin`, `pzBoyas`, `pzGoma`, `pzAri`). El estado de la playa vive en `S.f.pg.pz` (`PZS()`).
    - Pintar el mapa tarda ~0,6 s en una compu (unos 2-3 s en un celular lento) y se hace durante el fundido del viaje.
 
-## Pendientes
+10. **Tu casa por dentro, nueva** (`prog/21_casa_interior.js`, parte (a) del plan de la casa): 22×16 casillas con cuarto, baño, sala, cocina con desayunador y comedor; paredes de adentro «en corte»; pisos por cuarto (madera, mosaico, ajedrez, azulejito); ventanas con rejas cuyo cielo cambia con la hora, rayos de sol con polvito, tele encendida, vapor de la olla y abanico (si lo compraste). `genInt` envuelto para `casa_jugador` (`genCasaJ`), `hdInterior` envuelto (`hdCasaJ`). Las acciones viejas siguen; nuevas: ducha, inodoro, lavatorio, ropero, baúl, café, etc. Lo visual no gasta `Math.random` (para no cambiar el azar del juego). Siguen las partes (b) modo Decorar con lugares fijos, (c) estilos/colores/catálogo, (d) comentarios de visitas y recuerdos.
+
 - Probar el multijugador en celulares reales.
 - Ariana: la cara de perfil.
 - NPC con peor arte (Don Chito, Don Fito, los de lentes, sombreros y gorras): **el usuario todavía no eligió cuál retocar**. Preguntar antes.
