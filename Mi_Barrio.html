@@ -4638,7 +4638,7 @@ function toast(t){if(TQ[TQ.length-1]===t)return;TQ.push(t);if(!tBusy)nextToast()
 function nextToast(){const t=TQ.shift();if(t==null){tBusy=false;return}tBusy=true;const box=$('#toast'),d=document.createElement('div');d.textContent=t;box.appendChild(d);
  const dur=TQ.length>2?1300:TQ.length?2000:2800;setTimeout(()=>{d.classList.add('out');setTimeout(()=>{d.remove();nextToast()},200)},dur)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;ac();const a=b.dataset.a;if(a==='closeVista')return closeVista();if(a==='vistaWait')return vistaWait();
-  if(a==='continue')startGame(false);else if(a==='new'){const go=()=>proStart(0,()=>{proWake=1;startGame(true)});if(loadGame())askYes('Nueva partida','¿Empezar de nuevo? Se borrará el progreso actual (los personajes se mantienen).',go,'Sí, empezar de nuevo');else go()}
+  if(a==='continue'){if(S&&S.started)resumeGame();else startGame(false)}else if(a==='new'){const go=()=>proStart(0,()=>{proWake=1;startGame(true)});if(loadGame())askYes('Nueva partida','¿Empezar de nuevo? Se borrará el progreso actual (los personajes se mantienen).',go,'Sí, empezar de nuevo');else go()}
   else if(a==='editor')openEditor();else if(a==='closeEditor')closeEditor();else if(a==='options')openOptions();else if(a==='phone')openPhone();else if(a==='map')openMap();else if(a==='quests')openQuests();else if(a==='inv')openInv();else if(a==='activities')openActivities();else if(a==='pause')pauseGame();else if(a==='closePanel')closePanel();else if(a==='addChar')addChar()});
 let panelFrom='play';
 function openPanel(title,html,from){panelFrom=from||mode;$('#ptitle').textContent=title;$('#pbody').innerHTML=html;$('#panel').classList.remove('hidden');if(mode==='play')mode='panel';showTouch();$('#prompt').classList.add('hidden')}
@@ -4660,11 +4660,13 @@ function openOptions(){openPanel('Opciones',`<div class="row" style="margin-bott
  $('#oPro').onclick=()=>proReplay();
  $('#oDel').onclick=()=>askYes('Borrar partida','¿Borrar todo el progreso de la partida?',()=>{try{localStorage.removeItem(KS)}catch(e){}toast('Partida borrada');refreshMenu()},'Sí, borrar');
  $('#oChr').onclick=()=>askYes('Restaurar personajes','¿Volver los personajes a como venían?',()=>{try{localStorage.removeItem(KC)}catch(e){}loadChars();SPR.clear();ENTS=ENTS.filter(e=>e.kind!=='npc');NPC={};placeNPCs(true);toast('Personajes restaurados')},'Sí, restaurar')}
-function refreshMenu(){$('#bCont').classList.toggle('hidden',!localStorage.getItem(KS))}
+function refreshMenu(){$('#bCont').classList.toggle('hidden',!localStorage.getItem(KS)&&!(S&&S.started))}
 function startGame(fresh){SPORT=null;activityMarker=null;const s=fresh?null:loadGame();S=s||newState();S.started=true;ecoStart();S.per='';ensureMap(S.map);if(!MAPS[S.map]){S.map='casa_jugador';S.x=7*T+8;S.y=6*T+12}P.map=S.map;P.x=S.x;P.y=S.y;P.dir=S.dir;
   ENTS.forEach(e=>{if(e.kind==='npc')e.loc=null});phDL='';PHV.open=0;PHV.th=null;checkPeriod();placeNPCs(true);snapCam();
   $('#menu').classList.add('hidden');$('#hud').classList.remove('hidden');mode='play';showTouch();phBadge();
   if(!s){if(proWake){proWake=0;proWakeScene()}else{say(null,'Sábado en el barrio. El sol pega en el zinc, huele a café chorreado y alguien tiene la radio a todo volumen.');say(null,'Es un buen día para salir a saludar a la barra.');afterD(()=>startQ('barra'))}runDialog()}saveGame()}
+// Continuar desde el menú de pausa: se sigue donde ibas (no se recarga la partida guardada)
+function resumeGame(){$('#menu').classList.add('hidden');$('#hud').classList.remove('hidden');mode='play';showTouch()}
 function pauseGame(){saveGame();mode='menu';$('#hud').classList.add('hidden');$('#prompt').classList.add('hidden');showTouch();refreshMenu();$('#menu').classList.remove('hidden')}
 // ---------- editor ----------
 let eSel='player';
