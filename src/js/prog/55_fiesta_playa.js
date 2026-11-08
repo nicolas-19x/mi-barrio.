@@ -15,7 +15,7 @@ function pzDrink(kind,who){pzDrunkLvl();const b=S.f.borr||(S.f.borr={lvl:0,t:tot
   if(PLAYA&&PLAYA.ari){if(l>=6){relAdd('ar',-.5);say('ariana',pick(['Ya, ya, suave… que después no te puedo cargar hasta el carro.','Mirá, te quiero, pero bolo sos insoportable 😂. Tomá agua.']))}else if(l>=3)say('ariana',pick(['¡Salud! …Pero de manejar ni hablar, ¿eh?','Esa es la última, ¿verdad? …¿Verdad?']));else say('ariana','¡Salud! 🍻')}
   saveGame()}
 function pzSober(n){const b=S.f.borr;if(!b)return;b.lvl=Math.max(0,b.lvl-n)}
-function pzDesmayo(){fadeDo(()=>{passTime(180);const lost=Math.round(S.money*rnd(.1,.3)/100)*100;if(lost>0)spend(lost,'Antojos');PZM.lost=lost;if(P.map==='playa'){P.x=86*T+8;P.y=24*T+12;P.deck=false;P.swim=false}S.f.borr.lvl=5;E().en=Math.max(5,E().en-20);progStat('pzDesmayo')},
+function pzDesmayo(){fadeDo(()=>{passTime(180);const lost=Math.min(50000,Math.round(S.money*rnd(.1,.3)/100)*100);if(lost>0)spend(lost,'Antojos');PZM.lost=lost;if(P.map==='playa'){P.x=86*T+8;P.y=24*T+12;P.deck=false;P.swim=false}S.f.borr.lvl=5;E().en=Math.max(5,E().en-20);progStat('pzDesmayo')},
   ()=>{say(null,'Abrís un ojo. Tenés arena en la boca, una chancleta que no es tuya y el sol de frente. Pasaron como tres horas.');if(PZM.lost)say(null,'La billetera está más liviana: te faltan '+fmtC(PZM.lost)+'. Nadie vio nada, claro.');
     say(fillChar({id:'z_pz_parlante',name:'Brayan',skin:'#8d5524',hair:'corto',hairColor:'#1c1c1c',shirt:'#d23038',pants:'#2a2a30',acc:'gorra',accColor:'#26262e',v:1}),'¡Upe, revivió! Mae, usted se durmió abrazado a mi hielera. Fue lo más lindo que he visto.');
     if(PLAYA&&PLAYA.ari){relAdd('ar',-2);say('ariana','…No me hablés. Bueno, sí, tomá agua. Me asustaste mucho, ¿sabés?')}runDialog();saveGame()})}

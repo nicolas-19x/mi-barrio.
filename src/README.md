@@ -132,7 +132,7 @@ El mapa de Ciudad Quesada (parque y catedral) se sacó del juego por ahora. Est�
 
 Seis ranuras en `localStorage` (`mibarrio_slot_1` … `mibarrio_slot_6`), cada una con `{nombre, s, c, meta, t}`: la partida (S), sus
 personajes (KC), un resumen para el panel y la fecha. La ranura activa está en `mibarrio_slot_act`.
-- La partida activa sigue viviendo en `KS` como siempre; después de cada `saveGame` se copia a su ranura (`hookAfter('saveGame')`).
+- Guardado MANUAL: `saveGame()` no escribe salvo que `SAVE_OK` (lo prende `partGuardar`) o `SAVE_AUTO` estén activos; si no, solo marca `SAVE_DIRTY`. `partGuardar` escribe `KS` y la ranura.
 - Cargar o empezar otra vida recarga la página (marca en `sessionStorage`, `mibarrio_boot`) para que no quede nada de la anterior.
 - La partida de antes de las ranuras pasa sola a la ranura 1 la primera vez.
 

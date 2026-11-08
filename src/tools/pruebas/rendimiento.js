@@ -18,7 +18,7 @@ const ESC=[
 (async()=>{const b=await chromium.launch({args:['--disable-gpu-vsync','--disable-frame-rate-limit']});
  const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  await ctx.route(/^https?:/,r=>r.abort());
- await ctx.addInitScript(()=>{try{window.AudioContext=undefined;window.webkitAudioContext=undefined}catch(e){}
+ await ctx.addInitScript(()=>{window.__SAVE_AUTO=true;try{window.AudioContext=undefined;window.webkitAudioContext=undefined}catch(e){}
   window.__clr=()=>{for(let i=0;i<80&&(mode==='dialog'||!$('#dialog').classList.contains('hidden'));i++){DQ.length=0;AFTER.length=0;closeDialog()}if(!$('#panel').classList.contains('hidden'))closePanel();mode='play'};
   // Tiempo de trabajo de cada cuadro (todo lo que corre dentro de requestAnimationFrame)
   window.__FT=[];const raf=window.requestAnimationFrame.bind(window);

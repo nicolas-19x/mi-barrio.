@@ -22,7 +22,10 @@ const WEAPONS={pistola:{name:'Pistola',size:6,reserve:54,cooldown:.3,reload:1.1,
 // ACTIVITY_RULES_END
 function activityState(){return{plots:[null,null,null],recycled:{},delivery:null,deliveryDay:0,penaltyDay:0,stats:{inlaw:0,harvest:0,recycle:0,delivery:0,cook:0,penalties:0},badges:{}}}
 function newState(){return{map:'casa_jugador',x:7*T+8,y:6*T+12,dir:0,t:8*60,day:1,money:5000,q:{},f:{sec:{}},inv:{},met:{},per:'',activities:activityState()}}
-function saveGame(){if(!S||!S.started)return;S.map=P.map;S.x=P.x;S.y=P.y;S.dir=P.dir;try{localStorage.setItem(KS,JSON.stringify(S))}catch(e){}}
+// Guardado manual: el juego ya no guarda solo. saveGame() solo escribe cuando SAVE_OK está prendido (lo prende «Guardar partida»,
+// ver prog/05_partidas.js) o cuando SAVE_AUTO es true (las pruebas automáticas); si no, solo marca que hay cambios sin guardar.
+var SAVE_AUTO=typeof window.__SAVE_AUTO!=='undefined'?window.__SAVE_AUTO:false,SAVE_OK=0,SAVE_DIRTY=false;
+function saveGame(){if(!S||!S.started)return;if(!SAVE_AUTO&&!SAVE_OK){SAVE_DIRTY=true;return}SAVE_DIRTY=false;S.map=P.map;S.x=P.x;S.y=P.y;S.dir=P.dir;try{localStorage.setItem(KS,JSON.stringify(S))}catch(e){}}
 function loadGame(){try{const s=JSON.parse(localStorage.getItem(KS)||'null');if(s&&s.q){const d=newState();return Object.assign(d,s,{f:Object.assign({sec:{}},s.f),activities:Object.assign(activityState(),s.activities,{stats:Object.assign(activityState().stats,s.activities?.stats),badges:Object.assign({},s.activities?.badges)})})}}catch(e){}return null}
 let OPT={sound:true,music:true,musicVol:.6};try{Object.assign(OPT,JSON.parse(localStorage.getItem(KO)||'{}'))}catch(e){}
 const saveOpt=()=>localStorage.setItem(KO,JSON.stringify(OPT));

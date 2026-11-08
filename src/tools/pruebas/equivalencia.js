@@ -33,7 +33,7 @@ const STEPS=[
 ];
 (async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:1100,height:680}});
  await ctx.route(/^https?:/,r=>r.abort());
- await ctx.addInitScript(()=>{let s=1234567;Math.random=()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+ await ctx.addInitScript(()=>{window.__SAVE_AUTO=true;let s=1234567;Math.random=()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
    try{window.AudioContext=undefined;window.webkitAudioContext=undefined}catch(e){}
   window.fetch=()=>new Promise(()=>{});XMLHttpRequest.prototype.send=function(){};const fakeReq=()=>({result:null,error:null,onsuccess:null,onerror:null,onupgradeneeded:null});try{Object.defineProperty(window,'indexedDB',{value:{open:fakeReq,deleteDatabase:fakeReq},configurable:true})}catch(e){}
   HTMLMediaElement.prototype.play=function(){return new Promise(()=>{})};HTMLMediaElement.prototype.load=function(){};

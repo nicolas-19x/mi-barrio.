@@ -13,12 +13,21 @@ function partFree(){for(let n=1;n<=PART_N;n++)if(!partGet(n))return n;return 0}
 function partMetaDe(s){if(!s)return{};let lugar='';try{const m=MAPS[s.map];lugar=m?mapLabel(m):''}catch(e){}
   return{dia:s.day||1,plata:s.money||0,hora:s.t||0,lugar,quien:(CH&&CH.player&&CH.player.name)||'',veh:(s.f&&s.f.pg&&s.f.pg.veh?s.f.pg.veh.filter(v=>!v.gone).length:0)}}
 // guardar la partida actual en una ranura (si no se dice, en la activa; si no hay activa, en la primera libre)
-function partGuardar(n,silencio){if(!S||!S.started)return false;PART_LOCK++;try{saveGame()}finally{PART_LOCK--}n=n||partAct()||partFree();if(!n){if(!silencio)toast('⚠️ No hay ranuras libres: borrá una o guardá encima de otra.');return false}
+function partGuardar(n,silencio){if(!S||!S.started)return false;PART_LOCK++;SAVE_OK++;try{saveGame()}finally{PART_LOCK--;SAVE_OK--}n=n||partAct()||partFree();if(!n){if(!silencio)toast('⚠️ No hay ranuras libres: borrá una o guardá encima de otra.');return false}
   const old=partGet(n);const nom=(old&&old.nombre)||PART_NOM_PEND||('Partida '+n);PART_NOM_PEND='';try{localStorage.setItem(PART_KEY+n,JSON.stringify({nombre:nom,s:localStorage.getItem(KS),c:localStorage.getItem(KC),meta:partMetaDe(S),t:Date.now()}));partSetAct(n)}
   catch(e){if(!silencio)toast('⚠️ No se pudo guardar: el navegador se quedó sin espacio.');return false}
   if(!silencio)toast('💾 Partida guardada en «'+nom+'»');return true}
-// el autoguardado de siempre también actualiza la ranura activa
-hookAfter('saveGame',function(){if(!S||!S.started||PART_LOCK)return;const n=partAct();if(n)partGuardar(n,true)});   // (PART_LOCK evita el bucle y que se guarde al recargar)
+// GUARDADO MANUAL: el juego ya no guarda solo. Lo que pasa después del último «Guardar partida» no cuenta: si recargás o cerrás, volvés a ese punto.
+// (saveGame() solo marca «cambios sin guardar»; ver core/07_state.js). Al empezar una vida nueva se hace un primer guardado para que exista la partida.
+hookAfter('startGame',function(fresh){if(fresh&&S&&S.started&&!PART_LOCK){const n=partAct()||partFree();if(n)partGuardar(n,true)}});
+function partBotonGuardar(){const n=partAct()||partFree();if(n&&!partGet(n))partNombre('Nombre de la partida','Partida '+n,v=>{PART_NOM_PEND=v;closePanel();partGuardar(n)},()=>closePanel());else partGuardar(0)}
+// aviso fijo mientras haya cambios sin guardar (tocarlo guarda) y pregunta del navegador al cerrar
+(function(){const d=document.createElement('button');d.id='sinGuardar';d.textContent='💾 Sin guardar · tocá para guardar';d.className='alt hidden';
+  d.style.cssText='position:fixed;left:8px;top:calc(150px + env(safe-area-inset-top));z-index:9;font-size:12px;padding:5px 9px;border-radius:12px;opacity:.9';document.body.appendChild(d);
+  d.onclick=()=>{if(mode==='play')partBotonGuardar()};
+  hookAfter('update',function(){const v=!!(S&&S.started&&SAVE_DIRTY&&mode==='play');if(v!==!d.classList.contains('hidden'))d.classList.toggle('hidden',!v)});
+  addEventListener('beforeunload',e=>{if(S&&S.started&&SAVE_DIRTY&&!PART_LOCK){e.preventDefault();e.returnValue=''}})})();
+hookAfter('startGame',function(fresh){if(!fresh)SAVE_DIRTY=false;setTimeout(()=>toast('💾 El juego no guarda solo: usá «Guardar partida» (menú) o el aviso de la esquina.'),3500)});
 // cargar una ranura: se copia a KS (y los personajes a KC) y se arranca de cero con la página recargada
 function partCargar(n){const p=partGet(n);if(!p)return;PART_LOCK=1;if(S)S.started=false;   // que nada vuelva a guardar la vida anterior antes de recargar
   try{localStorage.setItem(KS,p.s);if(p.c)localStorage.setItem(KC,p.c);else localStorage.removeItem(KC);partSetAct(n);sessionStorage.setItem(PART_BOOT,'cargar')}catch(e){PART_LOCK=0;toast('⚠️ No se pudo cargar la partida.');return}
@@ -36,7 +45,7 @@ function partNombre(titulo,def,ok,no){openPanel(titulo,`<p class="note">Por ejem
   const fin=()=>ok((i.value||'').trim().slice(0,28)||def);i.onkeydown=e=>{if(e.key==='Enter')fin()};$('#pNomOk').onclick=fin;$('#pNomNo').onclick=()=>(no||partPanel)()}
 // ---- el panel de partidas ----
 function partFecha(t){if(!t)return'';const d=new Date(t),p=v=>String(v).padStart(2,'0');return p(d.getDate())+'/'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes())}
-function partPanel(modoNueva){const act=partAct(),jugando=!!(S&&S.started);let h=modoNueva?'<p class="note">Elegí en qué ranura empezar la vida nueva. Las demás partidas no se tocan.</p>':'<p class="note">Cada ranura es una vida distinta. La partida activa se guarda sola cada rato; con «Guardar aquí» la copiás a otra ranura.</p>';
+function partPanel(modoNueva){const act=partAct(),jugando=!!(S&&S.started);let h=modoNueva?'<p class="note">Elegí en qué ranura empezar la vida nueva. Las demás partidas no se tocan.</p>':'<p class="note">Cada ranura es una vida distinta. El juego NO guarda solo: lo que hagás después de guardar no cuenta hasta que toqués «Guardar». Con «Guardar aquí» la copiás a otra ranura.</p>';
   for(let n=1;n<=PART_N;n++){const p=partGet(n),m=(p&&p.meta)||{},esAct=n===act;
     h+=`<div class="qitem"><b>${p?'📁 '+esc(p.nombre):'▫️ Ranura '+n+' (vacía)'}${esAct&&p?' · <span style="color:#7bd16b">activa</span>':''}</b>`;
     if(p)h+=`<p>${m.quien?esc(m.quien)+' · ':''}Día ${m.dia} · ${fmtC(m.plata||0)}${m.lugar?' · '+esc(m.lugar):''}${m.veh?' · '+m.veh+' vehículo'+(m.veh>1?'s':''):''}</p><p class="note">Guardada el ${partFecha(p.t)}</p>`;
@@ -58,6 +67,6 @@ function partPanel(modoNueva){const act=partAct(),jugando=!!(S&&S.started);let h
   const nv=mb.querySelector('[data-a="new"]');if(nv){nv.insertAdjacentElement('afterend',bP);mb.querySelector('#bCont').insertAdjacentElement('afterend',bG);
     nv.removeAttribute('data-a');nv.onclick=()=>{if(!(S&&S.started)&&!loadGame()){const n=partAct()||partFree();if(n){partNombre('Nombre de la nueva partida','Partida '+n,v=>{closePanel();partNueva(n,v)},()=>closePanel());return}}partPanel(true)}}
   else mb.appendChild(bP);
-  bP.onclick=()=>partPanel(false);bG.onclick=()=>{const n=partAct()||partFree();if(n&&!partGet(n))partNombre('Nombre de la partida','Partida '+n,v=>{PART_NOM_PEND=v;closePanel();partGuardar(n)},()=>closePanel());else partGuardar(0)}})();
+  bP.onclick=()=>partPanel(false);bG.onclick=()=>partBotonGuardar()})();
 hookAfter('refreshMenu',function(){const g=$('#bGuardar');if(g)g.classList.toggle('hidden',!(S&&S.started))});
 setTimeout(()=>{try{refreshMenu()}catch(e){}},0);

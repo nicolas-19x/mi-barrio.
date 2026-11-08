@@ -33,7 +33,7 @@ Léelo entero antes de tocar nada. Después, responde la **prueba de lectura** d
 
 7. **Ciudad Quesada**: parque y catedral en estilo B, **sacado del juego por ahora** y guardado en `src/guardado/quesada/` (ver su LEEME).
 
-8. **Varias partidas**: 6 ranuras, botón «Guardar partida» en pausa y panel «Partidas» en el menú (`prog/05_partidas.js`).
+8. **Varias partidas**: 6 ranuras, botón «Guardar partida» en pausa y panel «Partidas» en el menú (`prog/05_partidas.js`). **El juego ya NO guarda solo**: `saveGame()` solo marca `SAVE_DIRTY` y escribe únicamente cuando lo llama `partGuardar` (que prende `SAVE_OK`) o si `SAVE_AUTO` es true (las pruebas lo prenden con `window.__SAVE_AUTO=true`). Lo que se hace después del último guardado se pierde al recargar. Hay un aviso «Sin guardar» en la esquina (tocarlo guarda) y el navegador pregunta al cerrar con cambios; al empezar una vida nueva se hace un primer guardado.
 
 9. **Puntarenas en grande** (`prog/52_puntarenas.js` mapa, arte y mar · `53_playa_gente.js` gente · `54_mar.js` nadar, lancha y banana · `55_fiesta_playa.js` borrachera, logros y Ariana):
    - Mapa `playa` de 128×50: fachadas del puerto, Paseo de los Turistas con tránsito (`PZ.cars`: carros, taxis, buses, motos, pickups, bicis), bulevar con almendros, bancas, faroles, chinamos y letras PUNTARENAS; muro con gradas; playa larga; muelle con T y lanchas; manglar al oeste y caleta al este. La clase de cada casilla está en `PZ.k` (y el suelo sin objetos en `PZ.g`).
