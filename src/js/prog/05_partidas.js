@@ -27,7 +27,7 @@ function partBotonGuardar(){const n=partAct()||partFree();if(n&&!partGet(n))part
   d.onclick=()=>{if(mode==='play')partBotonGuardar()};
   hookAfter('update',function(){const v=!!(S&&S.started&&SAVE_DIRTY&&mode==='play');if(v!==!d.classList.contains('hidden'))d.classList.toggle('hidden',!v)});
   addEventListener('beforeunload',e=>{if(S&&S.started&&SAVE_DIRTY&&!PART_LOCK){e.preventDefault();e.returnValue=''}})})();
-hookAfter('startGame',function(fresh){if(!fresh)SAVE_DIRTY=false;setTimeout(()=>toast('💾 El juego no guarda solo: usá «Guardar partida» (menú) o el aviso de la esquina.'),3500)});
+hookAfter('startGame',function(fresh){if(!fresh)SAVE_DIRTY=false;setTimeout(()=>toast(window.__SIN_ALMACEN?'⚠️ Este navegador no deja guardar: la partida se pierde al cerrar. Abrí el HTML en tu navegador para guardar de verdad.':'💾 El juego no guarda solo: usá «Guardar partida» (menú) o el aviso de la esquina.'),3500)});
 // cargar una ranura: se copia a KS (y los personajes a KC) y se arranca de cero con la página recargada
 function partCargar(n){const p=partGet(n);if(!p)return;PART_LOCK=1;if(S)S.started=false;   // que nada vuelva a guardar la vida anterior antes de recargar
   try{localStorage.setItem(KS,p.s);if(p.c)localStorage.setItem(KC,p.c);else localStorage.removeItem(KC);partSetAct(n);sessionStorage.setItem(PART_BOOT,'cargar')}catch(e){PART_LOCK=0;toast('⚠️ No se pudo cargar la partida.');return}

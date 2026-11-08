@@ -600,8 +600,12 @@ body.ui-sport #toast{top:auto;bottom:calc(150px + env(safe-area-inset-bottom));z
 <div id="trip" class="hidden"><canvas id="tcan" width="320" height="180"></canvas><div class="tcap"><b id="ttitle">La Chancha</b><span id="ttime"></span><div class="tbar"><i id="tprog"></i></div></div><div id="tev" class="hidden"><p id="tevt"></p><div id="tevb"></div></div><div class="tbtns"><button id="tSkip" class="alt" onclick="skipTrip()">⏩ Llegar</button></div></div>
 <div id="toast"></div>
 <div id="fade"></div>
-<script>
-'use strict';
+<script>'use strict';
+// Si el navegador no deja usar el almacenamiento (vista previa de Claude, iframes con sandbox, modo privado estricto),
+// se usa uno en memoria: el juego corre igual, pero no se guarda al cerrar la página.
+(function(){function probar(n){try{const s=window[n];s.setItem('__t','1');s.removeItem('__t');return true}catch(e){return false}}
+  for(const n of['localStorage','sessionStorage'])if(!probar(n)){const m={};const f={getItem:k=>Object.prototype.hasOwnProperty.call(m,k)?m[k]:null,setItem:(k,v)=>{m[k]=String(v)},removeItem:k=>{delete m[k]},clear:()=>{for(const k in m)delete m[k]},key:i=>Object.keys(m)[i]||null,get length(){return Object.keys(m).length}};
+    try{Object.defineProperty(window,n,{value:f,configurable:true})}catch(e){window[n]=f}window.__SIN_ALMACEN=true}})();
 // ================= BASICS =================
 const T=16;
 const $=s=>document.querySelector(s);
@@ -7054,7 +7058,7 @@ function partBotonGuardar(){const n=partAct()||partFree();if(n&&!partGet(n))part
   d.onclick=()=>{if(mode==='play')partBotonGuardar()};
   hookAfter('update',function(){const v=!!(S&&S.started&&SAVE_DIRTY&&mode==='play');if(v!==!d.classList.contains('hidden'))d.classList.toggle('hidden',!v)});
   addEventListener('beforeunload',e=>{if(S&&S.started&&SAVE_DIRTY&&!PART_LOCK){e.preventDefault();e.returnValue=''}})})();
-hookAfter('startGame',function(fresh){if(!fresh)SAVE_DIRTY=false;setTimeout(()=>toast('💾 El juego no guarda solo: usá «Guardar partida» (menú) o el aviso de la esquina.'),3500)});
+hookAfter('startGame',function(fresh){if(!fresh)SAVE_DIRTY=false;setTimeout(()=>toast(window.__SIN_ALMACEN?'⚠️ Este navegador no deja guardar: la partida se pierde al cerrar. Abrí el HTML en tu navegador para guardar de verdad.':'💾 El juego no guarda solo: usá «Guardar partida» (menú) o el aviso de la esquina.'),3500)});
 // cargar una ranura: se copia a KS (y los personajes a KC) y se arranca de cero con la página recargada
 function partCargar(n){const p=partGet(n);if(!p)return;PART_LOCK=1;if(S)S.started=false;   // que nada vuelva a guardar la vida anterior antes de recargar
   try{localStorage.setItem(KS,p.s);if(p.c)localStorage.setItem(KC,p.c);else localStorage.removeItem(KC);partSetAct(n);sessionStorage.setItem(PART_BOOT,'cargar')}catch(e){PART_LOCK=0;toast('⚠️ No se pudo cargar la partida.');return}
